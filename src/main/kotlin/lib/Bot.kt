@@ -17,12 +17,15 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import lib.misc.fromJson
 import lib.misc.toJson
 import lib.misc.toJsonTree
-import lib.model.User
+import lib.model.*
 import lib.rest.model.BotGateway
+import lib.rest.model.GatewayOpcode.*
 import lib.rest.model.GatewayPayload
-import lib.rest.model.events.Heartbeat
 import lib.rest.model.events.SendEvent
+import lib.rest.model.events.receiveEvents.*
+import lib.rest.model.events.receiveEvents.DispatchEvent.*
 import lib.rest.model.events.sendEvents.ConnectionProperties
+import lib.rest.model.events.sendEvents.Heartbeat
 import lib.rest.model.events.sendEvents.Identify
 
 @ExperimentalCoroutinesApi
@@ -37,7 +40,14 @@ class Bot internal constructor(private val token: String) {
     lateinit var sendWebsocket: suspend (String) -> Unit
 
     var heartbeatJob: Job? = null
-    var sequenceNum: Int? = null
+    var sequenceNumber: Int? = null
+
+    var botUser: User? = null
+    var sessionId: String? = null
+
+    private val guilds: MutableMap<Snowflake, Guild> = hashMapOf()
+    private val channels: MutableMap<Snowflake, Channel> = hashMapOf()
+    private val messages: MutableMap<Snowflake, Message> = hashMapOf()
 
     init {
         runBlocking {
@@ -56,9 +66,7 @@ class Bot internal constructor(private val token: String) {
                         break
                     }
 
-                    val payload: GatewayPayload = (message as Frame.Text).readText().fromJson()
-
-                    receive(payload)
+                    receive((message as Frame.Text).readText().fromJson())
                 }
             }
         }
@@ -67,49 +75,133 @@ class Bot internal constructor(private val token: String) {
     }
 
     private suspend fun receive(payload: GatewayPayload) {
-//        when (payload.opcode) {
-        when (payload.op) {
-            10 -> {
-                initializeConnection(payload)
+        when (payload.opcode) {
+            Hello -> initializeConnection(payload)
+            Dispatch -> processDispatch(payload)
+            Heartbeat, HeartbeatAck -> {
+                // nothing to do on heartbeat
             }
-            0 -> {
-                sequenceNum = payload.sequenceNumber
-                println("dispatch: $payload")
+            Reconnect -> {
+                TODO("implement Reconnect")
             }
-            1 -> {
-//                sendGateway(GatewayOpcode.HeartbeatAck)
-            }
-            11 -> {
-                // nothing to do afaik
+            InvalidSession -> {
+                TODO("implement InvalidSession")
             }
             else -> {
-                TODO("${payload.op} not yet implemented")
+                throw IllegalStateException("${payload.opcode} should not be received")
+            }
+        }
+    }
+
+    private fun processDispatch(payload: GatewayPayload) {
+        sequenceNumber = payload.sequenceNumber
+
+        // Not null since these are sent in dispatches
+        val data = payload.eventData!!
+
+        val name = payload.eventName!!
+
+        when (val event = DispatchEvent.values().first { it.eventName == name }) {
+            Ready -> {
+                val ready: ReadyEvent = data.fromJson()
+                botUser = ready.user
+                sessionId = ready.sessionId
+
+                println("${botUser!!.username} is ready!")
+            }
+            ChannelCreate -> {
+                val channel: Channel = data.fromJson()
+                channels += channel.id to channel
+            }
+            ChannelUpdate -> {
+                val channel: Channel = data.fromJson()
+                channels[channel.id] = channel
+            }
+            ChannelDelete -> {
+                val channel: Channel = data.fromJson()
+                channels -= channel.id
+            }
+            ChannelPinsUpdate -> {
+                val pinInfo: PinsUpdate = data.fromJson()
+                // do something presumably
+            }
+            GuildCreate -> {
+                val guild: Guild = data.fromJson()
+                guilds += guild.id to guild
+            }
+            GuildUpdate -> {
+                val guild: Guild = data.fromJson()
+                guilds[guild.id] = guild
+            }
+            GuildDelete -> {
+                val guild: Guild = data.fromJson()
+                guilds -= guild.id
+            }
+            GuildBanAdd -> {
+                val banChangeInfo: GuildBanUpdate = data.fromJson()
+                // do something presumably
+            }
+            GuildBanRemove -> {
+                val banChangeInfo: GuildBanUpdate = data.fromJson()
+                // do something presumably
+            }
+            GuildEmojisUpdate -> {
+                val emojisEvent: GuildEmojisEvent = data.fromJson()
+                // do something presumably
+            }
+            MessageCreate -> {
+                val message: Message = data.fromJson()
+                messages += message.id to message
+            }
+            MessageUpdate -> {
+                val message: Message = data.fromJson()
+                messages[message.id] = message
+            }
+            MessageDelete -> {
+                val deleteInfo: MessageDeleteEvent = data.fromJson()
+                messages -= deleteInfo.id
+            }
+            MessageDeleteBulk -> {
+                val deleteInfo: MessageDeleteBulkEvent = data.fromJson()
+                for (id in deleteInfo.ids) {
+                    messages -= id
+                }
+            }
+            MessageReactionAdd -> {
+                val reactionUpdate: MessageReactionUpdate = data.fromJson()
+            }
+            MessageReactionRemove -> {
+                val reactionUpdate: MessageReactionUpdate = data.fromJson()
+            }
+            MessageReactionRemoveAll -> {
+                val reactionUpdate: MessageReactionRemoveAllEvent = data.fromJson()
+            }
+            TypingStart -> {
+
+            }
+            else -> {
+                println("$event is unhandled")
             }
         }
     }
 
     private suspend fun initializeConnection(payload: GatewayPayload) {
-        val identify = Identify(token, ConnectionProperties())
-        sendGateway(identify)
-//        sendGateway(GatewayOpcode.Identify, identify.toJsonTree())
+        sendGateway(Identify(token, ConnectionProperties()))
 
         heartbeatJob?.cancel()
         heartbeatJob = CoroutineScope(Dispatchers.Default).launch {
             while (isActive) {
-                sequenceNum?.let {
+                sequenceNumber?.let {
                     sendGateway(Heartbeat(it))
                     delay(payload.eventData!!.asJsonObject["heartbeat_interval"].asLong)
                 }
-//                if (sequenceNum != null) {
-//                    sendGateway(GatewayOpcode.Heartbeat, JsonPrimitive(sequenceNum))
-//                }
             }
         }
     }
 
     private suspend fun sendGateway(payload: SendEvent) {
-        println("sending ${payload.opcode}")
-        val message = GatewayPayload(payload.opcode, payload.toJsonTree(), sequenceNum, "")
+//        println("sending ${payload.opcode}")
+        val message = GatewayPayload(payload.opcode.code, payload.toJsonTree(), sequenceNumber)
         sendWebsocket(message.toJson())
     }
 
