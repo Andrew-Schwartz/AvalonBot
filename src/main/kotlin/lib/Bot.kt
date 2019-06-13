@@ -1,9 +1,6 @@
 package lib
 
 import avalonBot.api
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.websocket.WebSockets
@@ -20,16 +17,18 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import lib.misc.fromJson
 import lib.misc.toJson
 import lib.misc.toJsonTree
-import lib.model.Guild
 import lib.model.User
-import lib.rest.model.*
+import lib.rest.model.BotGateway
+import lib.rest.model.GatewayPayload
+import lib.rest.model.events.Heartbeat
+import lib.rest.model.events.SendEvent
+import lib.rest.model.events.sendEvents.ConnectionProperties
+import lib.rest.model.events.sendEvents.Identify
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 class Bot internal constructor(private val token: String) {
-    companion object {
-        private val authHeader = "Authorization" to "Bot ${avalonBot.token}"
-    }
+    private val authHeader = "Authorization" to "Bot $token"
 
     private val client = HttpClient(CIO).config {
         install(WebSockets)
@@ -42,7 +41,7 @@ class Bot internal constructor(private val token: String) {
 
     init {
         runBlocking {
-            client.wss(host = getGatewayUrl(), port = 443) {
+            client.wss(host = getGateway(), port = 443) {
                 sendWebsocket = { send(it) }
 
                 launch {
@@ -60,17 +59,6 @@ class Bot internal constructor(private val token: String) {
                     val payload: GatewayPayload = (message as Frame.Text).readText().fromJson()
 
                     receive(payload)
-
-//                    when (message) {
-//                        is Frame.Text -> {
-//                            val payload: GatewayPayload = message.readText().fromJson()
-//
-//                            receive(payload)
-//                        }
-//                        is Frame.Close -> {
-//                            println("Frame Closing")
-//                        }
-//                    }
                 }
             }
         }
@@ -79,46 +67,49 @@ class Bot internal constructor(private val token: String) {
     }
 
     private suspend fun receive(payload: GatewayPayload) {
-        when (payload.opcode) {
-            GatewayOpcode.Hello -> {
-                val identify = Identify(avalonBot.token, ConnectionProperties())
-                sendGateway(GatewayOpcode.Identify, identify)
-
-                heartbeatJob?.cancel()
-                heartbeatJob = CoroutineScope(Dispatchers.Default).launch {
-                    while (isActive) {
-                        if (sequenceNum != null) {
-                            sendGateway(GatewayOpcode.Heartbeat, JsonPrimitive(sequenceNum))
-                            delay(payload.eventData!!.asJsonObject["heartbeat_interval"].asLong)
-                        }
-                    }
-                }
+//        when (payload.opcode) {
+        when (payload.op) {
+            10 -> {
+                initializeConnection(payload)
             }
-            GatewayOpcode.Heartbeat -> {
-                sendGateway(GatewayOpcode.HeartbeatAck)
-            }
-            GatewayOpcode.Dispatch -> {
+            0 -> {
                 sequenceNum = payload.sequenceNumber
-                println("dispatch payload is $payload")
+                println("dispatch: $payload")
             }
-            GatewayOpcode.HeartbeatAck -> {
+            1 -> {
+//                sendGateway(GatewayOpcode.HeartbeatAck)
+            }
+            11 -> {
                 // nothing to do afaik
             }
             else -> {
-                TODO("${payload.opcode} not yet implemented")
+                TODO("${payload.op} not yet implemented")
             }
         }
     }
 
-    private suspend fun sendGateway(opcode: GatewayOpcode, payload: JsonElement? = null) {
-        println("sending $opcode")
-        val message = GatewayPayload(opcode, payload, sequenceNum, "")
-        sendWebsocket(message.toJson())
+    private suspend fun initializeConnection(payload: GatewayPayload) {
+        val identify = Identify(token, ConnectionProperties())
+        sendGateway(identify)
+//        sendGateway(GatewayOpcode.Identify, identify.toJsonTree())
+
+        heartbeatJob?.cancel()
+        heartbeatJob = CoroutineScope(Dispatchers.Default).launch {
+            while (isActive) {
+                sequenceNum?.let {
+                    sendGateway(Heartbeat(it))
+                    delay(payload.eventData!!.asJsonObject["heartbeat_interval"].asLong)
+                }
+//                if (sequenceNum != null) {
+//                    sendGateway(GatewayOpcode.Heartbeat, JsonPrimitive(sequenceNum))
+//                }
+            }
+        }
     }
 
-    private suspend inline fun <reified T> sendGateway(opcode: GatewayOpcode, payload: T? = null) {
-        println("sending $opcode")
-        val message = GatewayPayload(opcode, payload.toJsonTree(), sequenceNum, "")
+    private suspend fun sendGateway(payload: SendEvent) {
+        println("sending ${payload.opcode}")
+        val message = GatewayPayload(payload.opcode, payload.toJsonTree(), sequenceNum, "")
         sendWebsocket(message.toJson())
     }
 
@@ -128,20 +119,10 @@ class Bot internal constructor(private val token: String) {
     }
 
     @KtorExperimentalAPI
-    suspend fun User.guilds(): Array<Guild> {
-        val response = getRequest("/users/@me/guilds").fromJson<JsonArray>()
-
-        return response.fromJson()
-    }
-
-    @KtorExperimentalAPI
     suspend fun getUser(id: String = "@me"): User = getRequest("/users/$id").fromJson()
 
     @KtorExperimentalAPI
-    suspend fun getGateway(): BotGateway = getRequest("/gateway/bot").fromJson()
-
-    @KtorExperimentalAPI
-    suspend fun getGatewayUrl(): String = getGateway().url.removePrefix("wss://")
+    suspend fun getGateway(): String = getRequest("/gateway/bot").fromJson<BotGateway>().url.removePrefix("wss://")
 }
 
 @KtorExperimentalAPI

@@ -1,7 +1,8 @@
-package lib.rest.model
+package lib.rest.model.events.sendEvents
 
 import com.google.gson.annotations.SerializedName
 import lib.model.Activity
+import lib.rest.model.events.SendEvent
 
 @Suppress("ArrayInDataClass")
 data class Identify(
@@ -11,7 +12,10 @@ data class Identify(
         val compress: Boolean = false,
         val shard: Array<Int>? = arrayOf(0, 1),
         val presence: GatewayStatus? = null
-)
+) : SendEvent {
+    override val opcode: Int
+        get() = 2
+}
 
 data class ConnectionProperties(
         val `$os`: String = "windows",

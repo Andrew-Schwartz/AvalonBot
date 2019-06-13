@@ -20,8 +20,8 @@ val ktorVersion = "1.2.1"
 @Suppress("SpellCheckingInspection")
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("com.jessecorbett:diskord:1.4.0")
-    implementation("com.jessecorbett:diskord-jvm:1.4.0")
+//    implementation("com.jessecorbett:diskord:1.4.0")
+//    implementation("com.jessecorbett:diskord-jvm:1.4.0")
 
     compile("io.ktor:ktor-client:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")

@@ -2,19 +2,18 @@ package avalonBot
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import lib.bot
 import java.io.File
 
-val token = File("src/main/resources/token.txt").readText()
-val commandPrefix = File("src/main/resources/prefix.txt").readText()
-val steadfastId = File("src/main/resources/id.txt").readText()
+val config = File("src/main/resources/config.txt").readLines()
 
 const val api = "https://discordapp.com/api"
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun main() = runBlocking {
+fun main() {
+    val (token, prefix, myId) = config
+
     bot(token) {
         //bot stuff here
     }

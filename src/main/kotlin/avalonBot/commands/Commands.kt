@@ -1,7 +1,6 @@
 package avalonBot.commands
 
-import com.jessecorbett.diskord.api.model.Message
-import com.jessecorbett.diskord.util.EnhancedEventListener
+import lib.model.Message
 
 val commands: ArrayList<Command> = ArrayList()
 
@@ -12,5 +11,5 @@ interface Command {
 
     val usage: String
 
-    val execute: EnhancedEventListener.(Message) -> Unit
+    val execute: (Message) -> Unit
 }
