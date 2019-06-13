@@ -179,6 +179,10 @@ class Bot internal constructor(private val token: String) {
             TypingStart -> {
 
             }
+            UserUpdate -> {
+                val user: User = data.fromJson()
+//                users[user.id] = user
+            }
             else -> {
                 println("$event is unhandled")
             }
