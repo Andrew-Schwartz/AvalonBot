@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import lib.model.Embed
 import lib.model.Snowflake
 
+// TODO builders for all of these
 data class CreateMessage(
         val content: String = "",
         val nonce: Snowflake? = null,

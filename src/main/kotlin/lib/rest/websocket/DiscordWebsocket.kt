@@ -7,7 +7,8 @@ import io.ktor.http.cio.websocket.send
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import lib.Bot
+import lib.dsl.Bot
+import lib.dsl.guildCreateEvents
 import lib.dsl.messageCreateEvents
 import lib.dsl.readyEvents
 import lib.misc.fromJson
@@ -18,7 +19,7 @@ import lib.model.Guild
 import lib.model.Message
 import lib.model.User
 import lib.rest.client
-import lib.rest.http.getGateway
+import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
 import lib.rest.model.GatewayPayload
 import lib.rest.model.events.receiveEvents.*
@@ -36,7 +37,7 @@ class DiscordWebsocket(val bot: Bot) {
     var sequenceNumber: Int? = null
 
     suspend fun run() {
-        client.wss(host = bot.getGateway(), port = 443) {
+        client.wss(host = bot.gateway(), port = 443) {
             sendWebsocket = { send(it) }
 
             launch {
@@ -47,7 +48,7 @@ class DiscordWebsocket(val bot: Bot) {
                 val message = try {
                     incoming.receive()
                 } catch (e: ClosedReceiveChannelException) {
-                    println("WSS channel closed: ${e.message}")
+                    println("WSS getChannel closed: ${e.message}")
                     break
                 }
 
@@ -99,7 +100,7 @@ class DiscordWebsocket(val bot: Bot) {
                 bot.user = readyEvent.user
                 bot.sessionId = readyEvent.sessionId
 
-                readyEvents.forEach { it(readyEvent) }
+                for (action in readyEvents) action(readyEvent)
             }
             DispatchEvent.ChannelCreate -> {
                 val channel: Channel = data.fromJson()
@@ -119,6 +120,7 @@ class DiscordWebsocket(val bot: Bot) {
             }
             DispatchEvent.GuildCreate -> {
                 val guild: Guild = data.fromJson()
+                for (action in guildCreateEvents) action(guild)
                 bot.guilds += guild.id to guild
             }
             DispatchEvent.GuildUpdate -> {
@@ -143,7 +145,7 @@ class DiscordWebsocket(val bot: Bot) {
             }
             DispatchEvent.MessageCreate -> {
                 val message: Message = data.fromJson()
-                messageCreateEvents.forEach { it(message) }
+                for (action in messageCreateEvents) action(message)
                 bot.messages += message.id to message
             }
             DispatchEvent.MessageUpdate -> {
@@ -174,7 +176,7 @@ class DiscordWebsocket(val bot: Bot) {
             }
             DispatchEvent.UserUpdate -> {
                 val user: User = data.fromJson()
-//                users[user.id] = user
+//                users[getUser.id] = getUser
             }
             else -> {
                 println("$event is unhandled")

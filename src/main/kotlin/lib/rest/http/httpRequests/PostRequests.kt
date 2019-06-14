@@ -1,6 +1,5 @@
-package lib.rest.http
+package lib.rest.http.httpRequests
 
-import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.response.HttpResponse
@@ -8,42 +7,20 @@ import io.ktor.content.TextContent
 import io.ktor.http.ContentType.Application
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.Bot
+import lib.dsl.Bot
 import lib.misc.fromJson
 import lib.misc.toJson
 import lib.model.Channel
 import lib.model.Message
-import lib.model.User
 import lib.rest.api
 import lib.rest.authHeaders
 import lib.rest.client
-import lib.rest.model.BotGateway
-
-@ExperimentalCoroutinesApi
-@KtorExperimentalAPI
-suspend fun Bot.getRequest(url: String): HttpResponse {
-    return client.get(api + url) {
-        authHeaders(token).forEach { (key, value) ->
-            header(key, value)
-        }
-    }
-}
-
-@ExperimentalCoroutinesApi
-@KtorExperimentalAPI
-suspend fun Bot.getUser(id: String = "@me"): User {
-    return getRequest("/users/$id").fromJson()
-}
-
-@ExperimentalCoroutinesApi
-@KtorExperimentalAPI
-suspend fun Bot.getGateway(): String {
-    return getRequest("/gateway/bot").fromJson<BotGateway>().url.removePrefix("wss://")
-}
+import lib.rest.http.CreateDM
+import lib.rest.http.CreateMessage
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse {
+private suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse {
     return client.post(api + url) {
         authHeaders(token).forEach { (key, value) ->
             header(key, value)

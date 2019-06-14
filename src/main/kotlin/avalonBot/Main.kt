@@ -4,10 +4,10 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import lib.dsl.bot
-import lib.dsl.onMessage
+import lib.dsl.onGuildCreate
+import lib.dsl.onMessageCreate
 import lib.dsl.onReady
 import lib.misc.fromJson
-import lib.rest.http.getUser
 import java.io.File
 
 val config: ConfigJson = File("src/main/resources/config.json").readText().fromJson()
@@ -19,10 +19,25 @@ fun main() = runBlocking {
 
     bot(token) {
         onReady {
-            bot.getUser(sfId.value).sendDM("${user.username} is logged on")
+            println("${user.username} is logged on")
+//            getUser(sfId).sendDM("${getUser.username} is logged on")
+
         }
-        onMessage(prefix = "${prefix}test") {
-            author.sendDM("Test DM")
+        onMessageCreate(prefix = prefix) {
+            println(channelId)
+        }
+        onGuildCreate {
+            channels
+                    ?.filter { it.type }
+                    ?.forEach { channel ->
+                        println("${channel.name} ${channel.id}")
+//                channel.lastMessageId?.let {
+//                    val lastMessage = getMessage(channel.id, it)
+//                    val messages = getMessages(GetChannelMessages.before(channel.id, lastMessage.id))
+//                    for (message in messages)
+//                        println(message.content)
+//                }
+                    }
         }
     }
 }
