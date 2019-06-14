@@ -3,7 +3,6 @@ package lib.rest.model.events.sendEvents
 import com.google.gson.annotations.SerializedName
 import lib.model.Activity
 import lib.rest.model.GatewayOpcode
-import lib.rest.model.events.SendEvent
 
 @Suppress("ArrayInDataClass")
 data class Identify(

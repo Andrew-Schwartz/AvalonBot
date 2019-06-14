@@ -7,7 +7,7 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
 
 val gson: Gson = GsonBuilder().run {
-    serializeNulls()
+    //    serializeNulls()
     create()
 }
 

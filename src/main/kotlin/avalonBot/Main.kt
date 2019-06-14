@@ -2,31 +2,27 @@ package avalonBot
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.bot
+import kotlinx.coroutines.runBlocking
+import lib.dsl.bot
+import lib.dsl.onMessage
+import lib.dsl.onReady
+import lib.misc.fromJson
+import lib.rest.http.getUser
 import java.io.File
 
-val config = File("src/main/resources/config.txt").readLines()
-
-const val api = "https://discordapp.com/api"
+val config: ConfigJson = File("src/main/resources/config.json").readText().fromJson()
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun main() {
-    val (token, prefix, myId) = config
+fun main() = runBlocking {
+    val (token, prefix, sfId) = config
 
     bot(token) {
-        //bot stuff here
-    }
-}
-
-/*
-suspend fun test() {
-    bot(token) {
-        commands(prefix = "!") {
-            command("hi") {
-                reply("yo")
-            }
+        onReady {
+            bot.getUser(sfId.value).sendDM("${user.username} is logged on")
+        }
+        onMessage(prefix = "${prefix}test") {
+            author.sendDM("Test DM")
         }
     }
 }
-*/

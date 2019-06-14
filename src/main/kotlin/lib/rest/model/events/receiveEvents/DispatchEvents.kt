@@ -1,46 +1,47 @@
 package lib.rest.model.events.receiveEvents
 
 import com.google.gson.annotations.SerializedName
+import lib.dsl.DiscordDsl
 import lib.model.*
-import kotlin.reflect.KClass
 
-enum class DispatchEvent(val eventName: String, val jsonClass: KClass<*>) {
-    Ready("READY", ReadyEvent::class),
-    ChannelCreate("CHANNEL_CREATE", Channel::class),
-    ChannelUpdate("CHANNEL_UPDATE", Channel::class),
-    ChannelDelete("CHANNEL_DELETE", Channel::class),
-    ChannelPinsUpdate("CHANNEL_PINS_UPDATE", PinsUpdate::class),
-    GuildCreate("GUILD_CREATE", Guild::class),
-    GuildUpdate("GUILD_UPDATE", Guild::class),
-    GuildDelete("GUILD_DELETE", Guild::class),
-    GuildBanAdd("GUILD_BAN_ADD", GuildBanUpdate::class),
-    GuildBanRemove("GUILD_BAN_REMOVE", GuildBanUpdate::class),
-    GuildEmojisUpdate("GUILD_EMOJIS_UPDATE", GuildEmojisEvent::class),
-    GuildIntegrationsUpdate("GUILD_INTEGRATIONS_UPDATE", IntegrationsUpdate::class),
-    GuildMemberAdd("GUILD_MEMBER_ADD", GuildMember::class),
-    GuildMemberRemove("GUILD_MEMBER_REMOVE", GuildMemberRemoveEvent::class),
-    GuildMemberUpdate("GUILD_MEMBER_UPDATE", GuildMemberUpdateEvent::class),
-    GuildMembersChunk("GUILD_MEMBERS_CHUNK", GuildMembersChunkEvent::class),
-    GuildRoleCreate("GUILD_ROLE_CREATE", GuildRoleUpdateEvent::class),
-    GuildRoleUpdate("GUILD_ROLE_UPDATE", GuildRoleUpdateEvent::class),
-    GuildRoleDelete("GUILD_ROLE_DELETE", GuildRoleDeleteEvent::class),
-    MessageCreate("MESSAGE_CREATE", Message::class),
-    MessageUpdate("MESSAGE_UPDATE", Message::class),
-    MessageDelete("MESSAGE_DELETE", MessageDeleteEvent::class),
-    MessageDeleteBulk("MESSAGE_DELETE_BULK", MessageDeleteBulkEvent::class),
-    MessageReactionAdd("MESSAGE_REACTION_ADD", MessageReactionUpdate::class),
-    MessageReactionRemove("MESSAGE_REACTION_REMOVE", MessageReactionUpdate::class),
-    MessageReactionRemoveAll("MESSAGE_REACTION_REMOVE_ALL", MessageReactionRemoveAllEvent::class),
-    PresenceUpdate("PRESENCE_UPDATE", PresenceUpdateEvent::class),
-    PresencesReplace("PRESENCES_REPLACE", PresenceUpdateEvent::class),
-    TypingStart("TYPING_START", TypingStartEvent::class),
-    UserUpdate("USER_UPDATE", User::class),
-    VoiceStateUpdate("VOICE_STATE_UPDATE", VoiceState::class),
-    VoiceServerUpdate("VOICE_SERVER_UPDATE", VoiceServerUpdateEvent::class),
-    WebhooksUpdate("WEBHOOKS_UPDATE", WebhookUpdateEvent::class)
+enum class DispatchEvent(val eventName: String) {
+    Ready("READY"),
+    ChannelCreate("CHANNEL_CREATE"),
+    ChannelUpdate("CHANNEL_UPDATE"),
+    ChannelDelete("CHANNEL_DELETE"),
+    ChannelPinsUpdate("CHANNEL_PINS_UPDATE"),
+    GuildCreate("GUILD_CREATE"),
+    GuildUpdate("GUILD_UPDATE"),
+    GuildDelete("GUILD_DELETE"),
+    GuildBanAdd("GUILD_BAN_ADD"),
+    GuildBanRemove("GUILD_BAN_REMOVE"),
+    GuildEmojisUpdate("GUILD_EMOJIS_UPDATE"),
+    GuildIntegrationsUpdate("GUILD_INTEGRATIONS_UPDATE"),
+    GuildMemberAdd("GUILD_MEMBER_ADD"),
+    GuildMemberRemove("GUILD_MEMBER_REMOVE"),
+    GuildMemberUpdate("GUILD_MEMBER_UPDATE"),
+    GuildMembersChunk("GUILD_MEMBERS_CHUNK"),
+    GuildRoleCreate("GUILD_ROLE_CREATE"),
+    GuildRoleUpdate("GUILD_ROLE_UPDATE"),
+    GuildRoleDelete("GUILD_ROLE_DELETE"),
+    MessageCreate("MESSAGE_CREATE"),
+    MessageUpdate("MESSAGE_UPDATE"),
+    MessageDelete("MESSAGE_DELETE"),
+    MessageDeleteBulk("MESSAGE_DELETE_BULK"),
+    MessageReactionAdd("MESSAGE_REACTION_ADD"),
+    MessageReactionRemove("MESSAGE_REACTION_REMOVE"),
+    MessageReactionRemoveAll("MESSAGE_REACTION_REMOVE_ALL"),
+    PresenceUpdate("PRESENCE_UPDATE"),
+    PresencesReplace("PRESENCES_REPLACE"),
+    TypingStart("TYPING_START"),
+    UserUpdate("USER_UPDATE"),
+    VoiceStateUpdate("VOICE_STATE_UPDATE"),
+    VoiceServerUpdate("VOICE_SERVER_UPDATE"),
+    WebhooksUpdate("WEBHOOKS_UPDATE")
 }
 
 @Suppress("ArrayInDataClass")
+@DiscordDsl
 data class ReadyEvent(
         val v: Int,
         val user: User,

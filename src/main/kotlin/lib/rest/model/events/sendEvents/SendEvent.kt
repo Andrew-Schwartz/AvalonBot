@@ -1,4 +1,4 @@
-package lib.rest.model.events
+package lib.rest.model.events.sendEvents
 
 import lib.rest.model.GatewayOpcode
 

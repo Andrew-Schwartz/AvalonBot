@@ -1,8 +1,10 @@
 package lib.model
 
 import com.google.gson.annotations.SerializedName
+import lib.dsl.DiscordDsl
 
 @Suppress("ArrayInDataClass")
+@DiscordDsl
 data class Message(
         val id: Snowflake,
         @SerializedName("channel_id") val channelId: Snowflake,

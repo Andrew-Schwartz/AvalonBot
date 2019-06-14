@@ -10,7 +10,8 @@ data class GuildMember(
         @SerializedName("joined_at") val joinedAt: Timestamp,
         @SerializedName("premium_since") val premiumSince: Timestamp?,
         val deaf: Boolean,
-        val mute: Boolean
+        val mute: Boolean,
+        @SerializedName("guild_id") val guildId: Snowflake? // for GuildMemberAdd
 ) {
     val roles: Array<Snowflake>
         get() = _roles.map { Snowflake(it) }.toTypedArray()
