@@ -26,16 +26,16 @@ class Bot internal constructor(val token: String) {
         getChannel(channelId).sendMessage(content)
     }
 
-    suspend fun Message.reply(embed: Embed) {
-        getChannel(channelId).sendMessage(embed)
+    suspend fun Message.reply(embed: suspend RichEmbed.() -> Unit) {
+        getChannel(channelId).sendMessage(embed.build())
     }
 
     suspend fun User.sendDM(content: String) {
         createDM(CreateDM(id.value)).sendMessage(content)
     }
 
-    suspend fun User.sendDM(embed: Embed) {
-        createDM(CreateDM(id.value)).sendMessage(embed)
+    suspend fun User.sendDM(embed: suspend RichEmbed.() -> Unit) {
+        createDM(CreateDM(id.value)).sendMessage(embed.build())
     }
 
     suspend fun Channel.sendMessage(content: String) {

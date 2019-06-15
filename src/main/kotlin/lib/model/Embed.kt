@@ -53,8 +53,8 @@ data class EmbedProvider(
 data class EmbedAuthor(
         val name: String?,
         val url: String?,
-        @SerializedName("icon_url") val iconUrl: String,
-        @SerializedName("proxy_icon_url") val proxyIconUrl: String
+        @SerializedName("icon_url") val iconUrl: String?,
+        @SerializedName("proxy_icon_url") val proxyIconUrl: String?
 )
 
 data class EmbedField(
