@@ -19,7 +19,7 @@ val messageCreateEvents: ArrayList<Action<Message>> = arrayListOf()
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun Bot.onMessageCreate(prefix: String, triggerOnBots: Boolean = false, λ: suspend Message.() -> Unit) {
+fun Bot.onMessageCreate(prefix: String = "", triggerOnBots: Boolean = false, λ: suspend Message.() -> Unit) {
     messageCreateEvents += {
         if (content.startsWith(prefix) && (triggerOnBots || author.bot != true))
             λ()

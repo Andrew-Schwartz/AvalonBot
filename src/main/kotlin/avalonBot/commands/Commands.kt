@@ -1,8 +1,14 @@
 package avalonBot.commands
 
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.Bot
 import lib.model.Message
 
-val commands: ArrayList<Command> = ArrayList()
+val commands: ArrayList<Command> = arrayListOf(
+        HelpCommand,
+        StartCommand
+)
 
 interface Command {
     val name: String
@@ -11,5 +17,7 @@ interface Command {
 
     val usage: String
 
-    val execute: (Message) -> Unit
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    val execute: suspend Bot.(Message, args: List<String>) -> Unit
 }

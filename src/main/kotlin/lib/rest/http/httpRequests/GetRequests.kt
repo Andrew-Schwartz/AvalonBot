@@ -7,7 +7,10 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.misc.fromJson
-import lib.model.*
+import lib.model.Channel
+import lib.model.Message
+import lib.model.Snowflake
+import lib.model.User
 import lib.rest.api
 import lib.rest.authHeaders
 import lib.rest.client
@@ -26,26 +29,28 @@ private suspend fun Bot.getRequest(url: String): HttpResponse {
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-suspend fun Bot.getUser(id: Snowflake = "@me".snowflake()): User {
-    return getRequest("/users/$id").fromJson()
+suspend fun Bot.getUser(id: Snowflake): User {
+    return users.getOrPut(id) { getRequest("/users/$id").fromJson() }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getChannel(id: Snowflake): Channel {
-    return getRequest("/channels/$id").fromJson()
+    return channels.getOrPut(id) { getRequest("/channels/$id").fromJson() }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake): Message {
-    return getRequest("/channels/$channelId/messages/$messageId").fromJson()
+    return messages.getOrPut(messageId) { getRequest("/channels/$channelId/messages/$messageId").fromJson() }
 }
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Message> {
-    return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson()
+    return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().also {
+        for (message in it) messages.putIfAbsent(message.id, message)
+    }
 }
 
 @ExperimentalCoroutinesApi

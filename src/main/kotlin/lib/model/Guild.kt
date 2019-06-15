@@ -40,9 +40,20 @@ data class Guild(
         @SerializedName("vanity_url_code") val vanityUrlCode: String?,
         val description: String?,
         val banner: String?,
-        @SerializedName("premium_tier") val premiumTier: Int,
+        @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
 )
+
+enum class PremiumTier {
+    @SerializedName("0")
+    None,
+    @SerializedName("1")
+    Tier1,
+    @SerializedName("2")
+    Tier2,
+    @SerializedName("3")
+    Tier3,
+}
 
 data class VoiceState(
         @SerializedName("guild_id") val guildId: Snowflake?,

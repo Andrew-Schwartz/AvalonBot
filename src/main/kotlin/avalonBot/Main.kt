@@ -4,10 +4,11 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import lib.dsl.bot
-import lib.dsl.onGuildCreate
+import lib.dsl.embed
 import lib.dsl.onMessageCreate
 import lib.dsl.onReady
 import lib.misc.fromJson
+import lib.rest.http.httpRequests.getUser
 import java.io.File
 
 val config: ConfigJson = File("src/main/resources/config.json").readText().fromJson()
@@ -19,25 +20,26 @@ fun main() = runBlocking {
 
     bot(token) {
         onReady {
-            println("${user.username} is logged on")
-//            getUser(sfId).sendDM("${getUser.username} is logged on")
+            //            println("${user.username} is logged on")
+            getUser(sfId).sendDM(embed {
+                title = "${user.username} is logged on!!"
+                color = 0xBC9D46
+                timestamp()
+            })
+        }
+        onMessageCreate {
+            reply(embed {
+                title = "Embedded Title!!!"
+                description = "Embedded description!!!"
+                color = 0xBC9D46
+                timestamp()
+            })
 
-        }
-        onMessageCreate(prefix = prefix) {
-            println(channelId)
-        }
-        onGuildCreate {
-            channels
-                    ?.filter { it.type }
-                    ?.forEach { channel ->
-                        println("${channel.name} ${channel.id}")
-//                channel.lastMessageId?.let {
-//                    val lastMessage = getMessage(channel.id, it)
-//                    val messages = getMessages(GetChannelMessages.before(channel.id, lastMessage.id))
-//                    for (message in messages)
-//                        println(message.content)
+//            for (command in commands) {
+//                if (command.name == content.removePrefix(prefix).takeWhile { it != ' ' }) {
+//                    command.execute(this@bot, this, content.split(" +".toRegex()).drop(1))
 //                }
-                    }
+//            }
         }
     }
 }

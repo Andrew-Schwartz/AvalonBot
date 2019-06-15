@@ -32,11 +32,11 @@ private suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun Bot.createDM(createDM: CreateDM): Channel {
-    return postRequest("/users/@me/channels", createDM.toJson()).fromJson()
+    return postRequest("/users/@me/channels", createDM.toJson()).fromJson<Channel>().also { channels[it.id] = it }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): Message {
-    return postRequest("/channels/${channel.id.value}/messages", createMessage.toJson()).fromJson()
+    return postRequest("/channels/${channel.id.value}/messages", createMessage.toJson()).fromJson<Message>().also { messages[it.id] = it }
 }

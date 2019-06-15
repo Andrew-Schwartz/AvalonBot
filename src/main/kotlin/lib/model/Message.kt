@@ -24,15 +24,53 @@ data class Message(
         val nonce: Snowflake?,
         val pinned: Boolean,
         @SerializedName("webhook_id") val webhookId: Snowflake?,
-        val type: Int,
+        val type: MessageType,
         val activity: MessageActivity,
         val application: MessageApplication
 )
 
+enum class MessageType {
+    @SerializedName("0")
+    Default,
+    @SerializedName("1")
+    RecipientAdd,
+    @SerializedName("2")
+    RecipientRemove,
+    @SerializedName("3")
+    Call,
+    @SerializedName("4")
+    ChannelNameChange,
+    @SerializedName("5")
+    ChannelIconChange,
+    @SerializedName("6")
+    ChannelPinnedChange,
+    @SerializedName("7")
+    GuildMemberJoin,
+    @SerializedName("8")
+    UserPremiumGuildSubscription,
+    @SerializedName("9")
+    UserPremiumGuildSubscriptionTier1,
+    @SerializedName("10")
+    UserPremiumGuildSubscriptionTier2,
+    @SerializedName("11")
+    UserPremiumGuildSubscriptionTier3
+}
+
 data class MessageActivity(
-        val type: Int,
+        val type: MessageActivityType,
         @SerializedName("party_id") val partyId: String
 )
+
+enum class MessageActivityType {
+    @SerializedName("1")
+    Join,
+    @SerializedName("2")
+    Spectate,
+    @SerializedName("3")
+    Listen,
+    @SerializedName("5")
+    JoinRequest
+}
 
 data class MessageApplication(
         val id: Snowflake,

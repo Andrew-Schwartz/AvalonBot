@@ -1,3 +1,14 @@
 package lib.model
 
-inline class Timestamp(val time: String)
+import java.time.OffsetDateTime
+
+inline class Timestamp(val time: String) {
+    val offsetDateTime: OffsetDateTime
+        get() = OffsetDateTime.parse(time)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun String.timestamp() = Timestamp(this)
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun OffsetDateTime.timestamp() = Timestamp(toString())

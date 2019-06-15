@@ -20,19 +20,30 @@ class Bot internal constructor(val token: String) {
     val guilds: MutableMap<Snowflake, Guild> = hashMapOf()
     val channels: MutableMap<Snowflake, Channel> = hashMapOf()
     val messages: MutableMap<Snowflake, Message> = hashMapOf()
+    val users: MutableMap<Snowflake, User> = hashMapOf()
 
     suspend fun Message.reply(content: String) {
-        getChannel(channelId.also(::println)).sendMessage(content)
+        getChannel(channelId).sendMessage(content)
+    }
+
+    suspend fun Message.reply(embed: Embed) {
+        getChannel(channelId).sendMessage(embed)
     }
 
     suspend fun User.sendDM(content: String) {
-        val channel = createDM(CreateDM(id.value))
+        createDM(CreateDM(id.value)).sendMessage(content)
+    }
 
-        channel.sendMessage(content)
+    suspend fun User.sendDM(embed: Embed) {
+        createDM(CreateDM(id.value)).sendMessage(embed)
     }
 
     suspend fun Channel.sendMessage(content: String) {
         createMessage(this, CreateMessage(content = content))
+    }
+
+    suspend fun Channel.sendMessage(embed: Embed) {
+        createMessage(this, CreateMessage(embed = embed))
     }
 
     suspend fun launchSocket() {

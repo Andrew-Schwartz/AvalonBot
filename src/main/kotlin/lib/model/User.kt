@@ -13,6 +13,13 @@ data class User(
         val verified: Boolean?,
         val email: String?,
         val flags: Int?,
-        @SerializedName("premium_type") val premiumType: Int?,
+        @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
 )
+
+enum class PremiumType {
+    @SerializedName("1")
+    NitroClassic,
+    @SerializedName("2")
+    Nitro,
+}

@@ -13,6 +13,5 @@ data class GuildMember(
         val mute: Boolean,
         @SerializedName("guild_id") val guildId: Snowflake? // for GuildMemberAdd
 ) {
-    val roles: Array<Snowflake>
-        get() = _roles.map { Snowflake(it) }.toTypedArray()
+    val roles: Array<Snowflake> by lazy { _roles.map { Snowflake(it) }.toTypedArray() }
 }
