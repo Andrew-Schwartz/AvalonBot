@@ -6,22 +6,21 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.misc.fromJson
 import lib.model.Channel
 import lib.model.Message
 import lib.model.Snowflake
 import lib.model.User
 import lib.rest.api
-import lib.rest.authHeaders
 import lib.rest.client
 import lib.rest.http.GetChannelMessages
 import lib.rest.model.BotGateway
+import lib.util.fromJson
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 private suspend fun Bot.getRequest(url: String): HttpResponse {
     return client.get(api + url) {
-        authHeaders(token).forEach { (key, value) ->
+        authHeaders.forEach { (key, value) ->
             header(key, value)
         }
     }
@@ -49,7 +48,7 @@ suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake): Message 
 @KtorExperimentalAPI
 suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Message> {
     return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().also {
-        for (message in it) messages.putIfAbsent(message.id, message)
+        for (message in it) messages.putIfAbsent(message)
     }
 }
 

@@ -1,12 +1,14 @@
 package lib.model
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.DiscordDsl
 
+@ExperimentalCoroutinesApi
 @Suppress("ArrayInDataClass")
 @DiscordDsl
 data class Message(
-        val id: Snowflake,
+        override val id: Snowflake,
         @SerializedName("channel_id") val channelId: Snowflake,
         @SerializedName("guild_id") val guildId: Snowflake?,
         val author: User,
@@ -27,7 +29,7 @@ data class Message(
         val type: MessageType,
         val activity: MessageActivity,
         val application: MessageApplication
-)
+) : Storable
 
 enum class MessageType {
     @SerializedName("0")

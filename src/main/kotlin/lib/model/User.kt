@@ -3,7 +3,7 @@ package lib.model
 import com.google.gson.annotations.SerializedName
 
 data class User(
-        val id: Snowflake,
+        override val id: Snowflake,
         val username: String,
         val discriminator: String,
         val avatar: String?,
@@ -15,7 +15,7 @@ data class User(
         val flags: Int?,
         @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
-)
+) : Storable
 
 enum class PremiumType {
     @SerializedName("1")

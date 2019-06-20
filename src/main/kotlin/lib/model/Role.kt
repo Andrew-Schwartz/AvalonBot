@@ -1,7 +1,7 @@
 package lib.model
 
 data class Role(
-        val id: Snowflake,
+        override val id: Snowflake,
         val name: String,
         val color: Int, // hex code TODO wrapper?
         val hoist: Boolean,
@@ -9,4 +9,4 @@ data class Role(
         val permissions: Int, // bit set
         val managed: Boolean,
         val mentionable: Boolean
-)
+) : Storable

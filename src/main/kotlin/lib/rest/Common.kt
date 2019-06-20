@@ -7,10 +7,6 @@ import io.ktor.util.KtorExperimentalAPI
 
 const val api = "https://discordapp.com/api"
 
-fun authHeaders(botToken: String) = mapOf(
-        "Authorization" to "Bot $botToken"
-)
-
 @KtorExperimentalAPI
 val client = HttpClient(CIO).config {
     install(WebSockets)

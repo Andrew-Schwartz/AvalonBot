@@ -10,7 +10,7 @@ repositories {
     jcenter()
 
     mavenCentral()
-//
+
 //    maven(url = "https://kotlin.bintray.com/kotlinx")
 //    maven(url = "https://gitlab.com/api/v4/projects/10363714/packages/maven")
 }
@@ -27,6 +27,7 @@ dependencies {
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("io.ktor:ktor-gson:$ktorVersion")
 
+    implementation("com.discord4j:discord4j-core:3.0.7")
 //    implementation("com.jessecorbett:diskord-jvm:1.4.0")
 
 //    testImplementation("org.jetbrains.kotlin:kotlin-test")

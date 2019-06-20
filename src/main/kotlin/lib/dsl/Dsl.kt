@@ -2,10 +2,10 @@ package lib.dsl
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.misc.Action
 import lib.model.Guild
 import lib.model.Message
 import lib.rest.model.events.receiveEvents.ReadyEvent
+import lib.util.Action
 
 val readyEvents: ArrayList<Action<ReadyEvent>> = arrayListOf()
 

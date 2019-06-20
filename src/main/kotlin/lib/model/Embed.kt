@@ -26,10 +26,10 @@ data class EmbedFooter(
 )
 
 data class EmbedImage(
-        val url: String?,
-        @SerializedName("proxy_url") val proxyUrl: String?,
-        val height: Int?,
-        val width: Int?
+        val url: String? = null,
+        @SerializedName("proxy_url") val proxyUrl: String? = null,
+        val height: Int? = null,
+        val width: Int? = null
 )
 
 data class EmbedThumbnail(

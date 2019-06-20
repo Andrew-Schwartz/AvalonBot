@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 @Suppress("ArrayInDataClass")
 data class Channel(
-        val id: Snowflake,
+        override val id: Snowflake,
         val type: ChannelType,
         @SerializedName("guild_id") val guildId: Snowflake?,
         val position: Int?,
@@ -22,7 +22,7 @@ data class Channel(
         @SerializedName("application_id") val applicationId: Snowflake?,
         @SerializedName("parent_id") val parentId: Snowflake?,
         @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?
-)
+) : Storable
 
 enum class ChannelType {
     @SerializedName("0")

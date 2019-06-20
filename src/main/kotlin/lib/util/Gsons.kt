@@ -1,4 +1,4 @@
-package lib.misc
+package lib.util
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

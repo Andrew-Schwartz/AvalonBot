@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 @Suppress("ArrayInDataClass")
 data class Guild(
-        val id: Snowflake,
+        override val id: Snowflake,
         val name: String,
         val icon: String?,
         val splash: String?,
@@ -42,7 +42,7 @@ data class Guild(
         val banner: String?,
         @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
-)
+) : Storable
 
 enum class PremiumTier {
     @SerializedName("0")
