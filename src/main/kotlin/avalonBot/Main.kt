@@ -20,6 +20,10 @@ val neutral = "#BC9D46".color()
 val good = "#3693D1".color()
 val evil = "#BA4650".color()
 
+val players: MutableMap<String, User> = mutableMapOf()
+
+val avalonLogo: File = File("src/main/resources/images/avalon_logo.png")
+
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 fun main() = runBlocking {

@@ -7,7 +7,8 @@ import lib.model.Message
 
 val commands: ArrayList<Command> = arrayListOf(
         HelpCommand,
-        StartCommand
+        StartCommand,
+        AddCommand
 )
 
 interface Command {
