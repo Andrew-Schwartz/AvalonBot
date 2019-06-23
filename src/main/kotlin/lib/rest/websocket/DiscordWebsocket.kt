@@ -9,13 +9,6 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import lib.dsl.Bot
-import lib.dsl.guildCreateEvents
-import lib.dsl.messageCreateEvents
-import lib.dsl.readyEvents
-import lib.model.Channel
-import lib.model.Guild
-import lib.model.Message
-import lib.model.User
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
@@ -89,103 +82,119 @@ class DiscordWebsocket(val bot: Bot) {
 
         // Not null since these are sent in dispatches
         val data = payload.eventData!!
-        val name = payload.eventName!!
+        val name = payload.eventName!!.replace("_", "")
 
-        val event = try {
-            DispatchEvent.values().first { it.eventName == name }
-        } catch (e: Exception) {
+        val event: DispatchEvent<*> = try {
+            DispatchEvent::class.sealedSubclasses.first {
+                val className = it.simpleName!!.toUpperCase() // none of these are anonymous
+                className == name
+            }.objectInstance!! // all dispatch events are objects
+        } catch (e: NoSuchElementException) {
             println("no DispatchEvent for name $name")
             return
         }
 
-        when (event) {
-            DispatchEvent.Ready -> {
-                val readyEvent: ReadyEvent = data.fromJson()
-                bot.user = readyEvent.user
-                bot.sessionId = readyEvent.sessionId
+//        event.runAllActions(data)
 
-                for (action in readyEvents) action(readyEvent)
-            }
-            DispatchEvent.ChannelCreate -> {
-                val channel: Channel = data.fromJson()
-                bot.channels += channel
-            }
-            DispatchEvent.ChannelUpdate -> {
-                val channel: Channel = data.fromJson()
-                bot.channels += channel
-            }
-            DispatchEvent.ChannelDelete -> {
-                val channel: Channel = data.fromJson()
-                bot.channels -= channel
-            }
-            DispatchEvent.ChannelPinsUpdate -> {
-                val pinInfo: PinsUpdate = data.fromJson()
-                // do something presumably
-            }
-            DispatchEvent.GuildCreate -> {
-                val guild: Guild = data.fromJson()
-                for (action in guildCreateEvents) action(guild)
-                bot.guilds += guild
-            }
-            DispatchEvent.GuildUpdate -> {
-                val guild: Guild = data.fromJson()
-                bot.guilds += guild
-            }
-            DispatchEvent.GuildDelete -> {
-                val guild: Guild = data.fromJson()
-                bot.guilds -= guild
-            }
-            DispatchEvent.GuildBanAdd -> {
-                val banChangeInfo: GuildBanUpdate = data.fromJson()
-                // do something presumably
-            }
-            DispatchEvent.GuildBanRemove -> {
-                val banChangeInfo: GuildBanUpdate = data.fromJson()
-                // do something presumably
-            }
-            DispatchEvent.GuildEmojisUpdate -> {
-                val emojisEvent: GuildEmojisEvent = data.fromJson()
-                // do something presumably
-            }
-            DispatchEvent.MessageCreate -> {
-                val message: Message = data.fromJson()
-                for (action in messageCreateEvents) action(message)
-                bot.messages += message
-            }
-            DispatchEvent.MessageUpdate -> {
-                val message: Message = data.fromJson()
-                bot.messages += message
-            }
-            DispatchEvent.MessageDelete -> {
-                val deleteInfo: MessageDeleteEvent = data.fromJson()
-                bot.messages -= deleteInfo.id
-            }
-            DispatchEvent.MessageDeleteBulk -> {
-                val deleteInfo: MessageDeleteBulkEvent = data.fromJson()
-                for (id in deleteInfo.ids) {
-                    bot.messages -= id
-                }
-            }
-            DispatchEvent.MessageReactionAdd -> {
-                val reactionUpdate: MessageReactionUpdate = data.fromJson()
-            }
-            DispatchEvent.MessageReactionRemove -> {
-                val reactionUpdate: MessageReactionUpdate = data.fromJson()
-            }
-            DispatchEvent.MessageReactionRemoveAll -> {
-                val reactionUpdate: MessageReactionRemoveAllEvent = data.fromJson()
-            }
-            DispatchEvent.TypingStart -> {
+        val ensureAllDispatchEventsAreChecked: Unit = when (event) {
+            Ready -> Ready.withJson(data) {
+                bot.user = user
+                bot.sessionId = sessionId
 
+                Ready.actions.forEach { it() }
             }
-            DispatchEvent.UserUpdate -> {
-                val user: User = data.fromJson()
-//                users[getUser.id] = getUser
+            Resumed -> Resumed.withJson(data) {
+                TODO("implement action on resume")
             }
-            else -> {
-                println("$event is unhandled")
+            InvalidSession -> InvalidSession.withJson(data) {
+                TODO("probably reconnect if you can on invalid session")
+            }
+            ChannelCreate -> ChannelCreate.withJson(data) {
+                bot.channels += this
+            }
+            ChannelUpdate -> ChannelUpdate.withJson(data) {
+                bot.channels += this
+            }
+            ChannelDelete -> ChannelDelete.withJson(data) {
+                bot.channels -= this
+            }
+            ChannelPinsUpdate -> ChannelPinsUpdate.withJson(data) {
+                TODO("do something (probably) on channel pin update")
+            }
+            GuildCreate -> GuildCreate.withJson(data) {
+                bot.guilds += this
+                GuildCreate.actions.forEach { it() }
+            }
+            MessageCreate -> MessageCreate.withJson(data) {
+                bot.messages += this
+                MessageCreate.actions.forEach { it() }
+            }
+            MessageUpdate -> MessageUpdate.withJson(data) {
+                bot.messages += this
+                MessageUpdate.actions.forEach { it() }
             }
         }
+        /*
+         OldDispatchEvent.GuildCreate -> {
+             val guild: Guild = data.fromJson()
+             for (action in guildCreateEvents) action(guild)
+             bot.guilds += guild
+         }
+         OldDispatchEvent.GuildUpdate -> {
+             val guild: Guild = data.fromJson()
+             bot.guilds += guild
+         }
+         OldDispatchEvent.GuildDelete -> {
+             val guild: Guild = data.fromJson()
+             bot.guilds -= guild
+         }
+         OldDispatchEvent.GuildBanAdd -> {
+             val banChangeInfo: GuildBanUpdateEvent = data.fromJson()
+             // do something presumably
+         }
+         OldDispatchEvent.GuildBanRemove -> {
+             val banChangeInfo: GuildBanUpdateEvent = data.fromJson()
+             // do something presumably
+         }
+         OldDispatchEvent.GuildEmojisUpdate -> {
+             val emojisEvent: GuildEmojisEvent = data.fromJson()
+             // do something presumably
+         }
+         OldDispatchEvent.MessageCreate -> {
+             val newMessage: Message = data.fromJson()
+             for (action in messageCreateEvents) action(newMessage)
+             bot.messages += newMessage
+         }
+         OldDispatchEvent.MessageUpdate -> {
+             val newMessage: Message = data.fromJson()
+             bot.messages += newMessage
+         }
+         OldDispatchEvent.MessageDelete -> {
+             val deleteInfo: MessageDeleteEvent = data.fromJson()
+             bot.messages -= deleteInfo.id
+         }
+         OldDispatchEvent.MessageDeleteBulk -> {
+             val deleteInfo: MessageDeleteBulkEvent = data.fromJson()
+             for (id in deleteInfo.ids) {
+                 bot.messages -= id
+             }
+         }
+         OldDispatchEvent.MessageReactionAdd -> {
+             val reactionUpdate: MessageReactionUpdateEvent = data.fromJson()
+         }
+         OldDispatchEvent.MessageReactionRemove -> {
+             val reactionUpdate: MessageReactionUpdateEvent = data.fromJson()
+         }
+         OldDispatchEvent.MessageReactionRemoveAll -> {
+             val reactionUpdate: MessageReactionRemoveAllEvent = data.fromJson()
+         }
+         OldDispatchEvent.TypingStart -> {
+
+         }
+         OldDispatchEvent.UserUpdate -> {
+             val user: User = data.fromJson()
+//                users[getUser.id] = getUser
+         }*/
     }
 
     private suspend fun initializeConnection(payload: GatewayPayload) {
@@ -203,7 +212,6 @@ class DiscordWebsocket(val bot: Bot) {
     }
 
     private suspend fun sendGateway(payload: SendEvent) {
-//        println("sending ${payload.opcode}")
         val message = GatewayPayload(payload.opcode.code, payload.toJsonTree(), sequenceNumber)
         sendWebsocket(message.toJson())
     }

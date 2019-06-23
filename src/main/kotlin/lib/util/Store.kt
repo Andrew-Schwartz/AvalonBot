@@ -22,7 +22,5 @@ class Store<T : Storable> {
 
     inline fun getOrPut(key: Snowflake, default: () -> T): T = map.getOrPut(key, default)
 
-    fun putIfAbsent(value: T) {
-        map.putIfAbsent(value.id, value)
-    }
+    fun putIfAbsent(value: T): T = map.putIfAbsent(value.id, value)!!
 }

@@ -1,10 +1,8 @@
 package lib.model
 
 import com.google.gson.annotations.SerializedName
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.DiscordDsl
 
-@ExperimentalCoroutinesApi
 @Suppress("ArrayInDataClass")
 @DiscordDsl
 data class Message(

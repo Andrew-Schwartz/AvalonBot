@@ -10,8 +10,7 @@ data class CreateMessage(
         val content: String = "",
         val nonce: Snowflake? = null,
         val tts: Boolean = false,
-        val file: Pair<String, InputStream>? = null,
-//        val file: ByteArray = ByteArray(0),
+        val file: Map<String, InputStream>? = null,
         val embed: Embed? = null,
-        @SerializedName("payload_json") val payloadJson: String? = null
+        @SerializedName("payload_json") val payloadJson: String? = null // TODO remove this
 )

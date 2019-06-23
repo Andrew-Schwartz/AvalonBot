@@ -2,9 +2,11 @@ package lib.dsl
 
 import lib.exceptions.EmbedLimitException
 import lib.model.*
+import java.io.File
+import java.io.InputStream
 import java.time.OffsetDateTime
 
-data class RichEmbed(
+data class RichEmbed internal constructor(
         var title: String? = null,
         var description: String? = null,
         var timestamp: Timestamp? = null,
@@ -19,11 +21,13 @@ data class RichEmbed(
     private val footer: EmbedFooter? = null
     private val fields: ArrayList<EmbedField> = arrayListOf()
 
+    val files: MutableMap<String, InputStream> = mutableMapOf()
+
     fun timestamp() {
         timestamp = OffsetDateTime.now().timestamp()
     }
 
-    fun field(name: String, value: String, inline: Boolean = true) {
+    fun addField(name: String, value: String, inline: Boolean = false) {
         fields += EmbedField(
                 name = name,
                 value = value,
@@ -31,12 +35,23 @@ data class RichEmbed(
         )
     }
 
-    // works when URL is for cdn.discordapp.com, ie
-    // https://cdn.discordapp.com/attachments/492122962451759124/590027285512454144/Food_Cart_OTK.jpg
-    //                                        channel id         somewhat near message id
+    fun image(file: File, name: String = file.name) {
+        files[name] = file.inputStream()
+
+        image = EmbedImage(url = "attachment://$name")
+    }
+
+    /**
+     * uploads [file] as an attachment but does not actually attach it,
+     * to do that create an image with url "attachment://$filename".
+     * The preferred way to do this is by calling [image] with the same parameters
+     */
+    fun addFile(file: File, name: String = file.name) {
+        files[name] = file.inputStream()
+    }
+
     fun image(url: String) {
-//        val attachment =
-        image = EmbedImage(url = url)
+        image = EmbedImage(url)
     }
 
     fun build(): Embed {
@@ -52,6 +67,7 @@ data class RichEmbed(
         }
 
         val fields = fields.takeUnless { it.isEmpty() }?.toTypedArray()
+        val files = files.takeUnless { it.isEmpty() }
 
         return Embed(
                 title = title,
@@ -66,7 +82,8 @@ data class RichEmbed(
                 video = null,
                 provider = null,
                 author = author,
-                fields = fields
+                fields = fields,
+                files = files
         )
     }
 
@@ -109,4 +126,4 @@ data class RichEmbed(
 
 //suspend fun (suspend RichEmbed.() -> Unit).build(): Embed = RichEmbed().apply { this@build() }.build()
 
-suspend fun embed(builder: suspend RichEmbed.() -> Unit): Embed = RichEmbed().apply { builder() }.build()
+suspend fun embed(builder: suspend RichEmbed.() -> Unit): RichEmbed = RichEmbed().apply { builder() }

@@ -2,34 +2,22 @@ package lib.dsl
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.model.Guild
 import lib.model.Message
-import lib.rest.model.events.receiveEvents.ReadyEvent
+import lib.rest.model.events.receiveEvents.DispatchEvent
+import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.Action
 
-val readyEvents: ArrayList<Action<ReadyEvent>> = arrayListOf()
-
-@KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun Bot.onReady(λ: suspend ReadyEvent.() -> Unit) {
-    readyEvents += λ
+@KtorExperimentalAPI
+fun <P> Bot.on(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
+    event.actions += λ
 }
 
-val messageCreateEvents: ArrayList<Action<Message>> = arrayListOf()
-
-@KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun Bot.onMessageCreate(prefix: String = "", triggerOnBots: Boolean = false, λ: suspend Message.() -> Unit) {
-    messageCreateEvents += {
-        if (content.startsWith(prefix) && (triggerOnBots || author.bot != true))
+@KtorExperimentalAPI
+fun Bot.command(prefix: String = "", respondToBots: Boolean = false, λ: Action<Message>) {
+    on(MessageCreate) {
+        if (content.startsWith(prefix) && respondToBots || author.bot != true)
             λ()
     }
-}
-
-val guildCreateEvents: ArrayList<Action<Guild>> = arrayListOf()
-
-@KtorExperimentalAPI
-@ExperimentalCoroutinesApi
-fun Bot.onGuildCreate(λ: suspend Guild.() -> Unit) {
-    guildCreateEvents += λ
 }

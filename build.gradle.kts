@@ -1,14 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.21"
+    id("org.jetbrains.kotlin.jvm") version "1.3.40"
 
     application
 }
 
 repositories {
     jcenter()
-
     mavenCentral()
 
 //    maven(url = "https://kotlin.bintray.com/kotlinx")
@@ -27,7 +26,9 @@ dependencies {
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("io.ktor:ktor-gson:$ktorVersion")
 
-    implementation("com.discord4j:discord4j-core:3.0.7")
+//    implementation("net.dv8tion:JDA:3.8.3_463") {
+//        exclude(module = "opus-java")
+//    }
 //    implementation("com.jessecorbett:diskord-jvm:1.4.0")
 
 //    testImplementation("org.jetbrains.kotlin:kotlin-test")

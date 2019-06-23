@@ -24,41 +24,39 @@ class Bot internal constructor(val token: String) {
 
     var sessionId: String? = null
 
-    //    val guilds: MutableMap<Snowflake, Guild> = hashMapOf()
-//    val channels: MutableMap<Snowflake, Channel> = hashMapOf()
-//    val messages: MutableMap<Snowflake, Message> = hashMapOf()
-//    val users: MutableMap<Snowflake, User> = hashMapOf()
-//
     val guilds: Store<Guild> = Store()
     val channels: Store<Channel> = Store()
     val messages: Store<Message> = Store()
     val users: Store<User> = Store()
 
-    suspend fun Message.reply(content: String) {
-        getChannel(channelId).send(content = content)
-    }
 
-    suspend fun Message.reply(embed: RichEmbed = RichEmbed(),
+    suspend fun Message.reply(content: String = "",
+                              embed: RichEmbed = RichEmbed(),
                               ping: Boolean = false,
-                              builder: suspend RichEmbed.() -> Unit) {
-        getChannel(channelId).send(embed = embed, pingTargets = if (ping) listOf(author) else emptyList(), builder = builder)
+                              builder: suspend RichEmbed.() -> Unit = {}) {
+        channel.send(
+                content = content,
+                embed = embed,
+                pingTargets = if (ping) listOf(author) else emptyList(),
+                builder = builder
+        )
     }
 
     val Message.channel: Channel
         get() = runBlocking { getChannel(channelId) }
 
-    suspend fun User.sendDM(content: String) {
-        createDM(id).send(content = content)
+    suspend fun User.sendDM(content: String = "",
+                            embed: RichEmbed = RichEmbed(),
+                            builder: suspend RichEmbed.() -> Unit = {}) {
+        createDM(id).send(
+                content = content,
+                embed = embed,
+                builder = builder
+        )
     }
 
-    suspend fun User.sendDM(embed: RichEmbed = RichEmbed(), builder: suspend RichEmbed.() -> Unit) {
-        createDM(id).send(embed = embed, builder = builder)
-    }
-
-//    suspend fun Channel.send(content: String) {
-//        createMessage(this, CreateMessage(content = content))
-//    }
-
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
     suspend fun Channel.send(content: String = "",
                              embed: RichEmbed = RichEmbed(),
                              pingTargets: List<User> = listOf(),
@@ -69,19 +67,9 @@ class Bot internal constructor(val token: String) {
         createMessage(this, CreateMessage(
                 content = text,
                 embed = embed,
-                file = TODO(),
-                payloadJson = ""
+                file = embed?.files
         ))
     }
-
-//    suspend fun Channel.send(embed: RichEmbed = RichEmbed(),
-//                             ping: User? = null,
-//                             builder: suspend RichEmbed.() -> Unit) {
-//        createMessage(this, CreateMessage(
-//                content = ping?.let { "<@${it.id}>" } ?: "",
-//                embed = embed.apply { builder() }.build())
-//        )
-
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
@@ -92,8 +80,4 @@ class Bot internal constructor(val token: String) {
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun bot(token: String, λ: suspend Bot.() -> Unit) {
-    val bot = Bot(token).apply { λ() }
-
-    bot.launchSocket()
-}
+suspend fun bot(token: String, λ: suspend Bot.() -> Unit): Unit = Bot(token).apply { λ() }.launchSocket()

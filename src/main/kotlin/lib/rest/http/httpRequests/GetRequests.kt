@@ -48,7 +48,7 @@ suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake): Message 
 @KtorExperimentalAPI
 suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Message> {
     return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().also {
-        for (message in it) messages.putIfAbsent(message)
+        for (message in it) messages += message
     }
 }
 

@@ -1,6 +1,7 @@
 package lib.model
 
 import com.google.gson.annotations.SerializedName
+import java.io.InputStream
 
 @Suppress("ArrayInDataClass")
 data class Embed(
@@ -16,7 +17,8 @@ data class Embed(
         val video: EmbedVideo? = null,
         val provider: EmbedProvider? = null,
         val author: EmbedAuthor? = null,
-        val fields: Array<EmbedField>? = null
+        val fields: Array<EmbedField>? = null,
+        @Transient val files: Map<String, InputStream>? = null // for sending files
 )
 
 data class EmbedFooter(

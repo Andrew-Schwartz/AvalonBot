@@ -1,15 +1,15 @@
 package lib.rest.http.httpRequests
 
+import io.ktor.client.request.forms.FormBuilder
 import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.append
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.response.HttpResponse
-import io.ktor.client.response.readText
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.ContentType.Application
-import io.ktor.http.ContentType.MultiPart
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -26,13 +26,26 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postRequest(url: String, jsonBody: String, contentType: ContentType = Application.Json): HttpResponse {
+private suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse {
     return client.post(api + url) {
         authHeaders.forEach { (key, value) ->
             header(key, value)
         }
-        body = TextContent(jsonBody, contentType)
-//        body = TextContent(jsonBody, MultiPart.FormData)
+        body = TextContent(jsonBody, Application.Json)
+    }
+}
+
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+private suspend fun Bot.postFormDataRequest(url: String, formData: FormBuilder.() -> Unit): HttpResponse {
+    return client.post(api + url) {
+        authHeaders.forEach { (key, value) ->
+            header(key, value)
+        }
+
+        body = MultiPartFormDataContent(formData {
+            formData()
+        })
     }
 }
 
@@ -49,41 +62,31 @@ suspend fun Bot.createDM(createDM: CreateDM): Channel {
 @ExperimentalCoroutinesApi
 suspend fun Bot.createDM(userId: Snowflake): Channel = createDM(CreateDM(userId.value))
 
-/**
- * post a message in the channel via multipart/form-data
- */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): Message {
-    val response = postRequest("/channels/${channel.id.value}/messages", createMessage.toJson(), MultiPart.FormData)
+    val (content, _, _, files, embed) = createMessage
+    val url = "/channels/${channel.id}/messages"
+
+    val response = if (files == null) {
+        postRequest(url, createMessage.toJson())
+    } else {
+        postFormDataRequest(url) {
+            if (content.isNotEmpty() || embed != null) {
+                val payload = createMessage.copy(payloadJson = null, file = null).toJson()
+                append("payload_json", payload)
+            }
+
+            files.forEach { (name, file) ->
+                val bytes: ByteArray = file.readAllBytes()
+                append("file", name, ContentType.MultiPart.FormData, bytes.size.toLong()) {
+                    bytes.forEach(::writeByte)
+                }
+            }
+        }
+    }
+
     val message: Message = response.fromJson()
     messages += message
     return message
-}
-
-@KtorExperimentalAPI
-@ExperimentalCoroutinesApi
-suspend fun Bot.sendImage(channel: Channel, createMessage: CreateMessage) {
-    val response = client.post<HttpResponse>("$api/channels/${channel.id}/messages") {
-        val (content, _, _, file, embed) = createMessage
-
-        for ((key, value) in authHeaders) {
-            header(key, value)
-        }
-
-//        if (file.isEmpty()) {
-//            body = TextContent(createMessage.toJson(), Application.Json)
-//        } else {
-        body = MultiPartFormDataContent(formData {
-            if (content.isNotEmpty() || embed != null) {
-                val payload = createMessage.copy(payloadJson = null, file = null).toJson()
-
-                append("payload_json", payload)
-//                append("file", file)
-            }
-        })
-//        }
-
-    }
-    println("response: ${response.readText()}")
 }

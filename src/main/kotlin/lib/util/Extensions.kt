@@ -1,6 +1,7 @@
 package lib.util
 
 import lib.model.User
+import kotlin.reflect.KClass
 
 operator fun String.get(range: IntRange): String = substring(range)
 
@@ -19,6 +20,8 @@ fun String.inlineCode(): String = "`$this`"
 fun String.multilineCode(): String = "```$this```"
 
 fun User.ping(): String = "<@$id>"
+
+infix fun KClass<*>.isAssignableFrom(other: KClass<*>): Boolean = java.isAssignableFrom(other.java)
 
 //@ExperimentalContracts
 //inline val Any?.isNull: Boolean
