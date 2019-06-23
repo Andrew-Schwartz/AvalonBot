@@ -16,7 +16,6 @@ import lib.dsl.Bot
 import lib.model.Channel
 import lib.model.Message
 import lib.model.Snowflake
-import lib.model.snowflake
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.CreateDM
@@ -52,15 +51,14 @@ private suspend fun Bot.postFormDataRequest(url: String, formData: FormBuilder.(
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun Bot.createDM(createDM: CreateDM): Channel {
-    val id = createDM.userId.snowflake()
-    return channels.getOrPut(id) {
+    return channels.getOrPut(createDM.userId) {
         postRequest("/users/@me/channels", createDM.toJson()).fromJson()
     }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.createDM(userId: Snowflake): Channel = createDM(CreateDM(userId.value))
+suspend fun Bot.createDM(userId: Snowflake): Channel = createDM(CreateDM(userId))
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -73,7 +71,7 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
     } else {
         postFormDataRequest(url) {
             if (content.isNotEmpty() || embed != null) {
-                val payload = createMessage.copy(payloadJson = null, file = null).toJson()
+                val payload = createMessage.copy(file = null).toJson()
                 append("payload_json", payload)
             }
 

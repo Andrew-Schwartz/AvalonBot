@@ -1,6 +1,5 @@
 package lib.rest.http
 
-import com.google.gson.annotations.SerializedName
 import lib.model.Embed
 import lib.model.Snowflake
 import java.io.InputStream
@@ -11,6 +10,5 @@ data class CreateMessage(
         val nonce: Snowflake? = null,
         val tts: Boolean = false,
         val file: Map<String, InputStream>? = null,
-        val embed: Embed? = null,
-        @SerializedName("payload_json") val payloadJson: String? = null // TODO remove this
+        val embed: Embed? = null
 )
