@@ -1,6 +1,7 @@
 package avalonBot
 
-import avalonBot.commands.commands
+import avalonBot.characters.Character
+import avalonBot.commands.Command
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -21,6 +22,7 @@ val good = "#3693D1".color()
 val evil = "#BA4650".color()
 
 val players: MutableMap<String, User> = mutableMapOf()
+val roles: ArrayList<Character> = arrayListOf()
 
 val avalonLogo: File = File("src/main/resources/images/avalon_logo.png")
 
@@ -29,8 +31,8 @@ val avalonLogo: File = File("src/main/resources/images/avalon_logo.png")
 fun main() = runBlocking {
     val (token, prefix, sfId) = config
 
-    val ping = true
-//    val ping = false
+//    val ping = true
+    val ping = false
 
     bot(token) {
         on(Ready) {
@@ -44,13 +46,9 @@ fun main() = runBlocking {
             else
                 println("${user.username} is logged on")
         }
+
         command {
-            val commandName = content.removePrefix(prefix).takeWhile { it != ' ' }
-            for (command in commands)
-                if (command.name == commandName) {
-                    val args = content.split(" +".toRegex()).drop(1)
-                    command.execute(this@bot, this, args)
-                }
+            Command.run(this@bot, this, prefix)
         }
     }
 

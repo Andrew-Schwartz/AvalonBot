@@ -9,20 +9,16 @@ import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline
 
-object HelpCommand : Command {
-    override val name: String
-        get() = "help"
+object HelpCommand : Command() {
+    override val name: String = "help"
 
-    override val description: String
-        get() = "sends general help text, or specific help text if given a command name"
+    override val description: String = "sends general help text, or specific help text if given a command name"
 
-    override val usage: String
-        get() = "!help [command name]".inlineCode()
+    override val usage: String = "!help [command name]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit
-        get() = { message, args ->
+    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
             if (args.isEmpty()) {
                 message.author.sendDM {
                     title = "List of commands".underline()
@@ -39,10 +35,10 @@ object HelpCommand : Command {
                         title = "About ${command.name}".underline()
                         color = neutral
                         addField("Description", command.description, false)
-                        addField("Usage", command.usage)
+                        addField("Usage", command.usage.inlineCode())
                     }
                 } else {
-                    message.channel.send("Unrecognized command. To learn more about a command, use $usage")
+                    message.channel.send("Unrecognized command. To learn more about a command, use ${usage.inlineCode()}")
                 }
             }
         }

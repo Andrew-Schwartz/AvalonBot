@@ -118,10 +118,7 @@ data class RichEmbed internal constructor(
             throw EmbedLimitException("Embeds cannot have more than 6000 characters in total")
     }
 
-//    operator fun invoke(λ: RichEmbed.() -> Unit): RichEmbed {
-//        λ()
-//        return this
-//    }
+    operator fun invoke(λ: RichEmbed.() -> Unit): RichEmbed = apply { λ() }
 }
 
 //suspend fun (suspend RichEmbed.() -> Unit).build(): Embed = RichEmbed().apply { this@build() }.build()
