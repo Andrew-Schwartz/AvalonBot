@@ -19,7 +19,7 @@ data class RichEmbed internal constructor(
     }
 
     private val footer: EmbedFooter? = null
-    private val fields: ArrayList<EmbedField> = arrayListOf()
+    private val fields: ArrayList<EmbedField> = ArrayList()
 
     val files: MutableMap<String, InputStream> = mutableMapOf()
 

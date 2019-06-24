@@ -7,7 +7,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.Message
 import lib.util.inlineCode
-import lib.util.ping
+import lib.util.pingNick
 
 object PlayersCommand : Command() {
     override val name: String = "players"
@@ -28,7 +28,7 @@ object PlayersCommand : Command() {
                         color = neutral
                         title = "Players"
                         addField("Nicknames", players.keys.joinToString())
-                        addField("Users", players.values.joinToString { it.ping() })
+                        addField("Users", players.values.joinToString { it.pingNick() })
                     }
                 } else {
                     "${"!players ${args[0]}".inlineCode()} is not understood. Try ${"!help players".inlineCode()} for information"

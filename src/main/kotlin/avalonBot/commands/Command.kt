@@ -4,14 +4,16 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.Message
+import lib.util.S
 
-val commands: Set<Command> = setOf(
+val commands: Set<Command> = S[
         HelpCommand,
         StartCommand,
         AddCommand,
         PlayersCommand,
-        RolesCommand
-)
+        RolesCommand,
+        ExitCommand
+]
 
 abstract class Command {
     abstract val name: String

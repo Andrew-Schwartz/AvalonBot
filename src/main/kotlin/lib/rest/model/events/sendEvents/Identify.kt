@@ -3,6 +3,7 @@ package lib.rest.model.events.sendEvents
 import com.google.gson.annotations.SerializedName
 import lib.model.Activity
 import lib.rest.model.GatewayOpcode
+import lib.util.A
 
 @Suppress("ArrayInDataClass")
 data class Identify(
@@ -10,7 +11,8 @@ data class Identify(
         val properties: ConnectionProperties,
         @SerializedName("large_threshold") val largeThreshold: Int = 50,
         val compress: Boolean = false,
-        val shard: Array<Int>? = arrayOf(0, 1),
+        val shard: Array<Int>? = A[0, 1],
+//        val shard: A<Int>? = arrayOf(0, 1),
         val presence: GatewayStatus? = null
 ) : SendEvent {
     override val opcode: GatewayOpcode

@@ -9,5 +9,5 @@ object Oberon : Character() {
 
     override val abilitiesDesc: String = "Neither seen by minions of Mordred nor by Merlin"
 
-    override val sees: Set<Character> = setOf()
+    override val sees: Set<Character> = emptySet()
 }

@@ -22,7 +22,7 @@ val good = "#3693D1".color()
 val evil = "#BA4650".color()
 
 val players: MutableMap<String, User> = mutableMapOf()
-val roles: ArrayList<Character> = arrayListOf()
+val roles: ArrayList<Character> = ArrayList()
 
 val avalonLogo: File = File("src/main/resources/images/avalon_logo.png")
 

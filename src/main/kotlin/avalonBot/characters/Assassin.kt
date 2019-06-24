@@ -1,6 +1,7 @@
 package avalonBot.characters
 
 import avalonBot.characters.Character.Loyalty.Evil
+import lib.util.S
 
 object Assassin : Character() {
     override val name: String = ""
@@ -10,5 +11,5 @@ object Assassin : Character() {
     override val abilitiesDesc: String = """Attempts to assassinate Merlin at end of game
                                            |Sees other minions of Mordred""".trimMargin()
 
-    override val sees: Set<Character> = setOf(MinionOfMordred, Mordred, Morgana)
+    override val sees: Set<Character> = S[MinionOfMordred, Mordred, Morgana]
 }

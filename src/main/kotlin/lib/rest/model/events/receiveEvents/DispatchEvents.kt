@@ -4,50 +4,15 @@ import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 import lib.model.*
 import lib.rest.model.GatewayOpcode
+import lib.util.A
 import lib.util.Action
 import lib.util.fromJson
-
-//enum class OldDispatchEvent(val eventName: String) {
-//    Ready("READY"),
-//    ChannelCreate("CHANNEL_CREATE"),
-//    ChannelUpdate("CHANNEL_UPDATE"),
-//    ChannelDelete("CHANNEL_DELETE"),
-//    ChannelPinsUpdate("CHANNEL_PINS_UPDATE"),
-//    GuildCreate("GUILD_CREATE"),
-//    GuildUpdate("GUILD_UPDATE"),
-//    GuildDelete("GUILD_DELETE"),
-//    GuildBanAdd("GUILD_BAN_ADD"),
-//    GuildBanRemove("GUILD_BAN_REMOVE"),
-//    GuildEmojisUpdate("GUILD_EMOJIS_UPDATE"),
-//    GuildIntegrationsUpdate("GUILD_INTEGRATIONS_UPDATE"),
-//    GuildMemberAdd("GUILD_MEMBER_ADD"),
-//    GuildMemberRemove("GUILD_MEMBER_REMOVE"),
-//    GuildMemberUpdate("GUILD_MEMBER_UPDATE"),
-//    GuildMembersChunk("GUILD_MEMBERS_CHUNK"),
-//    GuildRoleCreate("GUILD_ROLE_CREATE"),
-//    GuildRoleUpdate("GUILD_ROLE_UPDATE"),
-//    GuildRoleDelete("GUILD_ROLE_DELETE"),
-//    MessageCreate("MESSAGE_CREATE"),
-//    MessageUpdate("MESSAGE_UPDATE"),
-//    MessageDelete("MESSAGE_DELETE"),
-//    MessageDeleteBulk("MESSAGE_DELETE_BULK"),
-//    MessageReactionAdd("MESSAGE_REACTION_ADD"),
-//    MessageReactionRemove("MESSAGE_REACTION_REMOVE"),
-//    MessageReactionRemoveAll("MESSAGE_REACTION_REMOVE_ALL"),
-//    PresenceUpdate("PRESENCE_UPDATE"),
-//    PresencesReplace("PRESENCES_REPLACE"),
-//    TypingStart("TYPING_START"),
-//    UserUpdate("USER_UPDATE"),
-//    VoiceStateUpdate("VOICE_STATE_UPDATE"),
-//    VoiceServerUpdate("VOICE_SERVER_UPDATE"),
-//    WebhooksUpdate("WEBHOOKS_UPDATE")
-//}
 
 /**
  * @param P type of the payload attached with this event
  */
 sealed class DispatchEvent<P> {
-    val actions: ArrayList<Action<P>> = arrayListOf()
+    val actions: ArrayList<Action<P>> = ArrayList()
 }
 
 // inline extension, not member function, because P needs to be reified for `fromJson`
@@ -83,11 +48,11 @@ object MessageUpdate : DispatchEvent<Message>()
 data class ReadyPayload(
         val v: Int,
         val user: User,
-        @SerializedName("private_channels") val privateChannels: Array<Channel> = arrayOf(),
-        val guilds: Array<Guild> = arrayOf(),
+        @SerializedName("private_channels") val privateChannels: Array<Channel> = emptyArray(),
+        val guilds: Array<Guild> = emptyArray(),
         @SerializedName("session_id") val sessionId: String,
         val _trace: Array<String>,
-        val shard: Array<Int> = arrayOf(0, 1)
+        val shard: Array<Int> = A[0, 1]
 )
 
 @Suppress("ArrayInDataClass")
@@ -108,11 +73,11 @@ data class InvalidSessionPayload(
 //
 //@Suppress("ArrayInDataClass")
 //data class MessageDeleteBulkEvent(
-//        @SerializedName("ids") private val _ids: Array<String>,
+//        @SerializedName("ids") private val _ids: A<String>,
 //        @SerializedName("channel_id") private val channelId: Snowflake,
 //        @SerializedName("guild_id") private val guildId: Snowflake?
 //) : DispatchEvent() {
-//    val ids: Array<Snowflake> by lazy { _ids.map(::Snowflake).toTypedArray() }
+//    val ids: A<Snowflake> by lazy { _ids.map(::Snowflake).toTypedArray() }
 //}
 
 data class ChannelPinsPayload(
@@ -129,7 +94,7 @@ data class ChannelPinsPayload(
 //@Suppress("ArrayInDataClass")
 //data class GuildEmojisEvent(
 //        @SerializedName("guild_id") val guildId: Snowflake,
-//        val emojis: Array<Emoji>
+//        val emojis: A<Emoji>
 //) : DispatchEvent()
 //
 //data class MessageReactionUpdateEvent(
@@ -158,17 +123,17 @@ data class ChannelPinsPayload(
 //@Suppress("ArrayInDataClass")
 //data class GuildMemberUpdateEvent(
 //        @SerializedName("guild_id") val guildId: Snowflake,
-//        @SerializedName("roles") private val _roles: Array<String>,
+//        @SerializedName("roles") private val _roles: A<String>,
 //        val user: User,
 //        val nick: String
 //) : DispatchEvent() {
-//    val roles: Array<Snowflake> by lazy { _roles.map(::Snowflake).toTypedArray() }
+//    val roles: A<Snowflake> by lazy { _roles.map(::Snowflake).toTypedArray() }
 //}
 //
 //@Suppress("ArrayInDataClass")
 //data class GuildMembersChunkEvent(
 //        @SerializedName("guild_id") val guildId: Snowflake,
-//        val members: Array<GuildMember>
+//        val members: A<GuildMember>
 //) : DispatchEvent()
 //
 //data class GuildRoleUpdateEvent(

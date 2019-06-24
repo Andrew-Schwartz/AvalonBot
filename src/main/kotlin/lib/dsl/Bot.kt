@@ -12,8 +12,9 @@ import lib.rest.http.httpRequests.createDM
 import lib.rest.http.httpRequests.createMessage
 import lib.rest.http.httpRequests.getChannel
 import lib.rest.websocket.DiscordWebsocket
+import lib.util.L
 import lib.util.Store
-import lib.util.ping
+import lib.util.pingNick
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -37,7 +38,7 @@ class Bot internal constructor(val token: String) {
         channel.send(
                 content = content,
                 embed = embed,
-                pingTargets = if (ping) listOf(author) else emptyList(),
+                pingTargets = if (ping) L[author] else emptyList(),
                 builder = builder
         )
     }
@@ -59,9 +60,9 @@ class Bot internal constructor(val token: String) {
     @ExperimentalCoroutinesApi
     suspend fun Channel.send(content: String = "",
                              embed: RichEmbed = RichEmbed(),
-                             pingTargets: List<User> = listOf(),
+                             pingTargets: List<User> = emptyList(),
                              builder: suspend RichEmbed.() -> Unit = {}) {
-        val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.ping() }
+        val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.pingNick() }
         val embed = embed.apply { builder() }.takeIf { it != RichEmbed.empty }?.build()
 
         createMessage(this, CreateMessage(

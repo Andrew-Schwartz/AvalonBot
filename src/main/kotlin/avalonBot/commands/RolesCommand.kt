@@ -9,8 +9,14 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.Message
+import lib.util.A
+import lib.util.S
+import lib.util.equalsIgnoreCase
 
 object RolesCommand : Command() {
+    private const val CLEAR_ROLES = "reset"
+    private const val LIST_ROLES = "list"
+
     override val name: String = "roles"
 
     override val description: String = """
@@ -18,30 +24,35 @@ object RolesCommand : Command() {
         |Roles are Assassin, Merlin, Mordred, Morgana, Oberon, and Percival
         """.trimMargin()
 
-    override val usage: String = "!roles [reset] [list] [role1] [role2] [role3] etc..."
+    override val usage: String = "!roles [$CLEAR_ROLES] [$LIST_ROLES] [role1] [role2] [role3] etc..."
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        if ("reset" in args) roles.clear()
-        if ("list" in args) message.reply {
-            title = "Remaining roles"
-            description = (characters - roles - setOf(LoyalServant, MinionOfMordred)).joinToString(separator = "\n") { it.name }
-        }
+        if (CLEAR_ROLES in args) roles.clear()
 
-        roles += args.filter { it !in arrayOf("reset", "list") }.mapNotNull { name ->
-            try {
-                characters.first { name == it.name }
-            } catch (e: NoSuchElementException) {
-                message.reply("No role by the name $name")
-                null
+        roles += args
+                .filter { it !in A[CLEAR_ROLES, LIST_ROLES] }
+                .mapNotNull { name ->
+                    try {
+                        characters.first { name equalsIgnoreCase it.name }
+                    } catch (e: NoSuchElementException) {
+                        message.reply("No role by the name $name")
+                        null
+                    }
+                }
+
+        if (LIST_ROLES in args && roles.isEmpty()) {
+            message.reply {
+                title = "Remaining roles"
+                description = (characters - roles - S[LoyalServant, MinionOfMordred]).joinToString(separator = "\n") { it.name }
             }
-        }
-
-        message.reply {
-            color = neutral
-            title = "Current Roles"
-            description = if (roles.isEmpty()) "none" else roles.joinToString(separator = "\n") { it.name }
+        } else {
+            message.reply {
+                color = neutral
+                title = "Current Roles"
+                description = if (roles.isEmpty()) "none" else roles.joinToString(separator = "\n") { it.name }
+            }
         }
     }
 }
