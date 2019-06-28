@@ -51,6 +51,4 @@ fun main() = runBlocking {
             Command.run(this@bot, this, prefix)
         }
     }
-
-    return@runBlocking
 }

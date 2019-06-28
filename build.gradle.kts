@@ -16,7 +16,6 @@ repositories {
 
 val ktorVersion = "1.2.1"
 
-@Suppress("SpellCheckingInspection")
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 

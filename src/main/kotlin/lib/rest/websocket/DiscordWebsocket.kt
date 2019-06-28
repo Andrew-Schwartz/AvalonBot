@@ -1,13 +1,11 @@
 package lib.rest.websocket
 
-import io.ktor.client.features.ClientRequestException
 import io.ktor.client.features.websocket.wss
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
 import io.ktor.http.cio.websocket.send
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import lib.dsl.Bot
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
@@ -21,6 +19,7 @@ import lib.rest.model.events.sendEvents.SendEvent
 import lib.util.fromJson
 import lib.util.toJson
 import lib.util.toJsonTree
+import kotlin.system.exitProcess
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
@@ -43,12 +42,9 @@ class DiscordWebsocket(val bot: Bot) {
                     val message = incoming.receive()
 
                     receive((message as Frame.Text).readText().fromJson())
-                } catch (e: ClosedReceiveChannelException) {
+                } catch (e: Exception) {
                     println("WSS getChannel closed: ${e.message}")
-                    break
-                } catch (e: ClientRequestException) {
-                    e.printStackTrace()
-                    break
+                    exitProcess(1)
                 }
             }
         }
