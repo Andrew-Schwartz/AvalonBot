@@ -76,7 +76,7 @@ class DiscordWebsocket(val bot: Bot) {
     private suspend fun processDispatch(payload: GatewayPayload) {
         sequenceNumber = payload.sequenceNumber
 
-        // Not null since these are sent in dispatches
+        // Not null since these are guaranteed in dispatches
         val data = payload.eventData!!
         val name = payload.eventName!!.replace("_", "")
 
@@ -131,6 +131,9 @@ class DiscordWebsocket(val bot: Bot) {
             MessageUpdate -> MessageUpdate.withJson(data) {
                 bot.messages += this
                 MessageUpdate.actions.forEach { it() }
+            }
+            TypingStart -> TypingStart.withJson(data) {
+                TypingStart.actions.forEach { it() }
             }
         }
     }

@@ -1,5 +1,6 @@
 package avalonBot.commands
 
+import avalonBot.game.Avalon
 import avalonBot.characters.Character.Loyalty.Evil
 import avalonBot.characters.Character.Loyalty.Good
 import avalonBot.players
@@ -25,24 +26,26 @@ object StartCommand : Command() {
             in 5..6 -> 2
             in 7..9 -> 3
             10 -> 4
-            else -> null
+            else -> -1
         }
 
         val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
 
         when {
-            maxEvil == null -> message.reply("Between 5 and 10 players are required!")
+            maxEvil == -1 -> message.reply("Between 5 and 10 players are required!")
             roles.size > players.size -> message.reply("You have more roles chosen than you have players!")
             evil > maxEvil -> {
                 message.reply("You have too many evil roles (${roles.filter { it.loyalty == Evil }.joinToString { it.name }})")
             }
-            evil == maxEvil -> {
-                if (args.isNotEmpty()) {
-                    if (args[0] == START_NOW) {
-                        // TODO game of avalon
-                    }
-                }
+            evil <= maxEvil -> {
+//                if (args.isNotEmpty()) {
+//                    if (args[0] == START_NOW) {
+                val a = Avalon(this, message.channel)
+                a.startGame(numEvil = maxEvil)
+//                    }
+//                }
             }
+            else -> message.reply("error starting game!!!")
         }
     }
 }

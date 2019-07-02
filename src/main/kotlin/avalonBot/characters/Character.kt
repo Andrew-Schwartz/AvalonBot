@@ -1,5 +1,10 @@
 package avalonBot.characters
 
+import avalonBot.characters.Character.Loyalty.Evil
+import avalonBot.characters.Character.Loyalty.Good
+import avalonBot.evil
+import avalonBot.good
+import lib.model.Color
 import java.io.File
 
 val characters: Set<Character> = setOf(
@@ -25,4 +30,10 @@ abstract class Character {
     val picture: File = File("src/main/resources/images/characters/${this::class.simpleName}.jpg")
 
     enum class Loyalty { Good, Evil }
+
+    val Loyalty.color: Color
+        get() = when (this) {
+            Good -> good
+            Evil -> evil
+        }
 }

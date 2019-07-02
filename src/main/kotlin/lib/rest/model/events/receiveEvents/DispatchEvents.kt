@@ -44,6 +44,8 @@ object MessageCreate : DispatchEvent<Message>()
 
 object MessageUpdate : DispatchEvent<Message>()
 
+object TypingStart : DispatchEvent<TypingStartPayload>()
+
 @Suppress("ArrayInDataClass")
 data class ReadyPayload(
         val v: Int,
@@ -145,14 +147,14 @@ data class ChannelPinsPayload(
 //        @SerializedName("guild_id") val guildId: Snowflake,
 //        val role: Snowflake
 //) : DispatchEvent()
-//
-//data class TypingStartEvent(
-//        @SerializedName("channel_id") val channelId: Snowflake,
-//        @SerializedName("guild_id") val guildId: Snowflake?,
-//        @SerializedName("user_id") val userId: Snowflake,
-//        val timestamp: Long
-//) : DispatchEvent()
-//
+
+data class TypingStartPayload(
+        @SerializedName("channel_id") val channelId: Snowflake,
+        @SerializedName("guild_id") val guildId: Snowflake?,
+        @SerializedName("user_id") val userId: Snowflake,
+        val timestamp: Long
+)
+
 //data class VoiceServerUpdateEvent(
 //        val token: String,
 //        @SerializedName("guild_id") val guildId: Snowflake,

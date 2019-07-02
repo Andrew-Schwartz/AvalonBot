@@ -10,5 +10,5 @@ object MinionOfMordred : Character() {
 
     override val abilitiesDesc: String = "Sees other minions of Mordred"
 
-    override val sees: Set<Character> = S[Assassin, Mordred, Morgana]
+    override val sees: Set<Character> = S[Assassin, Mordred, Morgana, MinionOfMordred]
 }

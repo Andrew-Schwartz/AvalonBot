@@ -31,14 +31,20 @@ object RolesCommand : Command() {
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         if (CLEAR_ROLES in args) roles.clear()
 
-        roles += args
-                .filter { it !in A[CLEAR_ROLES, LIST_ROLES] }
+        args.filter { it !in A[CLEAR_ROLES, LIST_ROLES] }
                 .mapNotNull { name ->
                     try {
                         characters.first { name equalsIgnoreCase it.name }
                     } catch (e: NoSuchElementException) {
                         message.reply("No role by the name $name")
                         null
+                    }
+                }
+                .forEach {
+                    if (it in roles) {
+                        roles -= it
+                    } else {
+                        roles += it
                     }
                 }
 
