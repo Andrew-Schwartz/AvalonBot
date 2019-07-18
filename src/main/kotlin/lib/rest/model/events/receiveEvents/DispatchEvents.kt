@@ -46,7 +46,7 @@ object MessageUpdate : DispatchEvent<Message>()
 
 object TypingStart : DispatchEvent<TypingStartPayload>()
 
-object PresencesReplace : DispatchEvent<EmptyPayload>()
+object PresencesReplace : DispatchEvent<SomeArray>()
 
 object MessageReactionAdd : DispatchEvent<MessageReactionUpdatePayload>()
 
@@ -73,7 +73,8 @@ data class InvalidSessionPayload(
         @SerializedName("d") val resumable: Boolean
 )
 
-class EmptyPayload
+@Suppress("ArrayInDataClass")
+data class SomeArray(val array: Array<Any>)
 
 //data class MessageDeleteEvent(
 //        val id: Snowflake,

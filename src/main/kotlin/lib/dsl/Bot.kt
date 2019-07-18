@@ -48,6 +48,8 @@ class Bot internal constructor(val token: String) {
         createReaction(channel.id, id, emoji)
     }
 
+    suspend fun Message.getReactions(emoji: Char) = getReactions(channelId, id, emoji)
+
     suspend fun User.getDM(): Channel = createDM(id)
 
 
@@ -70,6 +72,7 @@ class Bot internal constructor(val token: String) {
                              builder: suspend RichEmbed.() -> Unit = {}
     ): Message {
         val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.ping() }
+        @Suppress("NAME_SHADOWING")
         val embed = embed.apply { builder() }.takeIf { it != RichEmbed.empty }?.build()
 
         return createMessage(this, CreateMessage(

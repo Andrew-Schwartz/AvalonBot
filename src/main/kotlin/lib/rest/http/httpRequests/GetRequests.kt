@@ -41,8 +41,19 @@ suspend fun Bot.getChannel(id: Snowflake): Channel {
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake): Message {
-    return messages.getOrPut(messageId) { getRequest("/channels/$channelId/messages/$messageId").fromJson() }
+suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake, forceRequest: Boolean = false): Message {
+    val url = "/channels/$channelId/messages/$messageId"
+    return if (forceRequest) {
+        messages.putIfAbsent(getRequest(url).fromJson())
+    } else {
+        messages.getOrPut(messageId) { getRequest(url).fromJson() }
+    }
+}
+
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
+suspend fun Bot.getReactions(channelId: Snowflake, messageId: Snowflake, emoji: Char): Array<User> {
+    return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji").fromJson()
 }
 
 @ExperimentalCoroutinesApi

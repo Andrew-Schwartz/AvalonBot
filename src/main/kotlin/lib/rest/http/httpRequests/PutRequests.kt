@@ -24,9 +24,7 @@ private suspend fun Bot.putRequest(url: String, jsonBody: String): HttpResponse 
             header(k, v)
         }
         body = TextContent(jsonBody, Application.Json)
-    }.also(::useRateLimit).also {
-        it.headers.forEach { k, v -> println("$k: $v") }
-    }
+    }.also(::useRateLimit)
 }
 
 @ExperimentalCoroutinesApi
