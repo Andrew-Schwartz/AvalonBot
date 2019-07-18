@@ -15,9 +15,15 @@ fun <P> Bot.on(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+fun <P> Bot.off(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
+    event.actions -= λ
+}
+
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
 fun Bot.command(prefix: String = "", respondToBots: Boolean = false, λ: Action<Message>) {
     on(MessageCreate) {
-        if (content.startsWith(prefix) && respondToBots || author.bot != true)
+        if (content.startsWith(prefix) && respondToBots || author.isBot != true)
             λ()
     }
 }

@@ -1,8 +1,12 @@
-package avalonBot.commands
+package avalonBot.commands.general
 
-import avalonBot.game.Avalon
 import avalonBot.characters.Character.Loyalty.Evil
 import avalonBot.characters.Character.Loyalty.Good
+import avalonBot.commands.Command
+import avalonBot.commands.CommandState.AvalonGame
+import avalonBot.commands.CommandState.General
+import avalonBot.commands.currentState
+import avalonBot.game.Avalon
 import avalonBot.players
 import avalonBot.roles
 import io.ktor.util.KtorExperimentalAPI
@@ -10,7 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.Message
 
-object StartCommand : Command() {
+object StartCommand : Command(General) {
     private const val START_NOW = "now"
 
     override val name: String = "start"
@@ -40,6 +44,7 @@ object StartCommand : Command() {
             evil <= maxEvil -> {
 //                if (args.isNotEmpty()) {
 //                    if (args[0] == START_NOW) {
+                currentState = AvalonGame
                 val a = Avalon(this, message.channel)
                 a.startGame(numEvil = maxEvil)
 //                    }

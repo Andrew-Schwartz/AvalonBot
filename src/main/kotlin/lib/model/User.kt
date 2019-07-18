@@ -7,7 +7,7 @@ data class User(
         val username: String,
         val discriminator: String,
         val avatar: String?,
-        val bot: Boolean?,
+        @SerializedName("bot") val isBot: Boolean?,
         @SerializedName("mfa_enabled") val mfaEnabled: Boolean?,
         val locale: String?,
         val verified: Boolean?,

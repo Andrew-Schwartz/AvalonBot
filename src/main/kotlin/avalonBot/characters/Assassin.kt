@@ -4,7 +4,7 @@ import avalonBot.characters.Character.Loyalty.Evil
 import lib.util.S
 
 object Assassin : Character() {
-    override val name: String = ""
+    override val name: String = "Assassin"
 
     override val loyalty: Loyalty = Evil
 

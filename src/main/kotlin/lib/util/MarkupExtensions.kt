@@ -19,9 +19,9 @@ fun String.inlineCode(): String = "`$this`"
 
 fun String.multilineCode(): String = "```$this```"
 
-fun User.ping(): String = "<@$id>"
+fun User.pingReal(): String = "<@$id>"
 
-fun User.pingNick(): String = "<@!$id>"
+fun User.ping(): String = "<@!$id>"
 
 fun Channel.link(): String = "<#$id>"
 

@@ -27,7 +27,10 @@ data class Message(
         val type: MessageType,
         val activity: MessageActivity,
         val application: MessageApplication
-) : Storable
+) : Storable {
+    val args: List<String>
+        get() = content.split(" +".toRegex()).drop(1)
+}
 
 enum class MessageType {
     @SerializedName("0")

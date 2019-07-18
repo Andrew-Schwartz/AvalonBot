@@ -1,5 +1,8 @@
-package avalonBot.commands
+package avalonBot.commands.general
 
+import avalonBot.commands.Command
+import avalonBot.commands.CommandState.AvalonGame
+import avalonBot.commands.CommandState.General
 import avalonBot.neutral
 import avalonBot.players
 import io.ktor.util.KtorExperimentalAPI
@@ -7,9 +10,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.Message
 import lib.util.inlineCode
-import lib.util.pingNick
+import lib.util.ping
 
-object PlayersCommand : Command() {
+object PlayersCommand : Command(General, AvalonGame) {
     override val name: String = "players"
 
     override val description: String = "displays a list of all players currently in the game"
@@ -28,7 +31,7 @@ object PlayersCommand : Command() {
                         color = neutral
                         title = "Players"
                         addField("Nicknames", players.keys.joinToString())
-                        addField("Users", players.values.joinToString { it.pingNick() })
+                        addField("Users", players.values.joinToString { it.ping() })
                     }
                 } else {
                     "${"!players ${args[0]}".inlineCode()} is not understood. Try ${"!help players".inlineCode()} for information"

@@ -1,19 +1,20 @@
 package avalonBot.commands
 
+import avalonBot.commands.CommandState.AvalonGame
+import avalonBot.commands.CommandState.General
 import avalonBot.neutral
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.dsl.RichEmbed
 import lib.dsl.embed
-import lib.model.Embed
 import lib.model.Message
 import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline
 
 @KtorExperimentalAPI
-object HelpCommand : Command() {
+object HelpCommand : Command(General, AvalonGame) {
     override val name: String = "help"
 
     override val description: String = "sends general help text, or specific help text if given a command name"

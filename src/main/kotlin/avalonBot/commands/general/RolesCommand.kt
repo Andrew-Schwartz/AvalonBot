@@ -1,8 +1,10 @@
-package avalonBot.commands
+package avalonBot.commands.general
 
 import avalonBot.characters.LoyalServant
 import avalonBot.characters.MinionOfMordred
 import avalonBot.characters.characters
+import avalonBot.commands.Command
+import avalonBot.commands.CommandState.General
 import avalonBot.neutral
 import avalonBot.roles
 import io.ktor.util.KtorExperimentalAPI
@@ -13,7 +15,7 @@ import lib.util.A
 import lib.util.S
 import lib.util.equalsIgnoreCase
 
-object RolesCommand : Command() {
+object RolesCommand : Command(General) {
     private const val CLEAR_ROLES = "reset"
     private const val LIST_ROLES = "list"
 

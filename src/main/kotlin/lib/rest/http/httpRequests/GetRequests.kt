@@ -6,10 +6,7 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.model.Channel
-import lib.model.Message
-import lib.model.Snowflake
-import lib.model.User
+import lib.model.*
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.GetChannelMessages
@@ -31,6 +28,10 @@ private suspend fun Bot.getRequest(url: String): HttpResponse {
 suspend fun Bot.getUser(id: Snowflake): User {
     return users.getOrPut(id) { getRequest("/users/$id").fromJson() }
 }
+
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
+suspend fun Bot.getGuild(id: Snowflake): Guild = guilds.getOrPut(id) { getRequest("/guilds/$id").fromJson() }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

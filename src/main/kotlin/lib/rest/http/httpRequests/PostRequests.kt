@@ -20,24 +20,30 @@ import lib.rest.api
 import lib.rest.client
 import lib.rest.http.CreateDM
 import lib.rest.http.CreateMessage
+import lib.rest.rateLimit
+import lib.rest.useRateLimit
 import lib.util.fromJson
 import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 private suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse {
-    return client.post(api + url) {
+    rateLimit()
+
+    return client.post<HttpResponse>(api + url) {
         authHeaders.forEach { (key, value) ->
             header(key, value)
         }
         body = TextContent(jsonBody, Application.Json)
-    }
+    }.also(::useRateLimit)
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 private suspend fun Bot.postFormDataRequest(url: String, formData: FormBuilder.() -> Unit): HttpResponse {
-    return client.post(api + url) {
+    rateLimit()
+
+    return client.post<HttpResponse>(api + url) {
         authHeaders.forEach { (key, value) ->
             header(key, value)
         }
@@ -45,7 +51,7 @@ private suspend fun Bot.postFormDataRequest(url: String, formData: FormBuilder.(
         body = MultiPartFormDataContent(formData {
             formData()
         })
-    }
+    }.also(::useRateLimit)
 }
 
 @ExperimentalCoroutinesApi

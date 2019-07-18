@@ -46,6 +46,12 @@ object MessageUpdate : DispatchEvent<Message>()
 
 object TypingStart : DispatchEvent<TypingStartPayload>()
 
+object PresencesReplace : DispatchEvent<EmptyPayload>()
+
+object MessageReactionAdd : DispatchEvent<MessageReactionUpdatePayload>()
+
+object MessageReactionRemove : DispatchEvent<MessageReactionUpdatePayload>()
+
 @Suppress("ArrayInDataClass")
 data class ReadyPayload(
         val v: Int,
@@ -66,6 +72,8 @@ data class InvalidSessionPayload(
         val op: GatewayOpcode,
         @SerializedName("d") val resumable: Boolean
 )
+
+class EmptyPayload
 
 //data class MessageDeleteEvent(
 //        val id: Snowflake,
@@ -98,15 +106,15 @@ data class ChannelPinsPayload(
 //        @SerializedName("guild_id") val guildId: Snowflake,
 //        val emojis: A<Emoji>
 //) : DispatchEvent()
-//
-//data class MessageReactionUpdateEvent(
-//        @SerializedName("user_id") val userId: Snowflake,
-//        @SerializedName("message_id") val messageId: Snowflake,
-//        @SerializedName("channel_id") val channelId: Snowflake,
-//        @SerializedName("guild_id") val guildId: Snowflake?,
-//        val emoji: Emoji
-//) : DispatchEvent()
-//
+
+data class MessageReactionUpdatePayload(
+        @SerializedName("user_id") val userId: Snowflake,
+        @SerializedName("message_id") val messageId: Snowflake,
+        @SerializedName("channel_id") val channelId: Snowflake,
+        @SerializedName("guild_id") val guildId: Snowflake?,
+        val emoji: Emoji
+)
+
 //data class MessageReactionRemoveAllEvent(
 //        @SerializedName("message_id") val messageId: Snowflake,
 //        @SerializedName("channel_id") val channelId: Snowflake,

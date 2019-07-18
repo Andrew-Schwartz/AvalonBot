@@ -7,6 +7,7 @@ import io.ktor.http.cio.websocket.send
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import lib.dsl.Bot
+import lib.dsl.eventListeners
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
@@ -29,7 +30,7 @@ class DiscordWebsocket(val bot: Bot) {
     private var heartbeatJob: Job? = null
     private var sequenceNumber: Int? = null
 
-    suspend fun run() {
+    suspend fun run(): Nothing {
         client.wss(host = bot.gateway(), port = 443) {
             sendWebsocket = { send(it) }
 
@@ -37,22 +38,55 @@ class DiscordWebsocket(val bot: Bot) {
                 println("closed because ${this@wss.closeReason.await()}")
             }
 
-            while (!incoming.isClosedForReceive) {
-                try {
-                    val message = incoming.receive()
+            eventLoop@ while (!incoming.isClosedForReceive) {
+                val message: Frame.Text? = incoming.poll() as Frame.Text?
 
-                    receive((message as Frame.Text).readText().fromJson())
-                } catch (e: Exception) {
-                    println("WSS getChannel closed: ${e.message}")
-                    exitProcess(1)
+                // run all eventListeners whose predicate is matched, then remove them
+                eventListeners -= eventListeners.filter { it.first() }.onEach { it.second() }
+
+                message?.let {
+                    try {
+                        val text = it.readText()
+//                        println(text)
+                        receive(text.fromJson())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
+//            var i = 0
+//            while (!incoming.isClosedForReceive) {
+//                try {
+//                    val message = incoming.receive() //incoming.receiveOrNull()
+//                    incoming.poll()
+//
+//                    eventListeners -= eventListeners.filter { it.first() }.onEach { println("got one!"); it.second() }
+//
+////                    for (it in eventListeners) {
+////                        if (it.first()) {
+////                            it.second()
+////                            eventListeners.remove(it)
+////                            continue
+////                        }
+////                    }
+//
+//                    receive((message as Frame.Text).readText().fromJson())
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    println("WSS getChannel closed: ${e.message}")
+////                    exitProcess(1)
+//                }
+//                println("yo #${i++}")
+//            }
+            println("done with while")
         }
 
+        println("closed")
         client.close()
+        exitProcess(1)
     }
 
-    private suspend fun receive(payload: GatewayPayload) = when (payload.opcode) {
+    private suspend fun receive(payload: GatewayPayload): Unit = when (payload.opcode) {
         GatewayOpcode.Hello -> {
             initializeConnection(payload)
         }
@@ -69,24 +103,25 @@ class DiscordWebsocket(val bot: Bot) {
             TODO("implement InvalidSession")
         }
         else -> {
-            throw IllegalStateException("${payload.opcode} should not be received")
+            println("should not receive ${payload.opcode}, it's content was ${payload.eventData}")
+//            throw IllegalStateException("${payload.opcode} should not be received")
         }
     }
 
     private suspend fun processDispatch(payload: GatewayPayload) {
         sequenceNumber = payload.sequenceNumber
 
-        // Not null since these are guaranteed in dispatches
+        // Not null since these are guaranteed to be in dispatches
         val data = payload.eventData!!
         val name = payload.eventName!!.replace("_", "")
 
         val event: DispatchEvent<*> = try {
             DispatchEvent::class.sealedSubclasses.first {
-                val className = it.simpleName!!.toUpperCase() // none of these are anonymous
+                val className = it.simpleName!!.toUpperCase() // null if anonymous, no subclasses are anonymous
                 className == name
             }.objectInstance!! // all dispatch events are objects
         } catch (e: NoSuchElementException) {
-            println("no DispatchEvent for name $name")
+            println("no DispatchEvent for name $name, data is:\n$data")
             return
         }
 
@@ -134,6 +169,15 @@ class DiscordWebsocket(val bot: Bot) {
             }
             TypingStart -> TypingStart.withJson(data) {
                 TypingStart.actions.forEach { it() }
+            }
+            PresencesReplace -> PresencesReplace.withJson(data) {
+                PresencesReplace.actions.forEach { it() }
+            }
+            MessageReactionAdd -> MessageReactionAdd.withJson(data) {
+                MessageReactionAdd.actions.forEach { it() }
+            }
+            MessageReactionRemove -> MessageReactionRemove.withJson(data) {
+                MessageReactionRemove.actions.forEach { it() }
             }
         }
     }
