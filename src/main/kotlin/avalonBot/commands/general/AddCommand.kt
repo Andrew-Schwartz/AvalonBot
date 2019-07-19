@@ -1,8 +1,8 @@
 package avalonBot.commands.general
 
+import avalonBot.Colors
 import avalonBot.commands.Command
 import avalonBot.commands.CommandState.General
-import avalonBot.neutral
 import avalonBot.players
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,10 +29,11 @@ object AddCommand : Command(General) {
 //            message.channel.guild?.members?.any { it.username == nick || it.nick == nick } != false -> message.reply(ping = true, content = ", a member of this server has that name. That would be confusing :(")
             nick.contains(";") -> message.reply(ping = true, content = ", names cannot contain ${";".inlineCode()}")
             nick.contains("\n") -> message.reply(ping = true, content = ", names cannot contain newlines")
+            nick in players -> message.reply(ping = true, content = ", $nick is already taken")
             else -> {
                 players[nick] = message.author
                 message.reply {
-                    color = neutral
+                    color = Colors.neutral
                     addField("Current Players".underline(), players.keys.joinToString(separator = "\n"))
                 }
             }

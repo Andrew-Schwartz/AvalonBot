@@ -34,7 +34,7 @@ data class Guild(
         @SerializedName("voice_states") val voiceStates: Array<VoiceState>?,
         val members: Array<GuildMember>?,
         val channels: Array<Channel>?,
-        val presences: Array<PresenceUpdateEvent>?,
+        val presences: Array<PresenceUpdatePayload>?,
         @SerializedName("max_presences") val maxPresences: Int?,
         @SerializedName("max_members") val maxMembers: Int?,
         @SerializedName("vanity_url_code") val vanityUrlCode: String?,
@@ -69,7 +69,7 @@ data class VoiceState(
 )
 
 @Suppress("ArrayInDataClass")
-data class PresenceUpdateEvent(
+data class PresenceUpdatePayload(
         val user: User,
         val roles: Array<Snowflake>,
         val game: Activity?,

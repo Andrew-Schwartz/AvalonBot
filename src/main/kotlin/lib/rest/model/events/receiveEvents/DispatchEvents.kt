@@ -1,3 +1,5 @@
+@file:Suppress("ArrayInDataClass")
+
 package lib.rest.model.events.receiveEvents
 
 import com.google.gson.JsonElement
@@ -45,6 +47,8 @@ object MessageCreate : DispatchEvent<Message>()
 object MessageUpdate : DispatchEvent<Message>()
 
 object TypingStart : DispatchEvent<TypingStartPayload>()
+
+object PresenceUpdate : DispatchEvent<PresenceUpdatePayload>()
 
 object PresencesReplace : DispatchEvent<SomeArray>()
 

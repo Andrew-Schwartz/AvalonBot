@@ -1,8 +1,8 @@
 package avalonBot.commands
 
+import avalonBot.Colors
 import avalonBot.commands.CommandState.AvalonGame
 import avalonBot.commands.CommandState.General
-import avalonBot.neutral
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -26,7 +26,7 @@ object HelpCommand : Command(General, AvalonGame) {
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         val allCommandsEmbed: RichEmbed = embed {
             title = "List of commands".underline()
-            color = neutral
+            color = Colors.neutral
             for (c in commands)
                 addField(c.name.bold(), c.description)
         }
@@ -49,7 +49,7 @@ object HelpCommand : Command(General, AvalonGame) {
 @KtorExperimentalAPI
 suspend fun Command.helpEmbed(): RichEmbed = embed {
     title = "About $name".underline()
-    color = neutral
+    color = Colors.neutral
     addField("Description", this@helpEmbed.description, false)
     addField("Usage", usage.inlineCode())
 }

@@ -170,6 +170,9 @@ class DiscordWebsocket(val bot: Bot) {
             TypingStart -> TypingStart.withJson(data) {
                 TypingStart.actions.forEach { it() }
             }
+            PresenceUpdate -> PresenceUpdate.withJson(data) {
+                PresenceUpdate.actions.forEach { it() }
+            }
             PresencesReplace -> PresencesReplace.withJson(data) {
                 PresencesReplace.actions.forEach { it() }
             }

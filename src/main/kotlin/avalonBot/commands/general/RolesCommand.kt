@@ -1,11 +1,11 @@
 package avalonBot.commands.general
 
+import avalonBot.Colors
 import avalonBot.characters.LoyalServant
 import avalonBot.characters.MinionOfMordred
 import avalonBot.characters.characters
 import avalonBot.commands.Command
 import avalonBot.commands.CommandState.General
-import avalonBot.neutral
 import avalonBot.roles
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,7 +13,6 @@ import lib.dsl.Bot
 import lib.model.Message
 import lib.util.A
 import lib.util.S
-import lib.util.equalsIgnoreCase
 
 object RolesCommand : Command(General) {
     private const val CLEAR_ROLES = "reset"
@@ -36,7 +35,7 @@ object RolesCommand : Command(General) {
         args.filter { it !in A[CLEAR_ROLES, LIST_ROLES] }
                 .mapNotNull { name ->
                     try {
-                        characters.first { name equalsIgnoreCase it.name }
+                        characters.first { name.equals(it.name, ignoreCase = true) }
                     } catch (e: NoSuchElementException) {
                         message.reply("No role by the name $name")
                         null
@@ -57,7 +56,7 @@ object RolesCommand : Command(General) {
             }
         } else {
             message.reply {
-                color = neutral
+                color = Colors.neutral
                 title = "Current Roles"
                 description = if (roles.isEmpty()) "none" else roles.joinToString(separator = "\n") { it.name }
             }

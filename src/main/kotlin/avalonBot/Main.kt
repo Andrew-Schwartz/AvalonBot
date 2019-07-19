@@ -1,5 +1,6 @@
 package avalonBot
 
+import avalonBot.Colors.neutral
 import avalonBot.characters.Character
 import avalonBot.commands.Command
 import io.ktor.util.KtorExperimentalAPI
@@ -9,17 +10,12 @@ import lib.dsl.bot
 import lib.dsl.command
 import lib.dsl.on
 import lib.model.User
-import lib.model.color
 import lib.rest.http.httpRequests.getChannel
 import lib.rest.model.events.receiveEvents.Ready
 import lib.util.fromJson
 import java.io.File
 
 val config: ConfigJson = File("src/main/resources/config.json").readText().fromJson()
-
-val neutral = "#BC9D46".color()
-val good = "#3693D1".color()
-val evil = "#BA4650".color()
 
 val players: MutableMap<String, User> = mutableMapOf()
 val roles: ArrayList<Character> = ArrayList()

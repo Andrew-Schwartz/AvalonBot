@@ -48,7 +48,8 @@ class Bot internal constructor(val token: String) {
         createReaction(channel.id, id, emoji)
     }
 
-    suspend fun Message.getReactions(emoji: Char) = getReactions(channelId, id, emoji)
+    suspend fun Message.reactions(emoji: Char) = getReactions(channelId, id, emoji)
+    suspend fun Message.reactions(vararg emojis: Char): List<Array<User>> = emojis.map { reactions(it) }
 
     suspend fun User.getDM(): Channel = createDM(id)
 

@@ -1,9 +1,8 @@
 package avalonBot.characters
 
+import avalonBot.Colors
 import avalonBot.characters.Character.Loyalty.Evil
 import avalonBot.characters.Character.Loyalty.Good
-import avalonBot.evil
-import avalonBot.good
 import lib.model.Color
 import java.io.File
 
@@ -33,7 +32,7 @@ abstract class Character {
 
     val Loyalty.color: Color
         get() = when (this) {
-            Good -> good
-            Evil -> evil
+            Good -> Colors.good
+            Evil -> Colors.evil
         }
 }

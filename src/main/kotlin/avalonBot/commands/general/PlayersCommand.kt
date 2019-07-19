@@ -1,9 +1,9 @@
 package avalonBot.commands.general
 
+import avalonBot.Colors
 import avalonBot.commands.Command
 import avalonBot.commands.CommandState.AvalonGame
 import avalonBot.commands.CommandState.General
-import avalonBot.neutral
 import avalonBot.players
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +28,7 @@ object PlayersCommand : Command(General, AvalonGame) {
             if (args.isNotEmpty()) {
                 if (args[0].toLowerCase() == "ping") {
                     message.reply {
-                        color = neutral
+                        color = Colors.neutral
                         title = "Players"
                         addField("Nicknames", players.keys.joinToString())
                         addField("Users", players.values.joinToString { it.ping() })
@@ -38,7 +38,7 @@ object PlayersCommand : Command(General, AvalonGame) {
                 }
             } else {
                 message.reply {
-                    color = neutral
+                    color = Colors.neutral
                     addField("Nicknames", players.keys.joinToString())
                     addField("Users", players.values.joinToString { it.username })
                 }

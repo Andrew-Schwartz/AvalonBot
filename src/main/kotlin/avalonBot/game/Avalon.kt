@@ -1,18 +1,25 @@
 package avalonBot.game
 
-import avalonBot.*
+import avalonBot.Colors
+import avalonBot.Colors.evil
+import avalonBot.Colors.good
+import avalonBot.Colors.neutral
+import avalonBot.characters.Assassin
+import avalonBot.characters.Character.Loyalty.Evil
 import avalonBot.characters.Character.Loyalty.Good
 import avalonBot.characters.LoyalServant
+import avalonBot.characters.Merlin
 import avalonBot.characters.MinionOfMordred
+import avalonBot.players
+import avalonBot.roles
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import lib.dsl.Bot
-import lib.dsl.blockUntil
-import lib.dsl.on
+import lib.dsl.*
 import lib.model.Channel
 import lib.model.Message
+import lib.model.User
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.*
 
@@ -20,6 +27,7 @@ import lib.util.*
 @KtorExperimentalAPI
 class Avalon(val bot: Bot, val gameChannel: Channel) {
     private val gamePlayers: ArrayList<Player> = arrayListOf()
+    private val userPlayerMap: Map<User, Player> by lazy { gamePlayers.associateBy { it.user } }
     private var party: Set<Player>? = null
     private lateinit var rounds: Rounds
 
@@ -43,6 +51,9 @@ class Avalon(val bot: Bot, val gameChannel: Channel) {
             gamePlayers += Player(name, user, role)
             roles -= role
         }
+
+        if (roles.isNotEmpty()) println("BIG PROBLEM")
+        roles += gamePlayers.map { it.role }
 
         on(MessageCreate, infoCommand)
         on(MessageCreate, questCommand)
@@ -73,7 +84,7 @@ class Avalon(val bot: Bot, val gameChannel: Channel) {
         gamePlayers.shuffle()
 
         GlobalScope.launch {
-            while (roundNum <= 5) {
+            while (goodWins < 3 && evilWins < 3) {
                 val round = rounds[roundNum]
 
                 gameChannel.send {
@@ -87,43 +98,144 @@ class Avalon(val bot: Bot, val gameChannel: Channel) {
                     )
 //                    image(leaderCrown)
                 }
+                party = null
+
 
                 blockUntil { party != null } // turn listener
-
                 gameChannel.send {
-                    title = "${leader.username} has chosen that ${party!!
-                            .map(Player::name)
-                            .reduceIndexed { index, acc, name ->
-                                "$acc${
-                                if (index == party!!.size - 1) " and"
-                                else ","
-                                } $name"
-                            }
-                    } will go on this quest"
+                    title = "${leader.username} has chosen that ${formatIterable(party!!) { it.username }} will go on this quest"
                     description = "react to my DM to Approve or Reject this party"
                 }
                 val approveChar = '✔'
                 val rejectChar = '❌'
                 val messages: ArrayList<Message> = arrayListOf()
                 for (player in gamePlayers) {
-                    val dm = player.user.getDM()
-                    val msg = dm.send("React ✔ to vote to approve the quest, or ❌ to reject it")
+                    val msg = player.user.sendDM("React ✔ to vote to approve the quest, or ❌ to reject it")
                     messages += msg
                     msg.react(approveChar)
                     msg.react(rejectChar)
                 }
 
+
                 blockUntil(millisDelay = 200) {
-                    messages.all { (it.getReactions(approveChar).size == 2) xor (it.getReactions(rejectChar).size == 2) }
+                    messages.all { (it.reactions(approveChar).size == 2) xor (it.reactions(rejectChar).size == 2) }
+                }
+                val (approve, reject) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
+                if (reject >= approve) continue
+
+                messages.clear()
+                gameChannel.send {
+                    color = neutral
+                    title = "The party has been accepted!"
+                    description = "Now ${formatIterable(party!!) { it.username }} will either succeed or fail the quest"
+                    for (msg in messages) {
+                        addField(msg.author.username, if (msg.reactions(approveChar).size == 2) "Approved" else "Rejected", inline = true)
+                    }
+                }
+                for (player in party!!) {
+                    val msg = player.user.sendDM("React ✔ to succeed the quest" + if (player.role.loyalty == Evil) ", or ❌ to fail it" else "")
+                    messages += msg
+                    msg.react(approveChar)
+                    if (player.role.loyalty == Evil)
+                        msg.react(rejectChar)
                 }
 
-                val (approve, reject) = messages.partition { it.getReactions(approveChar).size == 2 }.map { it.size }
-                if (reject >= approve) continue
+
+                blockUntil {
+                    messages.all { msg ->
+                        msg.reactions(approveChar).size == 2 ||
+                                msg.reactions(rejectChar).mapNotNull { user ->
+                                    userPlayerMap[user]
+                                }.filter {
+                                    it.role.loyalty == Evil
+                                }.size == 2
+                    }
+                }
+                val (successes: Int, fails: Int) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
+
+                if (fails >= round.fails) {
+                    evilWins++
+                    gameChannel.send {
+                        color = Colors.evil
+                        title = (if (fails == 1) "There was 1 fail"
+                        else "There were $fails fails")
+                    }
+                } else {
+                    goodWins++
+                    gameChannel.send {
+                        color = Colors.good
+                        title = "All $successes were successes"
+                    }
+                }
+
+                when (3) {
+                    goodWins -> {
+                        if (Assassin in roles && Merlin in roles) {
+                            gameChannel.send {
+                                title = "The good guys have succeeded three quests, but the Assassin can try to kill Merlin"
+                                description = "Assassin, use ${"!assassinate <name>".inlineCode()} to assassinate who you think Merlin is"
+                                gamePlayers.filter { it.role.loyalty == Evil }.forEach { addField(it.name, it.role.name, inline = true) }
+                            }
+                            var merlinGuess: Player? = null
+                            val assassinateListener: suspend Message.() -> Unit = {
+                                if (userPlayerMap[author]?.role == Assassin && content.startsWith("!ass")) {
+                                    val name = args[0]
+                                    merlinGuess = gamePlayers.firstOrNull { it.name == name || it.username == name }
+                                }
+                            }
+                            on(MessageCreate, assassinateListener)
+
+                            launch {
+                                blockUntil { merlinGuess != null }
+                                off(MessageCreate, assassinateListener)
+
+                                if (merlinGuess!!.role == Merlin) {
+                                    gameChannel.send {
+                                        color = Colors.evil
+                                        title = "Correct! ${merlinGuess!!.name} was Merlin! The bad guys win!"
+                                        revealAllRoles()
+                                    }
+                                } else {
+                                    gameChannel.send {
+                                        color = Colors.good
+                                        title = "Incorrect! The good guys win!"
+                                        revealAllRoles()
+                                    }
+                                }
+                            }
+                        } else {
+                            gameChannel.send {
+                                color = Colors.good
+                                title = "The good guys win!"
+                                gamePlayers.forEach { addField(it.name, it.role.name, inline = true) }
+                            }
+                        }
+                    }
+                    evilWins -> gameChannel.send {
+                        color = Colors.evil
+                        title = "The bad guys win!"
+                        gamePlayers.forEach { addField(it.name, it.role.name, inline = true) }
+                    }
+                }
 
                 roundNum++
                 leaderNum++
             }
         }
+    }
+
+    private fun RichEmbed.revealAllRoles() {
+        gamePlayers.forEach { addField("${it.name} (${it.user.ping()}", it.role.name, inline = true) }
+    }
+
+    private fun <T> formatIterable(iterable: Iterable<T>, toString: (T) -> String): String {
+        return iterable.map(toString)
+                .reduceIndexed { index, acc, name ->
+                    "$acc${
+                    if (index == iterable.count() - 1) " and"
+                    else ","
+                    } $name"
+                }
     }
 
     private val infoCommand: suspend Message.() -> Unit = {
@@ -154,7 +266,6 @@ class Avalon(val bot: Bot, val gameChannel: Channel) {
             if (!content.startsWith("!quest")) return@run
 
             val round = rounds[roundNum]
-            val leader = gamePlayers[roundNum]
             val questers = content.substring(content.indexOf(' ') + 1).split(" *; *".toRegex()).mapNotNull { arg ->
                 try {
                     gamePlayers.first { it.name == arg || it.username == arg }
@@ -169,38 +280,6 @@ class Avalon(val bot: Bot, val gameChannel: Channel) {
                 return@run
             }
             party = questers
-            println("party = $party")
-
-//            println("next round!! ($roundNum)")
-            //...
-//            roundNum++
-//            leaderNum++
-            // first remove this listener
-//            Turn(bot, this@Turn).run()
         }
     }
-
-//    inner class Turn(private val bot: Bot, private val prevTurn: Turn? = null) {
-//        suspend fun run(): Unit = bot.run {
-//            val round = rounds[roundNum]
-//
-//            gameChannel.send {
-//                color = neutral
-//                title = "The leader is ${leader.name}".underline()
-//                description = leader.user.ping()
-//                addField(
-//                        "Use !quest to choose people to send on the quest (separate names with ${";".inlineCode()})",
-//                        "Send ${round.players} people on this quest." +
-//                                if (round.fails != 1) "2 failures are needed for this quest to fail." else ""
-//                )
-////                image(leaderCrown)
-//            }
-//
-//            prevTurn?.run {
-//                println("removed a listener")
-//                off(MessageCreate, prevTurn!!.questCommand)
-//            }
-//            on(MessageCreate, questCommand)
-//        }
-//    }
 }
