@@ -8,9 +8,9 @@ val eventListeners: ArrayList<Pair<suspend () -> Boolean, suspend () -> Unit>> =
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-suspend fun blockUntil(millisDelay: Long = 0, predicate: suspend () -> Boolean) {
+suspend fun blockUntil(predicate: suspend () -> Boolean) {
     while (!predicate())
-        delay(millisDelay)
+        delay(500)
 }
 
 @ExperimentalCoroutinesApi

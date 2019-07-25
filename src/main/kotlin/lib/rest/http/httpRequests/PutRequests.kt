@@ -12,23 +12,29 @@ import lib.model.Snowflake
 import lib.rest.api
 import lib.rest.client
 import lib.rest.rateLimit
-import lib.rest.useRateLimit
+import lib.rest.updateRateLimitInfo
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-private suspend fun Bot.putRequest(url: String, jsonBody: String): HttpResponse {
+private suspend fun Bot.putRequest(url: String/*, jsonBody: String*/): HttpResponse {
     rateLimit()
 
     return client.put<HttpResponse>(api + url) {
         authHeaders.forEach { (k, v) ->
             header(k, v)
         }
-        body = TextContent(jsonBody, Application.Json)
-    }.also(::useRateLimit)
+        body = TextContent("", Application.Json)
+    }.also(::updateRateLimitInfo)
 }
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun Bot.createReaction(channelId: Snowflake, messageId: Snowflake, emoji: Char) {
-    putRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/@me", "")
+    putRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/@me")
+}
+
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
+suspend fun Bot.addPin(channelId: Snowflake, messageId: Snowflake) {
+    putRequest("/channels/$channelId/pins/$messageId")
 }

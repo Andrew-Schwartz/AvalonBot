@@ -5,35 +5,40 @@ import lib.model.*
 import java.io.File
 import java.io.InputStream
 import java.time.OffsetDateTime
+import kotlin.collections.set
 
 data class RichEmbed internal constructor(
         var title: String? = null,
         var description: String? = null,
         var timestamp: Timestamp? = null,
         var color: Color? = null,
+        var url: String? = null,
         var author: User? = null,
-        var image: EmbedImage? = null
+        var image: EmbedImage? = null,
+        var thumbnail: EmbedThumbnail? = null,
+        var footer: EmbedFooter? = null
 ) {
     companion object {
         val empty = RichEmbed()
     }
 
-    private val footer: EmbedFooter? = null
     private val fields: ArrayList<EmbedField> = ArrayList()
 
-    val files: MutableMap<String, InputStream> = mutableMapOf()
+    private val files: MutableMap<String, InputStream> = mutableMapOf()
 
-    fun timestamp() {
-        timestamp = OffsetDateTime.now().timestamp()
+    fun timestamp(time: OffsetDateTime = OffsetDateTime.now()) {
+        timestamp = time.timestamp()
     }
 
     fun addField(name: String, value: String, inline: Boolean = false) {
         fields += EmbedField(
-                name = name,
-                value = value,
+                name = name.trimTo(256),
+                value = value.trimTo(256),
                 inline = inline
         )
     }
+
+    fun addBlankField(inline: Boolean = false) = addField("\u200B", "\u200B", inline)
 
     fun image(file: File, name: String = file.name) {
         files[name] = file.inputStream()
@@ -54,12 +59,14 @@ data class RichEmbed internal constructor(
         image = EmbedImage(url)
     }
 
-    fun build(): Embed {
-        ensureLimits()
+    fun footer(text: String, iconUrl: String = "", proxyIconUrl: String = "") {
+        footer = EmbedFooter(text, iconUrl, proxyIconUrl)
+    }
 
+    fun build(): Embed {
         val author = author?.let {
             EmbedAuthor(
-                    name = it.username,
+                    name = it.username.trimTo(256),
                     url = null,
                     iconUrl = null,
                     proxyIconUrl = null
@@ -70,44 +77,51 @@ data class RichEmbed internal constructor(
         val files = files.takeUnless { it.isEmpty() }
 
         return Embed(
-                title = title,
+                title = title?.trimTo(256),
                 type = "rich",
-                description = description,
+                description = description?.trimTo(2048),
                 timestamp = timestamp,
                 color = color?.value?.toInt(),
-                url = null,
-                footer = null,
+                url = url,
+                footer = footer,
                 image = image,
                 thumbnail = null,
                 video = null,
                 provider = null,
                 author = author,
-                fields = fields,
+                fields = fields?.take(25)?.toTypedArray(),
                 files = files
         )
     }
 
+    private fun String.trimTo(maxLen: Int, end: String = "..."): String {
+        return when {
+            length > maxLen -> take(maxLen - end.length) + end
+            else -> this
+        }
+    }
+
     private fun ensureLimits() {
-        if ((title?.length ?: 0) > 256)
-            throw EmbedLimitException("Embed titles cannot be more than 256 characters")
+//        if ((title?.length ?: 0) > 256)
+//            throw EmbedLimitException("Embed titles cannot be more than 256 characters")
+//
+//        if ((description?.length ?: 0) > 2048)
+//            throw EmbedLimitException("Embed descriptions cannot be more than 2048 characters")
+//
+//        if (fields.size > 25)
+//            throw EmbedLimitException("Embed cannot have more than 25 fields")
+//
+//        if (fields.any { it.name.length > 256 })
+//            throw EmbedLimitException("Field names cannot be more than 256 characters")
+//
+//        if (fields.any { it.value.length > 256 })
+//            throw EmbedLimitException("Field values cannot be more than 256 characters")
+//
+//        if ((footer?.text?.length ?: 0) > 2048)
+//            throw EmbedLimitException("Footer text cannot be more than 2048 characters")
 
-        if ((description?.length ?: 0) > 2048)
-            throw EmbedLimitException("Embed descriptions cannot be more than 2048 characters")
-
-        if (fields.size > 25)
-            throw EmbedLimitException("Embed cannot have more than 25 fields")
-
-        if (fields.any { it.name.length > 256 })
-            throw EmbedLimitException("Field names cannot be more than 256 characters")
-
-        if (fields.any { it.value.length > 256 })
-            throw EmbedLimitException("Field values cannot be more than 256 characters")
-
-        if ((footer?.text?.length ?: 0) > 2048)
-            throw EmbedLimitException("Footer text cannot be more than 2048 characters")
-
-        if ((author?.username?.length ?: 0) > 256)
-            throw EmbedLimitException("Author name cannot be more than 256 characters")
+//        if ((author?.username?.length ?: 0) > 256)
+//            throw EmbedLimitException("Author name cannot be more than 256 characters")
 
         val totalChars = (title?.length ?: 0) +
                 (description?.length ?: 0) +

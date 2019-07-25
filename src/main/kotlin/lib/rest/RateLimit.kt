@@ -11,8 +11,11 @@ import lib.util.parseRfc1123
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun Bot.rateLimit() = with(rateLimitInfo) {
-    if (remaining == 0)
-        delay((resetTime!! - currentTime!!) * 1000)
+    if (remaining == 0) {
+        val seconds = resetTime!! - currentTime!!
+        println("rate limited for $seconds seconds")
+        delay(seconds * 1000)
+    }
 }
 
 data class RateLimitInfo(var limit: Int?, var remaining: Int?, var resetTime: Long?, var currentTime: Long?) {
@@ -33,10 +36,4 @@ fun Headers.getRateLimitInfo(): RateLimitInfo = RateLimitInfo(
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-fun Bot.useRateLimit(response: HttpResponse) {
-    val headers = response.headers
-
-    val info = headers.getRateLimitInfo()
-
-    rateLimitInfo.copyNonNull(info)
-}
+fun Bot.updateRateLimitInfo(response: HttpResponse) = rateLimitInfo.copyNonNull(response.headers.getRateLimitInfo())

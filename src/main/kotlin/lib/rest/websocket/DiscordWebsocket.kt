@@ -19,7 +19,7 @@ import lib.rest.model.events.sendEvents.Identify
 import lib.rest.model.events.sendEvents.SendEvent
 import lib.util.fromJson
 import lib.util.toJson
-import lib.util.toJsonTree
+import lib.util.toJsonElement
 import kotlin.system.exitProcess
 
 @ExperimentalCoroutinesApi
@@ -159,6 +159,45 @@ class DiscordWebsocket(val bot: Bot) {
                 bot.guilds += this
                 GuildCreate.actions.forEach { it() }
             }
+            GuildUpdate -> GuildUpdate.withJson(data) {
+                GuildUpdate.actions.forEach { it() }
+            }
+            GuildDelete -> GuildDelete.withJson(data) {
+                GuildDelete.actions.forEach { it() }
+            }
+            GuildBanAdd -> GuildBanAdd.withJson(data) {
+                GuildBanAdd.actions.forEach { it() }
+            }
+            GuildBanRemove -> GuildBanRemove.withJson(data) {
+                GuildBanRemove.actions.forEach { it() }
+            }
+            GuildEmojisUpdate -> GuildEmojisUpdate.withJson(data) {
+                GuildEmojisUpdate.actions.forEach { it() }
+            }
+            GuildIntegrationsUpdate -> GuildIntegrationsUpdate.withJson(data) {
+                GuildIntegrationsUpdate.actions.forEach { it() }
+            }
+            GuildMemberAdd -> GuildMemberAdd.withJson(data) {
+                GuildMemberAdd.actions.forEach { it() }
+            }
+            GuildMemberRemove -> GuildMemberRemove.withJson(data) {
+                GuildMemberRemove.actions.forEach { it() }
+            }
+            GuildMemberUpdate -> GuildMemberUpdate.withJson(data) {
+                GuildMemberUpdate.actions.forEach { it() }
+            }
+            GuildMembersChunk -> GuildMembersChunk.withJson(data) {
+                GuildMembersChunk.actions.forEach { it() }
+            }
+            GuildRoleCreate -> GuildRoleCreate.withJson(data) {
+                GuildRoleCreate.actions.forEach { it() }
+            }
+            GuildRoleUpdate -> GuildRoleUpdate.withJson(data) {
+                GuildRoleUpdate.actions.forEach { it() }
+            }
+            GuildRoleDelete -> GuildRoleDelete.withJson(data) {
+                GuildRoleDelete.actions.forEach { it() }
+            }
             MessageCreate -> MessageCreate.withJson(data) {
                 bot.messages += this
                 MessageCreate.actions.forEach { it() }
@@ -167,8 +206,21 @@ class DiscordWebsocket(val bot: Bot) {
                 bot.messages += this
                 MessageUpdate.actions.forEach { it() }
             }
-            TypingStart -> TypingStart.withJson(data) {
-                TypingStart.actions.forEach { it() }
+            MessageDelete -> MessageDelete.withJson(data) {
+                MessageDelete.actions.forEach { it() }
+//                bot.messages -= getC
+            }
+            MessageDeleteBulk -> MessageDeleteBulk.withJson(data) {
+                MessageDeleteBulk.actions.forEach { it() }
+            }
+            MessageReactionAdd -> MessageReactionAdd.withJson(data) {
+                MessageReactionAdd.actions.forEach { it() }
+            }
+            MessageReactionRemove -> MessageReactionRemove.withJson(data) {
+                MessageReactionRemove.actions.forEach { it() }
+            }
+            MessageReactionRemoveAll -> MessageReactionRemoveAll.withJson(data) {
+                MessageReactionRemoveAll.actions.forEach { it() }
             }
             PresenceUpdate -> PresenceUpdate.withJson(data) {
                 PresenceUpdate.actions.forEach { it() }
@@ -176,11 +228,20 @@ class DiscordWebsocket(val bot: Bot) {
             PresencesReplace -> PresencesReplace.withJson(data) {
                 PresencesReplace.actions.forEach { it() }
             }
-            MessageReactionAdd -> MessageReactionAdd.withJson(data) {
-                MessageReactionAdd.actions.forEach { it() }
+            TypingStart -> TypingStart.withJson(data) {
+                TypingStart.actions.forEach { it() }
             }
-            MessageReactionRemove -> MessageReactionRemove.withJson(data) {
-                MessageReactionRemove.actions.forEach { it() }
+            UserUpdate -> UserUpdate.withJson(data) {
+                UserUpdate.actions.forEach { it() }
+            }
+            VoiceStateUpdate -> VoiceStateUpdate.withJson(data) {
+                VoiceStateUpdate.actions.forEach { it() }
+            }
+            VoiceServerUpdate -> VoiceServerUpdate.withJson(data) {
+                VoiceServerUpdate.actions.forEach { it() }
+            }
+            WebhookUpdate -> WebhookUpdate.withJson(data) {
+                WebhookUpdate.actions.forEach { it() }
             }
         }
     }
@@ -200,7 +261,7 @@ class DiscordWebsocket(val bot: Bot) {
     }
 
     private suspend fun sendGateway(payload: SendEvent) {
-        val message = GatewayPayload(payload.opcode.code, payload.toJsonTree(), sequenceNumber)
+        val message = GatewayPayload(payload.opcode.code, payload.toJsonElement(), sequenceNumber)
         sendWebsocket(message.toJson())
     }
 }

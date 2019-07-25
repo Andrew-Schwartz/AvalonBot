@@ -71,16 +71,27 @@ data class VoiceState(
 @Suppress("ArrayInDataClass")
 data class PresenceUpdatePayload(
         val user: User,
-        val roles: Array<Snowflake>,
+        @SerializedName("roles") private val _roles: Array<String>,
         val game: Activity?,
         @SerializedName("guild_id") val guildId: Snowflake,
         val status: String,
         val activities: Array<Activity>,
         @SerializedName("client_status") val clientStatus: ClientStatus
-)
+) {
+    val roles by lazy { _roles.map(::Snowflake) }
+}
 
 data class ClientStatus(
-        val desktop: String?,
-        val mobile: String,
-        val web: String?
+        val desktop: Status?,
+        val mobile: Status,
+        val web: Status?
 )
+
+enum class Status {
+    @SerializedName("desktop")
+    Desktop,
+    @SerializedName("mobile")
+    Mobile,
+    @SerializedName("web")
+    Web
+}

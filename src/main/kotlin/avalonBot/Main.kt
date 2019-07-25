@@ -10,7 +10,9 @@ import lib.dsl.bot
 import lib.dsl.command
 import lib.dsl.on
 import lib.model.User
-import lib.rest.http.httpRequests.getChannel
+import lib.rest.http.httpRequests.createDM
+import lib.rest.http.httpRequests.getUser
+import lib.rest.model.events.receiveEvents.MessageDelete
 import lib.rest.model.events.receiveEvents.Ready
 import lib.util.fromJson
 import java.io.File
@@ -23,26 +25,37 @@ val roles: ArrayList<Character> = ArrayList()
 val avalonLogo: File = File("src/main/resources/images/avalonLogo.png")
 val leaderCrown: File = File("src/main/resources/images/leaderCrown.jpg")
 
+lateinit var steadfast: User
+
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 fun main() = runBlocking {
     val (token, prefix, sfId, ktsId) = config
 
-    val ping = true
-//    val ping = false
-
     bot(token) {
+        steadfast = getUser(sfId)
+
         on(Ready) {
-            @Suppress("ConstantConditionIf")
-            if (ping)
-                getChannel(ktsId).send {
-                    //                getUser(sfId).sendDM {
-                    title = "${this@bot.user.username} is logged on!!"
-                    color = neutral
-                    timestamp()
+            //            getChannel(ktsId).send {
+            steadfast.sendDM {
+                title = "${this@bot.user.username} is logged on!!"
+                color = neutral
+                timestamp()
+                url = "https://github.com/Andrew-Schwartz/AvalonBot"
+            }
+        }
+
+        on(MessageDelete) {
+            message(bot = this@bot).run {
+                createDM(sfId).send {
+                    title = "Message from ${this@run.author.username} deleted!"
+                    if (content.isNotEmpty())
+                        description = content
+                    for (attachment in attachments) {
+                        addField(attachment.filename, attachment.proxyUrl)
+                    }
                 }
-            else
-                println("${user.username} is logged on")
+            }
         }
 
         command(prefix = "!") {

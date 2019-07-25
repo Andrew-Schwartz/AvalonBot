@@ -4,7 +4,11 @@ package lib.rest.model.events.receiveEvents
 
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.Bot
 import lib.model.*
+import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.GatewayOpcode
 import lib.util.A
 import lib.util.Action
@@ -18,6 +22,7 @@ sealed class DispatchEvent<P> {
 }
 
 // inline extension, not member function, because P needs to be reified for `fromJson`
+@Suppress("unused")
 inline fun <reified P> DispatchEvent<P>.withJson(payload: JsonElement, λ: P.() -> Unit) = with(payload.fromJson(), λ)
 
 suspend inline fun <reified P> DispatchEvent<P>.runAllActions(payload: JsonElement) {
@@ -42,19 +47,59 @@ object ChannelPinsUpdate : DispatchEvent<ChannelPinsPayload>()
 
 object GuildCreate : DispatchEvent<Guild>()
 
+object GuildUpdate : DispatchEvent<Guild>()
+
+object GuildDelete : DispatchEvent<Guild>()
+
+object GuildBanAdd : DispatchEvent<GuildBanUpdatePayload>()
+
+object GuildBanRemove : DispatchEvent<GuildBanUpdatePayload>()
+
+object GuildEmojisUpdate : DispatchEvent<GuildEmojisPayload>()
+
+object GuildIntegrationsUpdate : DispatchEvent<IntegrationsUpdatePayload>()
+
+object GuildMemberAdd : DispatchEvent<GuildMember>()
+
+object GuildMemberRemove : DispatchEvent<GuildMemberRemovePayload>()
+
+object GuildMemberUpdate : DispatchEvent<GuildMemberUpdatePayload>()
+
+object GuildMembersChunk : DispatchEvent<GuildMembersChunkPayload>()
+
+object GuildRoleCreate : DispatchEvent<GuildRoleUpdatePayload>()
+
+object GuildRoleUpdate : DispatchEvent<GuildRoleUpdatePayload>()
+
+object GuildRoleDelete : DispatchEvent<GuildRoleDeletePayload>()
+
 object MessageCreate : DispatchEvent<Message>()
 
 object MessageUpdate : DispatchEvent<Message>()
 
-object TypingStart : DispatchEvent<TypingStartPayload>()
+object MessageDelete : DispatchEvent<MessageDeletePayload>()
+
+object MessageDeleteBulk : DispatchEvent<MessageDeleteBulkPayload>()
+
+object MessageReactionAdd : DispatchEvent<MessageReactionUpdatePayload>()
+
+object MessageReactionRemove : DispatchEvent<MessageReactionUpdatePayload>()
+
+object MessageReactionRemoveAll : DispatchEvent<MessageReactionRemoveAllPayload>()
 
 object PresenceUpdate : DispatchEvent<PresenceUpdatePayload>()
 
 object PresencesReplace : DispatchEvent<SomeArray>()
 
-object MessageReactionAdd : DispatchEvent<MessageReactionUpdatePayload>()
+object TypingStart : DispatchEvent<TypingStartPayload>()
 
-object MessageReactionRemove : DispatchEvent<MessageReactionUpdatePayload>()
+object UserUpdate : DispatchEvent<User>()
+
+object VoiceStateUpdate : DispatchEvent<VoiceState>()
+
+object VoiceServerUpdate : DispatchEvent<VoiceServerUpdatePayload>()
+
+object WebhookUpdate : DispatchEvent<WebhookUpdatePayload>()
 
 @Suppress("ArrayInDataClass")
 data class ReadyPayload(
@@ -69,8 +114,17 @@ data class ReadyPayload(
 
 @Suppress("ArrayInDataClass")
 data class ResumePayload(
-        val _trace: Array<String> // guilds the user is in, should maybe be snowflakes
-)
+        val _trace: Array<String> // guilds the user is in
+) {
+    val guildsIds by lazy { _trace.map(::Snowflake) }
+}
+
+//data class UnavailableGuild(
+//        val id: Snowflake,
+//        val unavailable: Boolean
+//) {
+//
+//}
 
 data class InvalidSessionPayload(
         val op: GatewayOpcode,
@@ -80,20 +134,26 @@ data class InvalidSessionPayload(
 @Suppress("ArrayInDataClass")
 data class SomeArray(val array: Array<Any>)
 
-//data class MessageDeleteEvent(
-//        val id: Snowflake,
-//        @SerializedName("channel_id") val channelId: Snowflake,
-//        @SerializedName("guild_id") val guildId: Snowflake?
-//) : DispatchEvent()
-//
-//@Suppress("ArrayInDataClass")
-//data class MessageDeleteBulkEvent(
-//        @SerializedName("ids") private val _ids: A<String>,
-//        @SerializedName("channel_id") private val channelId: Snowflake,
-//        @SerializedName("guild_id") private val guildId: Snowflake?
-//) : DispatchEvent() {
-//    val ids: A<Snowflake> by lazy { _ids.map(::Snowflake).toTypedArray() }
-//}
+data class MessageDeletePayload(
+        val id: Snowflake,
+        @SerializedName("channel_id") val channelId: Snowflake,
+        @SerializedName("guild_id") val guildId: Snowflake?
+) {
+    @ExperimentalCoroutinesApi
+    @KtorExperimentalAPI
+    suspend fun message(bot: Bot): Message {
+        return bot.getMessage(channelId, id)
+    }
+}
+
+@Suppress("ArrayInDataClass")
+data class MessageDeleteBulkPayload(
+        @SerializedName("ids") private val _ids: Array<String>,
+        @SerializedName("channel_id") private val channelId: Snowflake,
+        @SerializedName("guild_id") private val guildId: Snowflake?
+) {
+    val ids by lazy { _ids.map(::Snowflake) }
+}
 
 data class ChannelPinsPayload(
         @SerializedName("guild_id") val guildId: Snowflake?,
@@ -101,16 +161,16 @@ data class ChannelPinsPayload(
         @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp
 )
 
-//data class GuildBanUpdateEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        val user: User
-//) : DispatchEvent()
-//
-//@Suppress("ArrayInDataClass")
-//data class GuildEmojisEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        val emojis: A<Emoji>
-//) : DispatchEvent()
+data class GuildBanUpdatePayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val user: User
+)
+
+@Suppress("ArrayInDataClass")
+data class GuildEmojisPayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val emojis: Array<Emoji>
+)
 
 data class MessageReactionUpdatePayload(
         @SerializedName("user_id") val userId: Snowflake,
@@ -120,46 +180,46 @@ data class MessageReactionUpdatePayload(
         val emoji: Emoji
 )
 
-//data class MessageReactionRemoveAllEvent(
-//        @SerializedName("message_id") val messageId: Snowflake,
-//        @SerializedName("channel_id") val channelId: Snowflake,
-//        @SerializedName("guild_id") val guildId: Snowflake?
-//) : DispatchEvent()
-//
-//data class IntegrationsUpdateEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake
-//) : DispatchEvent()
-//
-//data class GuildMemberRemoveEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        val user: User
-//) : DispatchEvent()
-//
-//@Suppress("ArrayInDataClass")
-//data class GuildMemberUpdateEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        @SerializedName("roles") private val _roles: A<String>,
-//        val user: User,
-//        val nick: String
-//) : DispatchEvent() {
-//    val roles: A<Snowflake> by lazy { _roles.map(::Snowflake).toTypedArray() }
-//}
-//
-//@Suppress("ArrayInDataClass")
-//data class GuildMembersChunkEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        val members: A<GuildMember>
-//) : DispatchEvent()
-//
-//data class GuildRoleUpdateEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        val role: Role
-//) : DispatchEvent()
-//
-//data class GuildRoleDeleteEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        val role: Snowflake
-//) : DispatchEvent()
+data class MessageReactionRemoveAllPayload(
+        @SerializedName("message_id") val messageId: Snowflake,
+        @SerializedName("channel_id") val channelId: Snowflake,
+        @SerializedName("guild_id") val guildId: Snowflake?
+)
+
+data class IntegrationsUpdatePayload(
+        @SerializedName("guild_id") val guildId: Snowflake
+)
+
+data class GuildMemberRemovePayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val user: User
+)
+
+@Suppress("ArrayInDataClass")
+data class GuildMemberUpdatePayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        @SerializedName("roles") private val _roles: Array<String>,
+        val user: User,
+        val nick: String
+) {
+    val roles by lazy { _roles.map(::Snowflake) }
+}
+
+@Suppress("ArrayInDataClass")
+data class GuildMembersChunkPayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val members: Array<GuildMember>
+)
+
+data class GuildRoleUpdatePayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val role: Role
+)
+
+data class GuildRoleDeletePayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val role: Snowflake
+)
 
 data class TypingStartPayload(
         @SerializedName("channel_id") val channelId: Snowflake,
@@ -168,13 +228,13 @@ data class TypingStartPayload(
         val timestamp: Long
 )
 
-//data class VoiceServerUpdateEvent(
-//        val token: String,
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        val endpoint: String
-//) : DispatchEvent()
-//
-//data class WebhookUpdateEvent(
-//        @SerializedName("guild_id") val guildId: Snowflake,
-//        @SerializedName("channel_id") val channelId: Snowflake
-//) : DispatchEvent()
+data class VoiceServerUpdatePayload(
+        val token: String,
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val endpoint: String
+)
+
+data class WebhookUpdatePayload(
+        @SerializedName("guild_id") val guildId: Snowflake,
+        @SerializedName("channel_id") val channelId: Snowflake
+)

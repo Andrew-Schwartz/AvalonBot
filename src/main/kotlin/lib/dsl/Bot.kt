@@ -22,6 +22,8 @@ class Bot internal constructor(val token: String) {
     private val socket = DiscordWebsocket(this)
     val rateLimitInfo: RateLimitInfo = RateLimitInfo(null, null, null, null)
 
+    val pinnedMessages: MutableList<Message> = mutableListOf()
+
     lateinit var user: User
 
     var sessionId: String? = null
@@ -35,14 +37,13 @@ class Bot internal constructor(val token: String) {
                               embed: RichEmbed = RichEmbed(),
                               ping: Boolean = false,
                               builder: suspend RichEmbed.() -> Unit = {}
-    ): Message {
-        return channel.send(
-                content = content,
-                embed = embed,
-                pingTargets = if (ping) L[author] else emptyList(),
-                builder = builder
-        )
-    }
+    ): Message = channel.send(
+            content = content,
+            embed = embed,
+            pingTargets = if (ping) L[author] else emptyList(),
+            builder = builder
+    )
+
 
     suspend fun Message.react(emoji: Char) {
         createReaction(channel.id, id, emoji)
@@ -91,6 +92,11 @@ class Bot internal constructor(val token: String) {
 
     val Message.channel: Channel
         get() = runBlocking { getChannel(channelId) }
+
+    suspend fun Message.pin() {
+        pinnedMessages += this
+        addPin(channelId, id)
+    }
 
     val Channel.lastMessage: Message
         get() = runBlocking { getMessage(id, lastMessageId ?: throw IllegalStateException("Last message was null")) }

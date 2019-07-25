@@ -12,10 +12,39 @@ data class User(
         val locale: String?,
         val verified: Boolean?,
         val email: String?,
-        val flags: Int?,
+        @SerializedName("flags") private val _flags: Int?,
         @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
-) : Storable
+) : Storable {
+//    val userFlags: List<UserFlag>
+//        get() = UserFlag[_flags].also(::println)
+}
+
+enum class UserFlag {
+    None,
+    DiscordEmployee,
+    DiscordPartner,
+    HypeSquadEvents,
+    BugHunter,
+    HouseBravery,
+    HouseBrilliance,
+    HouseBalance,
+    EarlySupporter,
+    TeamUser;
+
+    companion object {
+        // TODO
+        operator fun get(flags: Int?): List<UserFlag> {
+            println(flags)
+            val list: MutableList<UserFlag> = mutableListOf()
+            for (i in 0..10) {
+
+            }
+
+            return list.takeUnless { it.isEmpty() } ?: listOf(None)
+        }
+    }
+}
 
 enum class PremiumType {
     @SerializedName("1")

@@ -25,7 +25,7 @@ data class Timestamps(
 @Suppress("ArrayInDataClass")
 data class Party(
         val id: String?,
-        @SerializedName("size") val _size: Array<Int> // size[0] -> currSize, size[1] -> maxSize
+        @SerializedName("size") private val _size: Array<Int> // size[0] -> currSize, size[1] -> maxSize
 ) {
     val currSize: Int get() = _size[0]
 

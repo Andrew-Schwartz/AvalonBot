@@ -6,9 +6,12 @@ import lib.model.Storable
 class Store<T : Storable> {
     val map: MutableMap<Snowflake, T> = mutableMapOf()
 
-    operator fun plusAssign(value: T) {
+    fun add(value: T) {
         map[value.id] = value
     }
+
+    operator fun plusAssign(value: T) = add(value)
+
 
     operator fun minusAssign(value: T) {
         map -= value.id

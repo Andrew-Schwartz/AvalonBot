@@ -58,6 +58,12 @@ suspend fun Bot.getReactions(channelId: Snowflake, messageId: Snowflake, emoji: 
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+suspend fun Bot.getPins(channelId: Snowflake): Array<Message> {
+    return getRequest("/channels/$channelId/pins").fromJson()
+}
+
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
 suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Message> {
     return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().also {
         for (message in it) messages += message

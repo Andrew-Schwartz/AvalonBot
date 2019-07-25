@@ -18,10 +18,10 @@ import lib.model.Message
 import lib.model.Snowflake
 import lib.rest.api
 import lib.rest.client
-import lib.rest.http.CreateDM
 import lib.rest.http.CreateMessage
 import lib.rest.rateLimit
-import lib.rest.useRateLimit
+import lib.rest.updateRateLimitInfo
+import lib.util.J
 import lib.util.fromJson
 import lib.util.toJson
 
@@ -35,7 +35,7 @@ private suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse
             header(key, value)
         }
         body = TextContent(jsonBody, Application.Json)
-    }.also(::useRateLimit)
+    }.also(::updateRateLimitInfo)
 }
 
 @KtorExperimentalAPI
@@ -51,20 +51,14 @@ private suspend fun Bot.postFormDataRequest(url: String, formData: FormBuilder.(
         body = MultiPartFormDataContent(formData {
             formData()
         })
-    }.also(::useRateLimit)
+    }.also(::updateRateLimitInfo)
 }
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-suspend fun Bot.createDM(createDM: CreateDM): Channel {
-    return channels.getOrPut(createDM.userId) {
-        postRequest("/users/@me/channels", createDM.toJson()).fromJson()
-    }
+suspend fun Bot.createDM(userId: Snowflake): Channel = channels.getOrPut(userId) {
+    postRequest("/users/@me/channels", J["recipient_id", userId.value].toJson()).fromJson()
 }
-
-@KtorExperimentalAPI
-@ExperimentalCoroutinesApi
-suspend fun Bot.createDM(userId: Snowflake): Channel = createDM(CreateDM(userId))
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -90,7 +84,5 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
         }
     }
 
-    val message: Message = response.fromJson()
-    messages += message
-    return message
+    return response.fromJson<Message>().also(messages::add)
 }

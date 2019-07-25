@@ -21,12 +21,15 @@ object AddCommand : Command(General) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        val nick = if (args.isNotEmpty()) args[0] else message.author.username
+        val nick: String = if (args.isNotEmpty()) message.content.substringAfter(" ") else message.member.nick
+                ?: message.author.username
 
         when {
             // TODO commented for testing alone
 //            message.author in players.values -> message.reply(ping = true, content = ", you are already in the game!")
-//            message.channel.guild?.members?.any { it.username == nick || it.nick == nick } != false -> message.reply(ping = true, content = ", a member of this server has that name. That would be confusing :(")
+//            message.channel.guild?.members
+//                    ?.filter { it.user != message.author }
+//                    ?.any { it.username == nick || it.nick == nick } != false -> message.reply(ping = true, content = ", a member of this server has that name. That would be confusing :(")
             nick.contains(";") -> message.reply(ping = true, content = ", names cannot contain ${";".inlineCode()}")
             nick.contains("\n") -> message.reply(ping = true, content = ", names cannot contain newlines")
             nick in players -> message.reply(ping = true, content = ", $nick is already taken")

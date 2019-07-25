@@ -30,8 +30,8 @@ object PlayersCommand : Command(General, AvalonGame) {
                     message.reply {
                         color = Colors.neutral
                         title = "Players"
-                        addField("Nicknames", players.keys.joinToString())
-                        addField("Users", players.values.joinToString { it.ping() })
+                        addField("Nicknames", players.keys.joinToString(separator = "\n"))
+                        addField("Users", players.values.joinToString(separator = "\n") { it.ping() })
                     }
                 } else {
                     "${"!players ${args[0]}".inlineCode()} is not understood. Try ${"!help players".inlineCode()} for information"
@@ -39,8 +39,8 @@ object PlayersCommand : Command(General, AvalonGame) {
             } else {
                 message.reply {
                     color = Colors.neutral
-                    addField("Nicknames", players.keys.joinToString())
-                    addField("Users", players.values.joinToString { it.username })
+                    addField("Nicknames", players.keys.joinToString(separator = "\n"))
+                    addField("Users", players.values.joinToString(separator = "\n") { it.username })
                 }
             }
         }

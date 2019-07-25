@@ -11,11 +11,22 @@ import avalonBot.players
 import avalonBot.roles
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import lib.dsl.Bot
 import lib.model.Message
 
-object StartCommand : Command(General) {
+object StartCommand : Command(General, AvalonGame) {
     private const val START_NOW = "now"
+    private const val START_OVER = "over"
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    private var avalonInstance: Avalon? = null
+
+//    @KtorExperimentalAPI
+//    @ExperimentalCoroutinesApi
+//    private val avalonGames: Map<Channel, Avalon> = emptyMap()
 
     override val name: String = "start"
 
@@ -36,19 +47,24 @@ object StartCommand : Command(General) {
         val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
 
         when {
+            args.getOrNull(0) == START_OVER -> {
+                avalonInstance = null
+                currentState = General
+                players.clear()
+                roles.clear()
+            }
             maxEvil == -1 -> message.reply("Between 5 and 10 players are required!")
             roles.size > players.size -> message.reply("You have more roles chosen than you have players!")
             evil > maxEvil -> {
                 message.reply("You have too many evil roles (${roles.filter { it.loyalty == Evil }.joinToString { it.name }})")
             }
             evil <= maxEvil -> {
-//                if (args.isNotEmpty()) {
-//                    if (args[0] == START_NOW) {
                 currentState = AvalonGame
-                val a = Avalon(this, message.channel)
-                a.startGame(numEvil = maxEvil)
-//                    }
-//                }
+                val bot = this
+                GlobalScope.launch {
+                    avalonInstance = Avalon(bot, message.channel)
+                    avalonInstance!!.startGame(numEvil = maxEvil)
+                }
             }
             else -> message.reply("error starting game!!!")
         }
