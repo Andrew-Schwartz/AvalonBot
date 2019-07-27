@@ -11,8 +11,10 @@ import lib.dsl.command
 import lib.dsl.on
 import lib.model.user.User
 import lib.rest.http.httpRequests.createDM
+import lib.rest.http.httpRequests.getChannel
 import lib.rest.http.httpRequests.getUser
 import lib.rest.model.events.receiveEvents.MessageDelete
+import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.rest.model.events.receiveEvents.Ready
 import lib.util.fromJson
 import java.io.File
@@ -34,10 +36,11 @@ fun main() = runBlocking {
 
     bot(token) {
         steadfast = getUser(sfId)
+        val kts = getChannel(ktsId)
 
         on(Ready) {
-            //            getChannel(ktsId).send {
-            steadfast.sendDM {
+            kts.send(content = "test content") {
+                //            steadfast.sendDM {
                 title = "${this@bot.user.username} is logged on!!"
                 color = neutral
                 timestamp()
@@ -58,7 +61,13 @@ fun main() = runBlocking {
             }
         }
 
-        command(prefix = "!") {
+        command(prefix, event = MessageUpdate) {
+            if (editedTimestamp!!.dateTime.toEpochSecond() - timestamp.dateTime.toEpochSecond() <= 30) {
+                Command.run(this@bot, this, prefix)
+            }
+        }
+
+        command(prefix) {
             Command.run(this@bot, this, prefix)
         }
     }

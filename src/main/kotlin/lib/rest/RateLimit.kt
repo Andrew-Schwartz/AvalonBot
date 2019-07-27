@@ -19,7 +19,7 @@ suspend fun Bot.rateLimit() = with(rateLimitInfo) {
 }
 
 data class RateLimitInfo(var limit: Int?, var remaining: Int?, var resetTime: Long?, var currentTime: Long?) {
-    fun copyNonNull(new: RateLimitInfo) {
+    fun copyNonNullFrom(new: RateLimitInfo) {
         limit = new.limit ?: limit
         remaining = new.remaining ?: remaining
         resetTime = new.resetTime ?: resetTime
@@ -36,4 +36,4 @@ fun Headers.getRateLimitInfo(): RateLimitInfo = RateLimitInfo(
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-fun Bot.updateRateLimitInfo(response: HttpResponse) = rateLimitInfo.copyNonNull(response.headers.getRateLimitInfo())
+fun Bot.updateRateLimitInfo(response: HttpResponse) = rateLimitInfo.copyNonNullFrom(response.headers.getRateLimitInfo())

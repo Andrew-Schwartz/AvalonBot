@@ -22,7 +22,6 @@ import lib.rest.client
 import lib.rest.http.CreateMessage
 import lib.rest.rateLimit
 import lib.rest.updateRateLimitInfo
-import lib.util.J
 import lib.util.fromJson
 import lib.util.toJson
 
@@ -91,7 +90,7 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
         }
     }
 
-    return response.fromJson<Message>().also(messages::add)
+    return response.fromJson<Message>().let(messages::add)
 }
 
 /**
@@ -102,6 +101,8 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
  */
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-suspend fun Bot.createDM(userId: Snowflake): Channel = channels.computeIfAbsent(userId) {
-    postRequest("/users/@me/channels", J("recipient_id", userId.value)).fromJson()
+suspend fun Bot.createDM(userId: Snowflake): Channel {
+    return channels.computeIfAbsent(userId) {
+        postRequest("/users/@me/channels", """{"recipient_id": "$userId"}""").fromJson()
+    }
 }

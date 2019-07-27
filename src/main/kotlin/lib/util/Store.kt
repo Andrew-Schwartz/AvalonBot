@@ -1,26 +1,31 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package lib.util
 
-import kotlinx.coroutines.runBlocking
 import lib.model.Snowflake
 import lib.model.Storable
 
 class Store<T : Storable> {
     val map: MutableMap<Snowflake, T> = mutableMapOf()
 
-    fun add(value: T) {
-        map[value.id] = value
+    fun add(value: T): T {
+        return if (value.id in map) {
+            map[value.id]!!.addNotNullDataFrom(value) as T
+//            value.addNotNullDataFrom(map[value.id]!!)
+        } else {
+            value
+        }.also { map[value.id] = it }
     }
 
-    operator fun plusAssign(value: T) = add(value)
+//    inline operator fun plusAssign(value: T) = add(value)
 
-
-    operator fun minusAssign(value: T) {
-        map -= value.id
+    fun remove(id: Snowflake) {
+        map -= id
     }
 
-    operator fun minusAssign(key: Snowflake) {
-        map -= key
-    }
+    inline operator fun minusAssign(id: Snowflake) = remove(id)
+
+    inline operator fun minusAssign(value: T) = remove(value.id)
 
     operator fun get(snowflake: Snowflake): T? = map[snowflake]
 
@@ -28,5 +33,12 @@ class Store<T : Storable> {
 
     fun putIfAbsent(value: T): T = map.putIfAbsent(value.id, value)!!
 
-    fun computeIfAbsent(id: Snowflake, default: suspend () -> T) = map.computeIfAbsent(id) { runBlocking { default() } }
+    //    suspend fun computeIfAbsent(id: Snowflake, default: suspend () -> T) = map.computeIfAbsent(id) { runBlocking { default() } }
+    suspend fun computeIfAbsent(id: Snowflake, default: suspend () -> T): T {
+        return if (id in map) {
+            map[id]!!
+        } else {
+            default().also { map[id] = it }
+        }
+    }
 }

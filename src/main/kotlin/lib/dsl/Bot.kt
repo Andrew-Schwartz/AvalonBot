@@ -3,7 +3,9 @@ package lib.dsl
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import lib.exceptions.PermissionException
 import lib.model.channel.Channel
+import lib.model.channel.Embed
 import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
@@ -11,7 +13,7 @@ import lib.rest.RateLimitInfo
 import lib.rest.http.CreateMessage
 import lib.rest.http.httpRequests.*
 import lib.rest.websocket.DiscordWebsocket
-import lib.util.L
+import lib.util.A
 import lib.util.Store
 import lib.util.ping
 
@@ -33,31 +35,59 @@ class Bot internal constructor(val token: String) {
     val messages: Store<Message> = Store()
     val users: Store<User> = Store()
 
-    suspend fun Message.reply(content: String = "",
-                              embed: RichEmbed = RichEmbed(),
-                              ping: Boolean = false,
-                              builder: suspend RichEmbed.() -> Unit = {}
+    suspend fun Message.reply(
+            content: String = "",
+            embed: RichEmbed = RichEmbed(),
+            ping: Boolean = false,
+            builder: suspend RichEmbed.() -> Unit = {}
     ): Message = channel.send(
             content = content,
             embed = embed,
-            pingTargets = if (ping) L[author] else emptyList(),
+            pingTargets = if (ping) A[author] else emptyArray(),
             builder = builder
     )
 
+    suspend fun Message.edit(
+            content: String? = null,
+            embed: RichEmbed? = null,
+            pingTargets: Array<User> = emptyArray(), //
+            builder: (suspend RichEmbed.() -> Unit)? = null
+    ): Message {
+        if (author != user) throw PermissionException("Can only edit messages you have sent")
+
+        val pingText = pingTargets.joinToString(separator = "\n") { it.ping() }
+
+        val text = when {
+            content == null && pingTargets.isEmpty() -> null
+            content == null -> pingText
+            else -> pingText + content
+        }
+
+//        val embed = embed?.apply { builder() }?.build()
+        val embed: Embed? = when {
+            embed == null && builder == null -> null
+            embed == null -> RichEmbed().apply { builder!!.invoke(RichEmbed()) }.build()
+            else -> embed.apply { builder?.invoke(this) }.build()
+        }
+
+        return editMessage(channelId, id, text, embed)
+    }
 
     suspend fun Message.react(emoji: Char) {
         createReaction(channel.id, id, emoji)
     }
 
     suspend fun Message.reactions(emoji: Char) = getReactions(channelId, id, emoji)
+
     suspend fun Message.reactions(vararg emojis: Char): List<Array<User>> = emojis.map { reactions(it) }
 
     suspend fun User.getDM(): Channel = createDM(id)
 
 
-    suspend fun User.sendDM(content: String = "",
-                            embed: RichEmbed = RichEmbed(),
-                            builder: suspend RichEmbed.() -> Unit = {}
+    suspend fun User.sendDM(
+            content: String = "",
+            embed: RichEmbed = RichEmbed(),
+            builder: suspend RichEmbed.() -> Unit = {}
     ): Message {
         return getDM().send(
                 content = content,
@@ -68,10 +98,11 @@ class Bot internal constructor(val token: String) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    suspend fun Channel.send(content: String = "",
-                             embed: RichEmbed = RichEmbed(),
-                             pingTargets: List<User> = emptyList(),
-                             builder: suspend RichEmbed.() -> Unit = {}
+    suspend fun Channel.send(
+            content: String = "",
+            embed: RichEmbed = RichEmbed(),
+            pingTargets: Array<User> = emptyArray(),
+            builder: suspend RichEmbed.() -> Unit = {}
     ): Message {
         val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.ping() }
         @Suppress("NAME_SHADOWING")

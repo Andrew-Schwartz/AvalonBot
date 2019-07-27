@@ -10,10 +10,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.dsl.RichEmbed
 import lib.exceptions.RequestException
 import lib.model.Snowflake
 import lib.model.channel.Channel
+import lib.model.channel.Embed
 import lib.model.channel.Message
 import lib.rest.api
 import lib.rest.client
@@ -66,9 +66,11 @@ suspend fun Bot.modifyChannel(channelId: Snowflake, modifyInfo: ModifyChannelOpt
  */
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-suspend fun Bot.editMessage(channelId: Snowflake, messageId: Snowflake, content: String? = null, embed: RichEmbed? = null): Message {
+suspend fun Bot.editMessage(channelId: Snowflake, messageId: Snowflake, content: String? = null, embed: Embed? = null): Message {
     return patchRequest("/channels/$channelId/messages/$messageId", j {
-        if (content != null) add("content", content.take(2000))
-        if (embed != null) add("embed", embed)
+        if (content != null)
+            "content" to content.take(2000)
+        if (embed != null)
+            "embed" to embed
     }).fromJson()
 }

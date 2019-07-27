@@ -19,7 +19,14 @@ data class User(
         @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
 ) : Storable {
-//    val userFlags: List<UserFlag>
+    override fun equals(other: Any?): Boolean = (other as? User)?.id == id
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun addNotNullDataFrom(new: Storable?): User {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+    //    val userFlags: List<UserFlag>
 //        get() = UserFlag[_flags].also(::println)
 }
 

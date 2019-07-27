@@ -7,7 +7,6 @@ import io.ktor.http.cio.websocket.send
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import lib.dsl.Bot
-import lib.dsl.eventListeners
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
@@ -42,7 +41,7 @@ class DiscordWebsocket(val bot: Bot) {
                 val message: Frame.Text? = incoming.poll() as Frame.Text?
 
                 // run all eventListeners whose predicate is matched, then remove them
-                eventListeners -= eventListeners.filter { it.first() }.onEach { it.second() }
+//                eventListeners -= eventListeners.filter { it.first() }.onEach { it.second() }
 
                 message?.let {
                     try {
@@ -141,22 +140,24 @@ class DiscordWebsocket(val bot: Bot) {
                 TODO("probably reconnect if you can on invalid session")
             }
             ChannelCreate -> ChannelCreate.withJson(data) {
-                bot.channels += this
-                ChannelCreate.actions.forEach { it() }
+                bot.channels.add(this).run {
+                    ChannelCreate.actions.forEach { it() }
+                }
+//                bot.channels += this
             }
             ChannelUpdate -> ChannelUpdate.withJson(data) {
-                bot.channels += this
                 ChannelUpdate.actions.forEach { it() }
+//                bot.channels += this
             }
             ChannelDelete -> ChannelDelete.withJson(data) {
-                bot.channels -= this
                 ChannelDelete.actions.forEach { it() }
+//                bot.channels -= this
             }
             ChannelPinsUpdate -> ChannelPinsUpdate.withJson(data) {
                 ChannelPinsUpdate.actions.forEach { it() }
             }
             GuildCreate -> GuildCreate.withJson(data) {
-                bot.guilds += this
+                //                bot.guilds += this
                 GuildCreate.actions.forEach { it() }
             }
             GuildUpdate -> GuildUpdate.withJson(data) {
@@ -199,12 +200,16 @@ class DiscordWebsocket(val bot: Bot) {
                 GuildRoleDelete.actions.forEach { it() }
             }
             MessageCreate -> MessageCreate.withJson(data) {
-                bot.messages += this
-                MessageCreate.actions.forEach { it() }
+                //                bot.messages += this
+                bot.messages.add(this).run {
+                    MessageCreate.actions.forEach { it() }
+                }
             }
             MessageUpdate -> MessageUpdate.withJson(data) {
-                bot.messages += this
-                MessageUpdate.actions.forEach { it() }
+                //                bot.messages += this
+                bot.messages.add(this).run {
+                    MessageUpdate.actions.forEach { it() }
+                }
             }
             MessageDelete -> MessageDelete.withJson(data) {
                 MessageDelete.actions.forEach { it() }
@@ -226,6 +231,8 @@ class DiscordWebsocket(val bot: Bot) {
                 PresenceUpdate.actions.forEach { it() }
             }
             PresencesReplace -> PresencesReplace.withJson(data) {
+                println(data)
+                println(this)
                 PresencesReplace.actions.forEach { it() }
             }
             TypingStart -> TypingStart.withJson(data) {

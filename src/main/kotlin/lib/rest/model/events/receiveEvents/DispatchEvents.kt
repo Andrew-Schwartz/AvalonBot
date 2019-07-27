@@ -100,7 +100,7 @@ object MessageReactionRemoveAll : DispatchEvent<MessageReactionRemoveAllPayload>
 
 object PresenceUpdate : DispatchEvent<PresenceUpdatePayload>()
 
-object PresencesReplace : DispatchEvent<SomeArray>()
+object PresencesReplace : DispatchEvent<Array<JsonElement>>()
 
 object TypingStart : DispatchEvent<TypingStartPayload>()
 

@@ -1,28 +1,18 @@
 package lib.dsl
 
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 
 val eventListeners: ArrayList<Pair<suspend () -> Boolean, suspend () -> Unit>> = arrayListOf()
 
 @ExperimentalCoroutinesApi
-@KtorExperimentalAPI
-suspend fun blockUntil(predicate: suspend () -> Boolean) {
+suspend fun blockUntil(pauseTime: Long = 500, predicate: suspend () -> Boolean) {
     while (!predicate())
-        delay(500)
+        delay(pauseTime)
 }
 
 @ExperimentalCoroutinesApi
-@KtorExperimentalAPI
-fun Bot.waitUntil(predicate: suspend () -> Boolean, λ: suspend () -> Unit) {
-    eventListeners += predicate to λ
-}
-
-@ExperimentalCoroutinesApi
-@KtorExperimentalAPI
-fun Bot.waitTime(millis: Long, λ: suspend () -> Unit) {
+suspend fun blockTime(millis: Long, pauseTime: Long = if (millis < 30000) 200 else 500) {
     val startTime = System.currentTimeMillis()
-    val predicate = suspend { System.currentTimeMillis() - startTime >= millis }
-    waitUntil(predicate, λ)
+    blockUntil(pauseTime) { System.currentTimeMillis() - startTime >= millis }
 }

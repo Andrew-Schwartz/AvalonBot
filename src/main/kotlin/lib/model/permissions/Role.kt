@@ -13,4 +13,12 @@ data class Role(
         val permissions: Int, // bit set
         val managed: Boolean,
         val mentionable: Boolean
-) : Storable
+) : Storable {
+    override fun equals(other: Any?): Boolean = (other as? Role)?.id == id
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun addNotNullDataFrom(new: Storable?): Role {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}

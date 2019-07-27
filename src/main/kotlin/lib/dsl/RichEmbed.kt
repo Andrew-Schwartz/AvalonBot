@@ -26,6 +26,12 @@ data class RichEmbed internal constructor(
         val empty = RichEmbed()
     }
 
+    val isEmpty: Boolean
+        get() = this == empty
+
+    val isNotEmpty: Boolean
+        get() = this != empty
+
     private val fields: ArrayList<EmbedField> = ArrayList()
 
     private val files: MutableMap<String, InputStream> = mutableMapOf()
@@ -138,7 +144,5 @@ data class RichEmbed internal constructor(
 
     operator fun invoke(λ: RichEmbed.() -> Unit): RichEmbed = apply { λ() }
 }
-
-//suspend fun (suspend RichEmbed.() -> Unit).build(): Embed = RichEmbed().apply { this@build() }.build()
 
 suspend fun embed(builder: suspend RichEmbed.() -> Unit): RichEmbed = RichEmbed().apply { builder() }

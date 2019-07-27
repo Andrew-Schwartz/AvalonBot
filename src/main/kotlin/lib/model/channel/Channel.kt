@@ -27,6 +27,14 @@ data class Channel(
         @SerializedName("parent_id") val parentId: Snowflake?,
         @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?
 ) : Storable {
+    override fun equals(other: Any?): Boolean = (other as? Channel)?.id == id
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun addNotNullDataFrom(new: Storable?): Channel {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     val isText: Boolean
         get() = type.isText
 

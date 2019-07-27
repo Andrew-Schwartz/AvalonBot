@@ -36,7 +36,9 @@ private suspend fun Bot.getRequest(url: String): HttpResponse {
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getChannel(id: Snowflake): Channel = channels.computeIfAbsent(id) { getRequest("/channels/$id").fromJson() }
+suspend fun Bot.getChannel(id: Snowflake): Channel {
+    return channels.computeIfAbsent(id) { getRequest("/channels/$id").fromJson() }
+}
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#get-channel-messages]
@@ -47,9 +49,12 @@ suspend fun Bot.getChannel(id: Snowflake): Channel = channels.computeIfAbsent(id
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Message> {
-    return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().also {
-        for (message in it) messages += message
-    }
+    return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().map {
+        messages.add(it)
+    }.toTypedArray()
+//    return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().also {
+//        for (message in it) messages.add(message)
+//    }
 }
 
 /**
@@ -62,7 +67,7 @@ suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Messa
 suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake, forceRequest: Boolean = false): Message {
     val url = "/channels/$channelId/messages/$messageId"
     return if (forceRequest) {
-        messages.putIfAbsent(getRequest(url).fromJson())
+        getRequest(url).fromJson<Message>().let { messages.add(it) }
     } else {
         messages.computeIfAbsent(messageId) { getRequest(url).fromJson() }
     }
@@ -84,7 +89,9 @@ suspend fun Bot.getReactions(channelId: Snowflake, messageId: Snowflake, emoji: 
  */
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-suspend fun Bot.getUser(id: Snowflake): User = users.computeIfAbsent(id) { getRequest("/users/$id").fromJson() }
+suspend fun Bot.getUser(id: Snowflake): User {
+    return users.computeIfAbsent(id) { getRequest("/users/$id").fromJson() }
+}
 
 /**
  * see also [https://discordapp.com/developers/docs/resources/user#get-current-user-guilds]

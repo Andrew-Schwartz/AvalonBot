@@ -49,4 +49,12 @@ data class Guild(
         val banner: String?,
         @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
-) : Storable
+) : Storable {
+    override fun equals(other: Any?): Boolean = (other as? Guild)?.id == id
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun addNotNullDataFrom(new: Storable?): Guild {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}

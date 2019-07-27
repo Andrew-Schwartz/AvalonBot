@@ -88,7 +88,7 @@ class Avalon(val bot: Bot, val gameChannel: Channel) {
             gameLoop@ while (goodWins < 3 && evilWins < 3) {
                 val round = rounds[roundNum]
 
-                gameChannel.send(pingTargets = L[leader.user]) {
+                gameChannel.send(pingTargets = A[leader.user]) {
                     color = neutral
                     title = "The leader is ${leader.name}".underline()
 //                    description = leader.user.ping()

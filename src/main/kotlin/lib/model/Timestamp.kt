@@ -3,7 +3,7 @@ package lib.model
 import java.time.OffsetDateTime
 
 inline class Timestamp(val time: String) {
-    val offsetDateTime: OffsetDateTime
+    val dateTime: OffsetDateTime
         get() = OffsetDateTime.parse(time)
 }
 
