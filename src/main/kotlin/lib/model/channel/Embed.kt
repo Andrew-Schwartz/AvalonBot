@@ -1,6 +1,7 @@
-package lib.model
+package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
+import lib.model.Timestamp
 import java.io.InputStream
 
 @Suppress("ArrayInDataClass")

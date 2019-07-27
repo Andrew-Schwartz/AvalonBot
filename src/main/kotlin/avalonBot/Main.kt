@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import lib.dsl.bot
 import lib.dsl.command
 import lib.dsl.on
-import lib.model.User
+import lib.model.user.User
 import lib.rest.http.httpRequests.createDM
 import lib.rest.http.httpRequests.getUser
 import lib.rest.model.events.receiveEvents.MessageDelete

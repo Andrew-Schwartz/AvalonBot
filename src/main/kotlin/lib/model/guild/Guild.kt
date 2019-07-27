@@ -1,6 +1,13 @@
-package lib.model
+package lib.model.guild
 
 import com.google.gson.annotations.SerializedName
+import lib.model.Snowflake
+import lib.model.Storable
+import lib.model.Timestamp
+import lib.model.channel.Channel
+import lib.model.emoji.Emoji
+import lib.model.permissions.Role
+import lib.rest.model.events.receiveEvents.PresenceUpdatePayload
 
 @Suppress("ArrayInDataClass")
 data class Guild(
@@ -43,55 +50,3 @@ data class Guild(
         @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
 ) : Storable
-
-enum class PremiumTier {
-    @SerializedName("0")
-    None,
-    @SerializedName("1")
-    Tier1,
-    @SerializedName("2")
-    Tier2,
-    @SerializedName("3")
-    Tier3,
-}
-
-data class VoiceState(
-        @SerializedName("guild_id") val guildId: Snowflake?,
-        @SerializedName("channel_id") val channelId: Snowflake?,
-        @SerializedName("user_id") val userId: Snowflake,
-        val member: Guild?,
-        val session_id: String,
-        val deaf: Boolean,
-        val mute: Boolean,
-        @SerializedName("self_deaf") val selfDeaf: Boolean,
-        @SerializedName("self_mute") val selfMute: Boolean,
-        val suppress: Boolean
-)
-
-@Suppress("ArrayInDataClass")
-data class PresenceUpdatePayload(
-        val user: User,
-        @SerializedName("roles") private val _roles: Array<String>,
-        val game: Activity?,
-        @SerializedName("guild_id") val guildId: Snowflake,
-        val status: String,
-        val activities: Array<Activity>,
-        @SerializedName("client_status") val clientStatus: ClientStatus
-) {
-    val roles by lazy { _roles.map(::Snowflake) }
-}
-
-data class ClientStatus(
-        val desktop: Status?,
-        val mobile: Status,
-        val web: Status?
-)
-
-enum class Status {
-    @SerializedName("desktop")
-    Desktop,
-    @SerializedName("mobile")
-    Mobile,
-    @SerializedName("web")
-    Web
-}

@@ -8,7 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.dsl.RichEmbed
 import lib.dsl.embed
-import lib.model.Message
+import lib.model.channel.Message
 import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline

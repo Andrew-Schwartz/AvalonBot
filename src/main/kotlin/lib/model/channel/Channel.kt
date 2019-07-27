@@ -1,6 +1,10 @@
-package lib.model
+package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
+import lib.model.Snowflake
+import lib.model.Storable
+import lib.model.Timestamp
+import lib.model.user.User
 
 @Suppress("ArrayInDataClass")
 data class Channel(
@@ -14,7 +18,7 @@ data class Channel(
         val nsfw: Boolean?,
         @SerializedName("last_message_id") val lastMessageId: Snowflake?,
         val bitrate: Int?,
-        @SerializedName("user_limit") val userLimit: Int?,
+        @SerializedName("userLimit") val userLimit: Int?,
         @SerializedName("rate_limit_per_user") val rateLimitPerUser: Int?,
         val recipients: Array<User>?,
         val icon: String?,
@@ -22,31 +26,10 @@ data class Channel(
         @SerializedName("application_id") val applicationId: Snowflake?,
         @SerializedName("parent_id") val parentId: Snowflake?,
         @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?
-) : Storable
+) : Storable {
+    val isText: Boolean
+        get() = type.isText
 
-enum class ChannelType {
-    @SerializedName("0")
-    GuildText,
-    @SerializedName("1")
-    DM,
-    @SerializedName("2")
-    GuildVoice,
-    @SerializedName("3")
-    GroupDM,
-    @SerializedName("4")
-    GuildCategory,
-    @SerializedName("5")
-    GuildNews,
-    @SerializedName("6")
-    GuildStore;
-
-    val isTextChannel: Boolean
-        get() = this == GuildText || this == DM || this == GroupDM
+    val isVoice: Boolean
+        get() = type.isVoice
 }
-
-data class Overwrite(
-        val id: Snowflake,
-        val type: String,
-        val allow: Int, // bit set
-        val deny: Int // bit set
-)

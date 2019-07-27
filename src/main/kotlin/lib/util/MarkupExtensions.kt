@@ -1,9 +1,9 @@
 package lib.util
 
-import lib.model.Channel
-import lib.model.Emoji
-import lib.model.Role
-import lib.model.User
+import lib.model.channel.Channel
+import lib.model.emoji.Emoji
+import lib.model.permissions.Role
+import lib.model.user.User
 
 fun String.underline(): String = "__${this}__"
 

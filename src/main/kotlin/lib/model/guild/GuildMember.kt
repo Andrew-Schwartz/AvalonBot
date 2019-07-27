@@ -1,6 +1,9 @@
-package lib.model
+package lib.model.guild
 
 import com.google.gson.annotations.SerializedName
+import lib.model.Snowflake
+import lib.model.Timestamp
+import lib.model.user.User
 
 @Suppress("ArrayInDataClass")
 data class GuildMember(

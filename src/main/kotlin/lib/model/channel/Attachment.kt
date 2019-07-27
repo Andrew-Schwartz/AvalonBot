@@ -1,6 +1,8 @@
-package lib.model
+package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
+import lib.model.Snowflake
+import lib.model.Storable
 
 data class Attachment(
         override val id: Snowflake,

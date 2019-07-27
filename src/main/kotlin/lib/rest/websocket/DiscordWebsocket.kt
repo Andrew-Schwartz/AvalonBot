@@ -19,7 +19,7 @@ import lib.rest.model.events.sendEvents.Identify
 import lib.rest.model.events.sendEvents.SendEvent
 import lib.util.fromJson
 import lib.util.toJson
-import lib.util.toJsonElement
+import lib.util.toJsonTree
 import kotlin.system.exitProcess
 
 @ExperimentalCoroutinesApi
@@ -261,7 +261,7 @@ class DiscordWebsocket(val bot: Bot) {
     }
 
     private suspend fun sendGateway(payload: SendEvent) {
-        val message = GatewayPayload(payload.opcode.code, payload.toJsonElement(), sequenceNumber)
+        val message = GatewayPayload(payload.opcode.code, payload.toJsonTree(), sequenceNumber)
         sendWebsocket(message.toJson())
     }
 }

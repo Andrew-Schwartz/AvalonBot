@@ -16,9 +16,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.dsl.*
-import lib.model.Channel
-import lib.model.Message
-import lib.model.User
+import lib.model.channel.Channel
+import lib.model.channel.Message
+import lib.model.user.User
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.*
 

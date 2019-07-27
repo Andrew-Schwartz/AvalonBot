@@ -27,6 +27,13 @@ private suspend fun Bot.putRequest(url: String/*, jsonBody: String*/): HttpRespo
     }.also(::updateRateLimitInfo)
 }
 
+/**
+ * Create a reaction for the message.
+ * `emoji` takes the form of `name:id` for custom guild emoji, or Unicode characters.
+ * This endpoint requires the `READ_MESSAGE_HISTORY` permission to be present on the current user.
+ * Additionally, if nobody else has reacted to the message using this emoji, this endpoint requires the `ADD_REACTIONS` permission to be present on the current user.
+ * see also [https://discordapp.com/developers/docs/resources/channel#create-reaction]
+ */
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun Bot.createReaction(channelId: Snowflake, messageId: Snowflake, emoji: Char) {

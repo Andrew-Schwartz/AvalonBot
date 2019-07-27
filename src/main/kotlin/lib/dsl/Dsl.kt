@@ -2,7 +2,7 @@ package lib.dsl
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.model.Message
+import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.DispatchEvent
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.Action

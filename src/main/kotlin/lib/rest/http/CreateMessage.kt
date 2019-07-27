@@ -1,7 +1,7 @@
 package lib.rest.http
 
-import lib.model.Embed
 import lib.model.Snowflake
+import lib.model.channel.Embed
 import java.io.InputStream
 
 @Suppress("ArrayInDataClass")

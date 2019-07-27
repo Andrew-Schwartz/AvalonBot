@@ -14,7 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.dsl.Bot
-import lib.model.Message
+import lib.model.channel.Message
 
 object StartCommand : Command(General, AvalonGame) {
     private const val START_NOW = "now"

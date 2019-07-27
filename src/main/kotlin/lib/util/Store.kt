@@ -1,5 +1,6 @@
 package lib.util
 
+import kotlinx.coroutines.runBlocking
 import lib.model.Snowflake
 import lib.model.Storable
 
@@ -26,4 +27,6 @@ class Store<T : Storable> {
     inline fun getOrPut(key: Snowflake, default: () -> T): T = map.getOrPut(key, default)
 
     fun putIfAbsent(value: T): T = map.putIfAbsent(value.id, value)!!
+
+    fun computeIfAbsent(id: Snowflake, default: suspend () -> T) = map.computeIfAbsent(id) { runBlocking { default() } }
 }

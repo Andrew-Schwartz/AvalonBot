@@ -1,6 +1,8 @@
-package lib.model
+package lib.model.emoji
 
 import com.google.gson.annotations.SerializedName
+import lib.model.Snowflake
+import lib.model.user.User
 
 @Suppress("ArrayInDataClass")
 data class Emoji(

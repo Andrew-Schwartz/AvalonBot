@@ -1,7 +1,11 @@
 package lib.dsl
 
 import lib.exceptions.EmbedLimitException
-import lib.model.*
+import lib.model.Color
+import lib.model.Timestamp
+import lib.model.channel.*
+import lib.model.timestamp
+import lib.model.user.User
 import java.io.File
 import java.io.InputStream
 import java.time.OffsetDateTime

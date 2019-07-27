@@ -3,10 +3,10 @@ package lib.dsl
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import lib.model.Channel
-import lib.model.Guild
-import lib.model.Message
-import lib.model.User
+import lib.model.channel.Channel
+import lib.model.channel.Message
+import lib.model.guild.Guild
+import lib.model.user.User
 import lib.rest.RateLimitInfo
 import lib.rest.http.CreateMessage
 import lib.rest.http.httpRequests.*

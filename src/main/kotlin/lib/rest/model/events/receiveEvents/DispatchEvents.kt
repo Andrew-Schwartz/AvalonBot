@@ -7,7 +7,18 @@ import com.google.gson.annotations.SerializedName
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.model.*
+import lib.model.Activity
+import lib.model.Snowflake
+import lib.model.Timestamp
+import lib.model.channel.Channel
+import lib.model.channel.Message
+import lib.model.emoji.Emoji
+import lib.model.guild.ClientStatus
+import lib.model.guild.Guild
+import lib.model.guild.GuildMember
+import lib.model.guild.VoiceState
+import lib.model.permissions.Role
+import lib.model.user.User
 import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.GatewayOpcode
 import lib.util.A
@@ -185,6 +196,20 @@ data class MessageReactionRemoveAllPayload(
         @SerializedName("channel_id") val channelId: Snowflake,
         @SerializedName("guild_id") val guildId: Snowflake?
 )
+
+@Suppress("ArrayInDataClass")
+data class PresenceUpdatePayload(
+        val user: User,
+        @SerializedName("roles") private val _roles: Array<String>,
+        val game: Activity?,
+        @SerializedName("guild_id") val guildId: Snowflake,
+        val status: String,
+        val activities: Array<Activity>,
+        @SerializedName("client_status") val clientStatus: ClientStatus
+) {
+    val roles by lazy { _roles.map(::Snowflake) }
+}
+
 
 data class IntegrationsUpdatePayload(
         @SerializedName("guild_id") val guildId: Snowflake

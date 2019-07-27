@@ -6,7 +6,7 @@ import avalonBot.steadfast
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.model.Message
+import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 import kotlin.system.exitProcess
 

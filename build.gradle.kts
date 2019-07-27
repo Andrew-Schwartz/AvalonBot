@@ -40,7 +40,11 @@ java {
 
 tasks.withType<KotlinCompile>().all {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.freeCompilerArgs = listOf("-XXLanguage:+InlineClasses", "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes")
+    kotlinOptions.freeCompilerArgs = listOf(
+            "-XXLanguage:+InlineClasses",
+            "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes",
+            "-Xallow-result-return-type"
+    )
 }
 
 application {

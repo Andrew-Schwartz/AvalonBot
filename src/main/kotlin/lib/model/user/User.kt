@@ -1,6 +1,9 @@
-package lib.model
+package lib.model.user
 
 import com.google.gson.annotations.SerializedName
+import lib.model.Snowflake
+import lib.model.Storable
+import lib.model.guild.GuildMember
 
 data class User(
         override val id: Snowflake,
@@ -44,11 +47,4 @@ enum class UserFlag {
             return list.takeUnless { it.isEmpty() } ?: listOf(None)
         }
     }
-}
-
-enum class PremiumType {
-    @SerializedName("1")
-    NitroClassic,
-    @SerializedName("2")
-    Nitro,
 }
