@@ -21,8 +21,8 @@ import lib.util.toJson
 import lib.util.toJsonTree
 import kotlin.system.exitProcess
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 class DiscordWebsocket(val bot: Bot) {
     lateinit var sendWebsocket: suspend (String) -> Unit
 
@@ -231,8 +231,6 @@ class DiscordWebsocket(val bot: Bot) {
                 PresenceUpdate.actions.forEach { it() }
             }
             PresencesReplace -> PresencesReplace.withJson(data) {
-                println(data)
-                println(this)
                 PresencesReplace.actions.forEach { it() }
             }
             TypingStart -> TypingStart.withJson(data) {

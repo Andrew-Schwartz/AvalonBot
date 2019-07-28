@@ -3,5 +3,5 @@ package lib.model
 interface Storable {
     val id: Snowflake
 
-    fun addNotNullDataFrom(new: Storable?): Storable
+    fun updateDataFrom(new: Storable?): Storable
 }

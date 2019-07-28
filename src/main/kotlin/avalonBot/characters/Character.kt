@@ -28,7 +28,16 @@ abstract class Character {
 
     val picture: File = File("src/main/resources/images/characters/${this::class.simpleName}.jpg")
 
-    enum class Loyalty { Good, Evil }
+    enum class Loyalty {
+        Good {
+            override val image: File = File("src/main/resources/images/loyaltyGood.jpg")
+        },
+        Evil {
+            override val image: File = File("src/main/resources/images/loyaltyBad.jpg")
+        };
+
+        abstract val image: File
+    }
 
     val Loyalty.color: Color
         get() = when (this) {

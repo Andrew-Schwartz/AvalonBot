@@ -1,10 +1,7 @@
 package avalonBot.commands
 
-import avalonBot.commands.CommandState.General
-import avalonBot.commands.general.AddCommand
-import avalonBot.commands.general.PlayersCommand
-import avalonBot.commands.general.RolesCommand
-import avalonBot.commands.general.StartCommand
+import avalonBot.commands.CommandState.Setup
+import avalonBot.commands.setup.*
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -18,15 +15,17 @@ val commands: Set<Command> = S[
         AddCommand,
         PlayersCommand,
         RolesCommand,
-        ExitCommand
+        ExitCommand,
+        PingCommand,
+        LadyCommand
 ]
 
 enum class CommandState {
-    General,
+    Setup,
     AvalonGame
 }
 
-var currentState: CommandState = General
+var currentState: CommandState = Setup
 
 abstract class Command(vararg val states: CommandState) {
     abstract val name: String
@@ -40,8 +39,8 @@ abstract class Command(vararg val states: CommandState) {
     abstract val execute: suspend Bot.(Message, args: List<String>) -> Unit
 
     companion object {
-        @ExperimentalCoroutinesApi
         @KtorExperimentalAPI
+        @ExperimentalCoroutinesApi
         suspend fun run(bot: Bot, message: Message, prefix: String) {
             val commandName = message.content.removePrefix(prefix).takeWhile { it != ' ' }
             for (command in commands)

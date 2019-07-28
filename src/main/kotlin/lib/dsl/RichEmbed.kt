@@ -14,14 +14,16 @@ import kotlin.collections.set
 data class RichEmbed internal constructor(
         var title: String? = null,
         var description: String? = null,
-        var timestamp: Timestamp? = null,
+        private var timestamp: Timestamp? = null,
         var color: Color? = null,
         var url: String? = null,
         var author: User? = null,
-        var image: EmbedImage? = null,
-        var thumbnail: EmbedThumbnail? = null,
-        var footer: EmbedFooter? = null
+        private var image: EmbedImage? = null,
+        private var thumbnail: EmbedThumbnail? = null,
+        private var footer: EmbedFooter? = null
 ) {
+    var footerText: String? = null
+
     companion object {
         val empty = RichEmbed()
     }
@@ -85,6 +87,9 @@ data class RichEmbed internal constructor(
 
         val fields = fields.takeUnless { it.isEmpty() }?.toTypedArray()
         val files = files.takeUnless { it.isEmpty() }
+
+        if (footer == null && footerText != null)
+            footer(footerText!!)
 
         return Embed(
                 title = title?.trimTo(256),

@@ -9,12 +9,14 @@ import kotlinx.coroutines.runBlocking
 import lib.dsl.bot
 import lib.dsl.command
 import lib.dsl.on
+import lib.model.channel.Channel
 import lib.model.user.User
 import lib.rest.http.httpRequests.createDM
 import lib.rest.http.httpRequests.getChannel
 import lib.rest.http.httpRequests.getUser
 import lib.rest.model.events.receiveEvents.MessageDelete
 import lib.rest.model.events.receiveEvents.MessageUpdate
+import lib.rest.model.events.receiveEvents.PresencesReplace
 import lib.rest.model.events.receiveEvents.Ready
 import lib.util.fromJson
 import java.io.File
@@ -28,6 +30,7 @@ val avalonLogo: File = File("src/main/resources/images/avalonLogo.png")
 val leaderCrown: File = File("src/main/resources/images/leaderCrown.jpg")
 
 lateinit var steadfast: User
+lateinit var kts: Channel
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -36,11 +39,11 @@ fun main() = runBlocking {
 
     bot(token) {
         steadfast = getUser(sfId)
-        val kts = getChannel(ktsId)
+        kts = getChannel(ktsId)
 
         on(Ready) {
-            kts.send(content = "test content") {
-                //            steadfast.sendDM {
+            //            steadfast.sendDM {
+            kts.send {
                 title = "${this@bot.user.username} is logged on!!"
                 color = neutral
                 timestamp()
@@ -51,12 +54,23 @@ fun main() = runBlocking {
         on(MessageDelete) {
             message(bot = this@bot).run {
                 createDM(sfId).send {
-                    title = "Message from ${this@run.author.username} deleted!"
+                    title = "Message from ${this@run.author.username} in ${this@run.channel.name} deleted!"
                     if (content.isNotEmpty())
                         description = content
                     for (attachment in attachments) {
                         addField(attachment.filename, attachment.proxyUrl)
                     }
+                }
+            }
+        }
+
+        on(PresencesReplace) {
+            println("presence replace array: ${this.contentDeepToString()}")
+            if (this.isNotEmpty()) {
+                steadfast.sendDM {
+                    title = "PresencesReplace"
+                    description = this@on.contentDeepToString()
+                    timestamp()
                 }
             }
         }

@@ -7,20 +7,20 @@ import lib.rest.model.events.receiveEvents.DispatchEvent
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.Action
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 fun <P> Bot.on(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
     event.actions += λ
 }
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 fun <P> Bot.off(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
     event.actions -= λ
 }
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 fun Bot.command(prefix: String = "", respondToBots: Boolean = false, event: DispatchEvent<Message> = MessageCreate, λ: Action<Message>) {
     on(event) {
         if (content.startsWith(prefix) && respondToBots || author.isBot != true)

@@ -1,8 +1,8 @@
-package avalonBot.commands.general
+package avalonBot.commands.setup
 
 import avalonBot.Colors
 import avalonBot.commands.Command
-import avalonBot.commands.CommandState.General
+import avalonBot.commands.CommandState.Setup
 import avalonBot.players
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,7 +11,7 @@ import lib.model.channel.Message
 import lib.util.inlineCode
 import lib.util.underline
 
-object AddCommand : Command(General) {
+object AddCommand : Command(Setup) {
     override val name: String = "addme"
 
     override val description: String = "adds player who sent this to game of Avalon"

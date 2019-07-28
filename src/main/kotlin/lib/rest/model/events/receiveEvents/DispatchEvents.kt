@@ -150,8 +150,8 @@ data class MessageDeletePayload(
         @SerializedName("channel_id") val channelId: Snowflake,
         @SerializedName("guild_id") val guildId: Snowflake?
 ) {
-    @ExperimentalCoroutinesApi
     @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
     suspend fun message(bot: Bot): Message {
         return bot.getMessage(channelId, id)
     }

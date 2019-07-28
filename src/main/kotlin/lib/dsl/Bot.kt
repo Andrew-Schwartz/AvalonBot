@@ -83,7 +83,6 @@ class Bot internal constructor(val token: String) {
 
     suspend fun User.getDM(): Channel = createDM(id)
 
-
     suspend fun User.sendDM(
             content: String = "",
             embed: RichEmbed = RichEmbed(),
@@ -96,8 +95,6 @@ class Bot internal constructor(val token: String) {
         )
     }
 
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
     suspend fun Channel.send(
             content: String = "",
             embed: RichEmbed = RichEmbed(),
@@ -115,8 +112,27 @@ class Bot internal constructor(val token: String) {
         ))
     }
 
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
+    suspend fun Channel.startTyping() {
+        triggerTypingIndicator(id)
+    }
+
+    suspend fun deleteMessages(vararg messages: Message) {
+        when (messages.size) {
+            0 -> return
+            1 -> {
+                val message = messages[0]
+                deleteMessage(message.channelId, messages[0].id)
+            }
+            else -> messages.asSequence()
+                    .groupBy { it.channelId }
+                    .forEach { (channelId, group) ->
+                        group.chunked(100).forEach {
+                            bulkDeleteMessages(channelId, it.toSet())
+                        }
+                    }
+        }
+    }
+
     suspend fun launchSocket() {
         socket.run()
     }

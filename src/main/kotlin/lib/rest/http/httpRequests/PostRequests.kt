@@ -20,14 +20,16 @@ import lib.model.channel.Message
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.CreateMessage
+import lib.rest.model.events.receiveEvents.TypingStart
 import lib.rest.rateLimit
 import lib.rest.updateRateLimitInfo
 import lib.util.fromJson
+import lib.util.j
 import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse {
+private suspend fun Bot.postRequest(url: String, jsonBody: String = ""): HttpResponse {
     rateLimit()
 
     return client.post<HttpResponse>(api + url) {
@@ -38,8 +40,8 @@ private suspend fun Bot.postRequest(url: String, jsonBody: String): HttpResponse
     }.also(::updateRateLimitInfo)
 }
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 private suspend inline fun Bot.postRequest(url: String, json: JsonElement) = postRequest(url, json.toJson())
 
 @KtorExperimentalAPI
@@ -94,15 +96,46 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
 }
 
 /**
+ * Delete multiple messages in a single request.
+ * This endpoint can only be used on guild channels and requires the `MANAGE_MESSAGES` permission.
+ * Fires multiple Message Delete Gateway events.
+ * Any message IDs given that do not exist or are invalid will count towards the minimum and maximum message count (currently 2 and 100 respectively).
+ * Additionally, duplicated IDs will only be counted once.
+ * see also [https://discordapp.com/developers/docs/resources/channel#bulk-delete-messages]
+ */
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+suspend fun Bot.bulkDeleteMessages(channelId: Snowflake, messages: Set<Message>) {
+    if (messages.size < 2) throw IllegalArgumentException("At least 2 messages are needed for bulk deletion")
+
+    val array: Array<Message> = messages.take(100).toTypedArray()
+    postRequest("/channels/$channelId/messages/bulk-delete", j { "messages" to array })
+}
+
+/**
+ * Post a typing indicator for the specified channel.
+ * Generally bots should **not** implement this route.
+ * However, if a bot is responding to a command and expects the computation to take a few seconds,
+ * this endpoint may be called to let the user know that the bot is processing their message.
+ * Fires a [TypingStart] Gateway event.
+ * see also [https://discordapp.com/developers/docs/resources/channel#trigger-typing-indicator]
+ */
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+suspend fun Bot.triggerTypingIndicator(channelId: Snowflake) {
+    postRequest("/channels/$channelId/typing")
+}
+
+/**
  * See [https://discordapp.com/developers/docs/resources/user#create-dm]
  * Create a new DM channel with a user.
  * @param userId the recipient to open a DM channel with
  * @return DM [Channel] object.
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.createDM(userId: Snowflake): Channel {
     return channels.computeIfAbsent(userId) {
-        postRequest("/users/@me/channels", """{"recipient_id": "$userId"}""").fromJson()
+        postRequest("/users/@me/channels", j { "recipient_id" to "$userId" }).fromJson()
     }
 }

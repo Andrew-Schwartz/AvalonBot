@@ -13,8 +13,19 @@ data class Attachment(
         val height: Int?,
         val width: Int?
 ) : Storable {
-    override fun addNotNullDataFrom(new: Storable?): Attachment {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    @Suppress("USELESS_ELVIS")
+    override fun updateDataFrom(new: Storable?): Attachment {
+        val a = (new as? Attachment) ?: throw IllegalArgumentException("Can only copy info from other attachments")
+
+        return Attachment(
+                a.id ?: id,
+                a.filename ?: filename,
+                a.size ?: size,
+                a.url ?: url,
+                a.proxyUrl ?: proxyUrl,
+                a.height ?: height,
+                a.width ?: width
+        )
     }
 
     override fun equals(other: Any?): Boolean = (other as? Attachment)?.id == id

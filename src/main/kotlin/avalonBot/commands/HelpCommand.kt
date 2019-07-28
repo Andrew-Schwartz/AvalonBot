@@ -2,7 +2,7 @@ package avalonBot.commands
 
 import avalonBot.Colors
 import avalonBot.commands.CommandState.AvalonGame
-import avalonBot.commands.CommandState.General
+import avalonBot.commands.CommandState.Setup
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -14,10 +14,10 @@ import lib.util.inlineCode
 import lib.util.underline
 
 @KtorExperimentalAPI
-object HelpCommand : Command(General, AvalonGame) {
+object HelpCommand : Command(Setup, AvalonGame) {
     override val name: String = "help"
 
-    override val description: String = "sends general help text, or specific help text if given a command name"
+    override val description: String = "sends setup help text, or specific help text if given a command name"
 
     override val usage: String = "!help [command name]"
 

@@ -18,3 +18,7 @@ object AL {
 object S {
     inline operator fun <T> get(vararg vals: T): Set<T> = vals.toSet()
 }
+
+object MS {
+    inline operator fun <T> get(vararg vals: T): MutableSet<T> = vals.toMutableSet()
+}

@@ -8,8 +8,8 @@ import kotlinx.coroutines.delay
 import lib.dsl.Bot
 import lib.util.parseRfc1123
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.rateLimit() = with(rateLimitInfo) {
     if (remaining == 0) {
         val seconds = resetTime!! - currentTime!!
@@ -34,6 +34,6 @@ fun Headers.getRateLimitInfo(): RateLimitInfo = RateLimitInfo(
         parseRfc1123(this["Date"]!!)
 )
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 fun Bot.updateRateLimitInfo(response: HttpResponse) = rateLimitInfo.copyNonNullFrom(response.headers.getRateLimitInfo())

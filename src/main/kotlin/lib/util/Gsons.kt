@@ -20,20 +20,3 @@ suspend inline fun <reified T> HttpResponse.fromJson(): T = readText().fromJson(
 fun <T> T.toJson(): String = gson.toJson(this)
 
 fun <T> T?.toJsonTree(): JsonElement = gson.toJsonTree(this)
-
-///**
-// * Json builder
-// * TODO update to take vararg, pairs/maps for objs
-// */
-//object J {
-//    inline operator fun <reified V> get(k: String, v: V): String = JsonObject().apply {
-//        when (v) {
-//            is Char -> addProperty(k, v)
-//            is Number -> addProperty(k, v)
-//            is String -> addProperty(k, v)
-//            is Boolean -> addProperty(k, v)
-//            is JsonElement -> add(k, v)
-//            else -> add(k, v.toJsonTree())
-//        }
-//    }.toJson()
-//}

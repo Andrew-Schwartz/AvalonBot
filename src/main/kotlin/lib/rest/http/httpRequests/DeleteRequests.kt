@@ -18,8 +18,8 @@ import lib.rest.model.events.receiveEvents.ChannelUpdate
 import lib.rest.model.events.receiveEvents.MessageDelete
 import lib.util.fromJson
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 private suspend fun Bot.deleteRequest(url: String): HttpResponse {
     return client.delete(api + url) {
         authHeaders.forEach { (k, v) ->
@@ -37,8 +37,8 @@ private suspend fun Bot.deleteRequest(url: String): HttpResponse {
  * In contrast, when used with a private message, it is possible to undo the action by opening a private message with the recipient again.
  * @return a [Channel] object on success. Fires a [ChannelDelete] Gateway event.
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.closeChannel(channelId: Snowflake): Channel {
     return deleteRequest("/channels/$channelId").fromJson()
 }
@@ -49,8 +49,8 @@ suspend fun Bot.closeChannel(channelId: Snowflake): Channel {
  * When deleting the reaction of another user, this endpoint requires the `MANAGE_MESSAGES` permission to be present.
  * see also [https://discordapp.com/developers/docs/resources/channel#delete-own-reaction] and [https://discordapp.com/developers/docs/resources/channel#delete-user-reaction]
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.deleteReaction(channelId: Snowflake, messageId: Snowflake, emoji: Char, userId: Snowflake? = null) {
     val user = userId?.value ?: "@me"
     deleteRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/$user")
@@ -60,8 +60,8 @@ suspend fun Bot.deleteReaction(channelId: Snowflake, messageId: Snowflake, emoji
  * Requires the `MANAGE_MESSAGES` permission to be present on the current user.
  * see also [https://discordapp.com/developers/docs/resources/channel#delete-all-reactions]
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.deleteAllReactions(channelId: Snowflake, messageId: Snowflake) {
     deleteRequest("/channels/$channelId/messages/$messageId/reactions")
 }
@@ -71,17 +71,30 @@ suspend fun Bot.deleteAllReactions(channelId: Snowflake, messageId: Snowflake) {
  * this endpoint requires the `MANAGE_MESSAGES` permission. Fires a [MessageDelete] Gateway event.
  * see also [https://discordapp.com/developers/docs/resources/channel#delete-message]
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.deleteMessage(channelId: Snowflake, messageId: Snowflake) {
     deleteRequest("/channels/$channelId/messages/$messageId")
 }
 
 /**
+ * Delete a channel permission overwrite for a user or role in a channel.
+ * Only usable for guild channels. Requires the `MANAGE_ROLES` permission.
+ * see also [https://discordapp.com/developers/docs/resources/channel#delete-channel-permission]
+ */
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+suspend fun Bot.deleteChannelPermission(channelId: Snowflake, overwriteId: Snowflake) {
+    getChannel(channelId).guildId ?: throw IllegalArgumentException("Only usable for guild channels")
+
+    deleteRequest("/channels/$channelId/permissions/$overwriteId")
+}
+
+/**
  * See [https://discordapp.com/developers/docs/resources/user#leave-guild]
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.leaveGuild(id: Snowflake) {
     val response = deleteRequest("/users/@me/guilds/$id")
     if (response.status != HttpStatusCode.NoContent) {
@@ -89,11 +102,11 @@ suspend fun Bot.leaveGuild(id: Snowflake) {
     }
 }
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.deletePin(channelId: Snowflake, messageId: Snowflake) {
     val response = deleteRequest("/channels/$channelId/pins/$messageId")
     if (response.status != HttpStatusCode.NoContent) {
-        throw RequestException("Deleting pin for message $messageId in channel $channelId did not succeed")
+        throw RequestException("Deleting pin for message $messageId in channel ${getChannel(channelId).name} did not succeed")
     }
 }

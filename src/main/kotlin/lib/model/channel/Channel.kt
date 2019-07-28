@@ -31,8 +31,35 @@ data class Channel(
 
     override fun hashCode(): Int = id.hashCode()
 
-    override fun addNotNullDataFrom(new: Storable?): Channel {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    val nameOrUser: String?
+        get() {
+            return name ?: recipients?.contentToString()
+        }
+
+    @Suppress("USELESS_ELVIS")
+    override fun updateDataFrom(new: Storable?): Channel {
+        val c = (new as? Channel) ?: throw IllegalArgumentException("Can only copy info from other channels")
+
+        return Channel(
+                c.id ?: id,
+                c.type ?: type,
+                c.guildId ?: guildId,
+                c.position ?: position,
+                c.permissionOverwrites ?: permissionOverwrites,
+                c.name ?: name,
+                c.topic ?: topic,
+                c.nsfw ?: nsfw,
+                c.lastMessageId ?: lastMessageId,
+                c.bitrate ?: bitrate,
+                c.userLimit ?: userLimit,
+                c.rateLimitPerUser ?: rateLimitPerUser,
+                c.recipients ?: recipients,
+                c.icon ?: icon,
+                c.ownerId ?: ownerId,
+                c.applicationId ?: applicationId,
+                c.parentId ?: parentId,
+                c.lastPinTimestamp ?: lastPinTimestamp
+        )
     }
 
     val isText: Boolean

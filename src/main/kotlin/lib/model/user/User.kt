@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import lib.model.Snowflake
 import lib.model.Storable
 import lib.model.guild.GuildMember
+import lib.util.L
 
 data class User(
         override val id: Snowflake,
@@ -19,39 +20,71 @@ data class User(
         @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
 ) : Storable {
+    @Suppress("USELESS_ELVIS")
+    override fun updateDataFrom(new: Storable?): User {
+        val u = (new as? User) ?: throw IllegalArgumentException("Can only copy info from other users")
+
+        return User(
+                u.id ?: id,
+                u.username ?: username,
+                u.discriminator ?: discriminator,
+                u.avatar ?: avatar,
+                u.isBot ?: isBot,
+                u.mfaEnabled ?: mfaEnabled,
+                u.locale ?: locale,
+                u.verified ?: verified,
+                u.email ?: email,
+                u._flags ?: _flags,
+                u.premiumType ?: premiumType,
+                u.member ?: member
+        )
+    }
+
     override fun equals(other: Any?): Boolean = (other as? User)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
 
-    override fun addNotNullDataFrom(new: Storable?): User {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-    //    val userFlags: List<UserFlag>
-//        get() = UserFlag[_flags].also(::println)
+    val userFlags: List<UserFlag>
+        get() = UserFlag.get(flags = _flags)
 }
 
-enum class UserFlag {
-    None,
-    DiscordEmployee,
-    DiscordPartner,
-    HypeSquadEvents,
-    BugHunter,
-    HouseBravery,
-    HouseBrilliance,
-    HouseBalance,
-    EarlySupporter,
-    TeamUser;
+enum class UserFlag(val mask: Int) {
+    None(0),
+    DiscordEmployee(1),
+    DiscordPartner(2),
+    HypeSquadEvents(4),
+    BugHunter(8),
+    HouseBravery(64),
+    HouseBrilliance(128),
+    HouseBalance(256),
+    EarlySupporter(512),
+    TeamUser(1024);
 
     companion object {
-        // TODO
-        operator fun get(flags: Int?): List<UserFlag> {
-            println(flags)
-            val list: MutableList<UserFlag> = mutableListOf()
-            for (i in 0..10) {
+        operator fun invoke(mask: Int): UserFlag? = values().firstOrNull { it.mask == mask }
 
-            }
+        fun get(flags: Int?): List<UserFlag> {
+            println("flags value: $flags")
 
-            return list.takeUnless { it.isEmpty() } ?: listOf(None)
+            return ((0..3) + (6..10))
+                    .asSequence()
+                    .map { 1 shl it }
+                    .filter { mask -> flags?.and(mask) ?: 0 != 0 }
+                    .map { mask -> invoke(mask)!! }
+                    .toList()
+                    .takeUnless { it.isEmpty() }
+                    ?: L[None]
+
+//            val flags = flags ?: return L[None]
+//            val list: MutableList<UserFlag> = mutableListOf()
+//            for (i in (0..3) + (6..10)) {
+//                val mask = 1 shl i
+//                if (flags and mask != 0) {
+//                    list += invoke(mask)!!
+//                }
+//            }
+//
+//            return list.takeUnless { it.isEmpty() } ?: L[None]
         }
     }
 }

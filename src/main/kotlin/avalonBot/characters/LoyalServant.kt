@@ -7,7 +7,7 @@ object LoyalServant : Character() {
 
     override val loyalty: Loyalty = Good
 
-    override val abilitiesDesc: String = "None"
+    override val abilitiesDesc: String = "Sees no one"
 
     override val sees: Set<Character> = emptySet()
 }

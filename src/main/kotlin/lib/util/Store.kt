@@ -10,8 +10,8 @@ class Store<T : Storable> {
 
     fun add(value: T): T {
         return if (value.id in map) {
-            map[value.id]!!.addNotNullDataFrom(value) as T
-//            value.addNotNullDataFrom(map[value.id]!!)
+            map[value.id]!!.updateDataFrom(value) as T
+//            value.updateDataFrom(map[value.id]!!)
         } else {
             value
         }.also { map[value.id] = it }

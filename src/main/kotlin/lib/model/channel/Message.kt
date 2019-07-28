@@ -40,27 +40,27 @@ data class Message(
         get() = content.split(" +".toRegex()).drop(1)
 
     @Suppress("USELESS_ELVIS", "UNNECESSARY_SAFE_CALL")
-    override fun addNotNullDataFrom(new: Storable?): Message {
+    override fun updateDataFrom(new: Storable?): Message {
         val m = (new as? Message) ?: throw IllegalArgumentException("Can only copy info from other messages")
 
         return Message(
-                m.id,
-                m.channelId,
-                m.guildId,
+                m.id ?: id,
+                m.channelId ?: channelId,
+                m.guildId ?: guildId,
                 m.author ?: author,
                 m.member ?: member,
                 m.content ?: content,
                 m.timestamp.time?.timestamp() ?: timestamp,
                 m.editedTimestamp ?: editedTimestamp,
-                m.tts,
-                m.mentionsEveryone,
+                m.tts ?: tts,
+                m.mentionsEveryone ?: mentionsEveryone,
                 m.mentions ?: mentions,
                 m.mentionRoles ?: mentionRoles,
                 m.attachments ?: attachments,
                 m.embeds ?: embeds, //TODO check this, some other part might be null
                 m.reactions ?: reactions,
                 m.nonce ?: nonce,
-                m.pinned,
+                m.pinned ?: pinned,
                 m.webhookId ?: m.webhookId,
                 m.type ?: type,
                 m.activity ?: activity,

@@ -24,8 +24,8 @@ import lib.util.fromJson
 import lib.util.j
 import lib.util.toJson
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 private suspend fun Bot.patchRequest(url: String, jsonBody: String): HttpResponse {
     return client.patch(api + url) {
         authHeaders.forEach { (k, v) ->
@@ -36,8 +36,8 @@ private suspend fun Bot.patchRequest(url: String, jsonBody: String): HttpRespons
     }
 }
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 private suspend inline fun Bot.patchRequest(url: String, json: JsonElement) = patchRequest(url, json.toJson())
 
 /**
@@ -47,8 +47,8 @@ private suspend inline fun Bot.patchRequest(url: String, json: JsonElement) = pa
  * If modifying a category, individual [ChannelUpdate] events will fire for each child channel that also changes.
  * @return a [Channel] on success
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.modifyChannel(channelId: Snowflake, modifyInfo: ModifyChannelOptions): Result<Channel> {
     val response = patchRequest("/channels/$channelId", (modifyInfo forChannel getChannel(channelId)).toJson())
     return when (response.status) {
@@ -64,8 +64,8 @@ suspend fun Bot.modifyChannel(channelId: Snowflake, modifyInfo: ModifyChannelOpt
  * @return the new [Message]
  * see also [https://discordapp.com/developers/docs/resources/channel#edit-message]
  */
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 suspend fun Bot.editMessage(channelId: Snowflake, messageId: Snowflake, content: String? = null, embed: Embed? = null): Message {
     return patchRequest("/channels/$channelId/messages/$messageId", j {
         if (content != null)

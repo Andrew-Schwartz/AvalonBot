@@ -1,11 +1,11 @@
-package avalonBot.commands.general
+package avalonBot.commands.setup
 
 import avalonBot.Colors
 import avalonBot.characters.LoyalServant
 import avalonBot.characters.MinionOfMordred
 import avalonBot.characters.characters
 import avalonBot.commands.Command
-import avalonBot.commands.CommandState.General
+import avalonBot.commands.CommandState.Setup
 import avalonBot.roles
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,7 +14,7 @@ import lib.model.channel.Message
 import lib.util.A
 import lib.util.S
 
-object RolesCommand : Command(General) {
+object RolesCommand : Command(Setup) {
     private const val CLEAR_ROLES = "reset"
     private const val LIST_ROLES = "list"
 

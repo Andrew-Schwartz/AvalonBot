@@ -50,11 +50,53 @@ data class Guild(
         @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
 ) : Storable {
+    @Suppress("USELESS_ELVIS")
+    override fun updateDataFrom(new: Storable?): Guild {
+        val g = (new as? Guild) ?: throw IllegalArgumentException("Can only copy info from other guilds")
+
+        return Guild(
+                g.id ?: id,
+                g.name ?: name,
+                g.icon ?: icon,
+                g.splash ?: splash,
+                g.owner ?: owner,
+                g.ownerId ?: ownerId,
+                g.permissions ?: permissions,
+                g.region ?: region,
+                g.afkChannelId ?: afkChannelId,
+                g.afkTimeout ?: afkTimeout,
+                g.embedEnabled ?: embedEnabled,
+                g.embedChannelId ?: embedChannelId,
+                g.verificationLevel ?: verificationLevel,
+                g.defaultMessageNotifications ?: defaultMessageNotifications,
+                g.explicitContentFilter ?: explicitContentFilter,
+                g.roles ?: roles,
+                g.emojis ?: emojis,
+                g.features ?: features,
+                g.mfaLevel ?: mfaLevel,
+                g.applicationId ?: applicationId,
+                g.widgetEnabled ?: widgetEnabled,
+                g.widgetChannelId ?: widgetChannelId,
+                g.systemChannelId ?: systemChannelId,
+                g.joinedAt ?: joinedAt,
+                g.large ?: large,
+                g.unavailable ?: unavailable,
+                g.memberCount ?: memberCount,
+                g.voiceStates ?: voiceStates,
+                g.members ?: members,
+                g.channels ?: channels,
+                g.presences ?: presences,
+                g.maxPresences ?: maxPresences,
+                g.maxMembers ?: maxMembers,
+                g.vanityUrlCode ?: vanityUrlCode,
+                g.description ?: description,
+                g.banner ?: banner,
+                g.premiumTier ?: premiumTier,
+                g.premiumSubscriptionCount ?: premiumSubscriptionCount
+        )
+    }
+
     override fun equals(other: Any?): Boolean = (other as? Guild)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
-
-    override fun addNotNullDataFrom(new: Storable?): Guild {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }

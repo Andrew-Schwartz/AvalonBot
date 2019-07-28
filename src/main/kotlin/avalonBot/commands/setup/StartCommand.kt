@@ -1,10 +1,10 @@
-package avalonBot.commands.general
+package avalonBot.commands.setup
 
 import avalonBot.characters.Character.Loyalty.Evil
 import avalonBot.characters.Character.Loyalty.Good
 import avalonBot.commands.Command
 import avalonBot.commands.CommandState.AvalonGame
-import avalonBot.commands.CommandState.General
+import avalonBot.commands.CommandState.Setup
 import avalonBot.commands.currentState
 import avalonBot.game.Avalon
 import avalonBot.players
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-object StartCommand : Command(General, AvalonGame) {
+object StartCommand : Command(Setup, AvalonGame) {
     private const val START_NOW = "now"
     private const val START_OVER = "over"
 
@@ -49,7 +49,7 @@ object StartCommand : Command(General, AvalonGame) {
         when {
             args.getOrNull(0) == START_OVER -> {
                 avalonInstance = null
-                currentState = General
+                currentState = Setup
                 players.clear()
                 roles.clear()
             }
@@ -63,7 +63,7 @@ object StartCommand : Command(General, AvalonGame) {
                 val bot = this
                 GlobalScope.launch {
                     avalonInstance = Avalon(bot, message.channel)
-                    avalonInstance!!.startGame(numEvil = maxEvil)
+                    avalonInstance!!.startGame(numEvil = maxEvil, ladyEnabled = LadyCommand.enabled)
                 }
             }
             else -> message.reply("error starting game!!!")
