@@ -7,20 +7,6 @@ import com.google.gson.JsonObject
 class J {
     var json = JsonObject()
 
-    fun <V> add(k: String, v: V?): Unit = with(json) {
-        when (v) {
-            null -> add(k, null)
-            is Char -> addProperty(k, v)
-            is Number -> addProperty(k, v)
-            is String -> addProperty(k, v)
-            is Boolean -> addProperty(k, v)
-            is JsonElement -> add(k, v)
-            else -> {
-                add(k, v.toJsonTree())
-            }
-        }
-    }
-
     infix fun <V> String.to(v: V?): Unit = with(json) {
         when (v) {
             null -> add(this@to, null)

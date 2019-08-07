@@ -126,7 +126,7 @@ suspend fun Bot.getGuilds(before: Boolean? = null, after: Boolean? = null, limit
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getUserConnectiosn(): Array<Connection> = getRequest("/users/@me/connections").fromJson()
+suspend fun Bot.getUserConnection(): Array<Connection> = getRequest("/users/@me/connections").fromJson()
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

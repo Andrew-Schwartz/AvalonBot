@@ -7,6 +7,8 @@ import lib.model.Storable
 
 class Store<T : Storable> {
     val map: MutableMap<Snowflake, T> = mutableMapOf()
+    val size: Int
+        get() = map.size
 
     fun add(value: T): T {
         return if (value.id in map) {
@@ -40,5 +42,25 @@ class Store<T : Storable> {
         } else {
             default().also { map[id] = it }
         }
+    }
+
+    inline fun forEach(action: (T) -> Unit) = map.forEach { action(it.value) }
+
+    inline fun all(predicate: (T) -> Boolean) = map.all { predicate(it.value) }
+    inline fun any(predicate: (T) -> Boolean) = map.any { predicate(it.value) }
+    inline fun none(predicate: (T) -> Boolean) = map.none { predicate(it.value) }
+
+    inline fun first(predicate: (T) -> Boolean = { true }): T? {
+        for ((_, v) in map) {
+            if (predicate(v)) return v
+        }
+        return null
+    }
+
+    inline fun last(predicate: (T) -> Boolean = { true }): T? {
+        for ((_, v) in map.entries.reversed()) {
+            if (predicate(v)) return v
+        }
+        return null
     }
 }

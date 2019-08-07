@@ -6,7 +6,7 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import lib.dsl.Bot
-import lib.util.parseRfc1123
+import lib.model.parseRfc1123
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

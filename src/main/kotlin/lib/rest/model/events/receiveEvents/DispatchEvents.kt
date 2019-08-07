@@ -33,7 +33,7 @@ sealed class DispatchEvent<P> {
 }
 
 // inline extension, not member function, because P needs to be reified for `fromJson`
-@Suppress("unused")
+@Suppress("unused", "NonAsciiCharacters")
 inline fun <reified P> DispatchEvent<P>.withJson(payload: JsonElement, λ: P.() -> Unit) = with(payload.fromJson(), λ)
 
 suspend inline fun <reified P> DispatchEvent<P>.runAllActions(payload: JsonElement) {
@@ -141,9 +141,6 @@ data class InvalidSessionPayload(
         val op: GatewayOpcode,
         @SerializedName("d") val resumable: Boolean
 )
-
-@Suppress("ArrayInDataClass")
-data class SomeArray(val array: Array<Any>)
 
 data class MessageDeletePayload(
         val id: Snowflake,

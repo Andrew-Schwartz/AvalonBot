@@ -12,7 +12,7 @@ import lib.rest.model.events.receiveEvents.PresenceUpdatePayload
 @Suppress("ArrayInDataClass")
 data class Guild(
         override val id: Snowflake,
-        val name: String,
+        val name: String?,
         val icon: String?,
         val splash: String?,
         val owner: Boolean?,

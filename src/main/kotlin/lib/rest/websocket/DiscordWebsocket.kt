@@ -143,11 +143,11 @@ class DiscordWebsocket(val bot: Bot) {
                 bot.channels.add(this).run {
                     ChannelCreate.actions.forEach { it() }
                 }
-//                bot.channels += this
             }
             ChannelUpdate -> ChannelUpdate.withJson(data) {
-                ChannelUpdate.actions.forEach { it() }
-//                bot.channels += this
+                bot.channels.add(this).run {
+                    ChannelUpdate.actions.forEach { it() }
+                }
             }
             ChannelDelete -> ChannelDelete.withJson(data) {
                 ChannelDelete.actions.forEach { it() }
@@ -157,11 +157,14 @@ class DiscordWebsocket(val bot: Bot) {
                 ChannelPinsUpdate.actions.forEach { it() }
             }
             GuildCreate -> GuildCreate.withJson(data) {
-                //                bot.guilds += this
-                GuildCreate.actions.forEach { it() }
+                bot.guilds.add(this).run {
+                    GuildCreate.actions.forEach { it() }
+                }
             }
             GuildUpdate -> GuildUpdate.withJson(data) {
-                GuildUpdate.actions.forEach { it() }
+                bot.guilds.add(this).run {
+                    GuildUpdate.actions.forEach { it() }
+                }
             }
             GuildDelete -> GuildDelete.withJson(data) {
                 GuildDelete.actions.forEach { it() }
@@ -200,13 +203,11 @@ class DiscordWebsocket(val bot: Bot) {
                 GuildRoleDelete.actions.forEach { it() }
             }
             MessageCreate -> MessageCreate.withJson(data) {
-                //                bot.messages += this
                 bot.messages.add(this).run {
                     MessageCreate.actions.forEach { it() }
                 }
             }
             MessageUpdate -> MessageUpdate.withJson(data) {
-                //                bot.messages += this
                 bot.messages.add(this).run {
                     MessageUpdate.actions.forEach { it() }
                 }

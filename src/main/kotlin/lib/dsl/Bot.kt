@@ -103,7 +103,7 @@ class Bot internal constructor(val token: String) {
     ): Message {
         val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.ping() }
         @Suppress("NAME_SHADOWING")
-        val embed = embed.apply { builder() }.takeIf { it != RichEmbed.empty }?.build()
+        val embed = embed.apply { builder() }.takeIf { it.isNotEmpty }?.build()
 
         return createMessage(this, CreateMessage(
                 content = text,
@@ -152,6 +152,7 @@ class Bot internal constructor(val token: String) {
         get() = runBlocking { getGuild(guildId ?: return@runBlocking null) }
 }
 
+@Suppress("NonAsciiCharacters")
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun bot(token: String, λ: suspend Bot.() -> Unit): Unit = Bot(token).apply { λ() }.launchSocket()

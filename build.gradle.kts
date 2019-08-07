@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.40"
+    java
 
     application
 }
@@ -36,6 +37,13 @@ dependencies {
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.jar {
+    manifest {
+        attributes("Main-Class" to "avalonBot.MainKt")
+    }
+    from({ configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) } })
 }
 
 tasks.withType<KotlinCompile>().all {

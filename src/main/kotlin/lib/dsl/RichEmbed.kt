@@ -25,7 +25,7 @@ data class RichEmbed internal constructor(
     var footerText: String? = null
 
     companion object {
-        val empty = RichEmbed()
+        private val empty = RichEmbed()
     }
 
     val isEmpty: Boolean
@@ -91,6 +91,8 @@ data class RichEmbed internal constructor(
         if (footer == null && footerText != null)
             footer(footerText!!)
 
+        ensureLimits()
+
         return Embed(
                 title = title?.trimTo(256),
                 type = "rich",
@@ -117,27 +119,6 @@ data class RichEmbed internal constructor(
     }
 
     private fun ensureLimits() {
-//        if ((title?.length ?: 0) > 256)
-//            throw EmbedLimitException("Embed titles cannot be more than 256 characters")
-//
-//        if ((description?.length ?: 0) > 2048)
-//            throw EmbedLimitException("Embed descriptions cannot be more than 2048 characters")
-//
-//        if (fields.size > 25)
-//            throw EmbedLimitException("Embed cannot have more than 25 fields")
-//
-//        if (fields.any { it.name.length > 256 })
-//            throw EmbedLimitException("Field names cannot be more than 256 characters")
-//
-//        if (fields.any { it.value.length > 256 })
-//            throw EmbedLimitException("Field values cannot be more than 256 characters")
-//
-//        if ((footer?.text?.length ?: 0) > 2048)
-//            throw EmbedLimitException("Footer text cannot be more than 2048 characters")
-
-//        if ((author?.username?.length ?: 0) > 256)
-//            throw EmbedLimitException("Author name cannot be more than 256 characters")
-
         val totalChars = (title?.length ?: 0) +
                 (description?.length ?: 0) +
                 (fields.sumBy { it.name.length + it.value.length }) +

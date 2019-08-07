@@ -3,12 +3,9 @@ package avalonBot.game
 import avalonBot.Colors
 import avalonBot.Colors.good
 import avalonBot.Colors.neutral
-import avalonBot.characters.Assassin
+import avalonBot.characters.*
 import avalonBot.characters.Character.Loyalty.Evil
 import avalonBot.characters.Character.Loyalty.Good
-import avalonBot.characters.LoyalServant
-import avalonBot.characters.Merlin
-import avalonBot.characters.MinionOfMordred
 import avalonBot.players
 import avalonBot.roles
 import io.ktor.util.KtorExperimentalAPI

@@ -21,7 +21,7 @@ data class Message(
         val tts: Boolean,
         @SerializedName("mention_everyone") val mentionsEveryone: Boolean,
         val mentions: Array<User>,
-        @SerializedName("mention_roles") val mentionRoles: Array<Snowflake>,
+        @SerializedName("mention_roles") private val _mentionRoles: Array<String>,
         val attachments: Array<Attachment>,
         val embeds: Array<Embed>,
         val reactions: Array<Reaction>?,
@@ -32,6 +32,8 @@ data class Message(
         val activity: MessageActivity,
         val application: MessageApplication
 ) : Storable {
+    val mentionRoles: List<Snowflake> by lazy { _mentionRoles.map(::Snowflake) }
+
     override fun equals(other: Any?): Boolean = (other as? Message)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
@@ -55,7 +57,7 @@ data class Message(
                 m.tts ?: tts,
                 m.mentionsEveryone ?: mentionsEveryone,
                 m.mentions ?: mentions,
-                m.mentionRoles ?: mentionRoles,
+                m._mentionRoles ?: _mentionRoles,
                 m.attachments ?: attachments,
                 m.embeds ?: embeds, //TODO check this, some other part might be null
                 m.reactions ?: reactions,

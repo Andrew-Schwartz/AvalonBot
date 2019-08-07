@@ -7,12 +7,14 @@ import lib.rest.model.events.receiveEvents.DispatchEvent
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.Action
 
+@Suppress("unused")
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 fun <P> Bot.on(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
     event.actions += λ
 }
 
+@Suppress("unused")
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 fun <P> Bot.off(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
