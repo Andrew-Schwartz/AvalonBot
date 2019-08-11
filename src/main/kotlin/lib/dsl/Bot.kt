@@ -4,6 +4,7 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import lib.exceptions.PermissionException
+import lib.model.Snowflake
 import lib.model.channel.Channel
 import lib.model.channel.Embed
 import lib.model.channel.Message
@@ -137,8 +138,17 @@ class Bot internal constructor(val token: String) {
         socket.run()
     }
 
+    val Snowflake.user: User
+        get() = runBlocking { getUser(this@user) }
+
     val Message.channel: Channel
         get() = runBlocking { getChannel(channelId) }
+
+    val Message.guild: Guild?
+        get() = runBlocking {
+            guildId ?: return@runBlocking null
+            getGuild(guildId)
+        }
 
     suspend fun Message.pin() {
         pinnedMessages += this

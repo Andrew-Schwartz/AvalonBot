@@ -9,7 +9,6 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
-import lib.util.inlineCode
 import lib.util.ping
 
 object PlayersCommand : Command(Setup, AvalonGame) {
@@ -22,25 +21,13 @@ object PlayersCommand : Command(Setup, AvalonGame) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        if (players.isEmpty()) {
-            message.reply("There are currently no players")
-        } else {
-            if (args.isNotEmpty()) {
-                if (args[0].toLowerCase() == "ping") {
-                    message.reply {
-                        color = Colors.neutral
-                        title = "Players"
-                        addField("Nicknames", players.keys.joinToString(separator = "\n"))
-                        addField("Users", players.values.joinToString(separator = "\n") { it.ping() })
-                    }
-                } else {
-                    "${"!players ${args[0]}".inlineCode()} is not understood. Try ${"!help players".inlineCode()} for information"
-                }
-            } else {
-                message.reply {
-                    color = Colors.neutral
-                    addField("Nicknames", players.keys.joinToString(separator = "\n"))
-                    addField("Users", players.values.joinToString(separator = "\n") { it.username })
+        when {
+            players.isEmpty() -> message.reply("There are currently no players")
+            else -> message.reply {
+                color = Colors.neutral
+                title = "Players"
+                for ((nick, user) in players) {
+                    addField(nick, user.ping(), inline = true)
                 }
             }
         }

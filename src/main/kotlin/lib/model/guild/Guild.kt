@@ -49,10 +49,10 @@ data class Guild(
         val banner: String?,
         @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
-) : Storable {
+) : Storable<Guild> {
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Storable?): Guild {
-        val g = (new as? Guild) ?: throw IllegalArgumentException("Can only copy info from other guilds")
+    override fun updateDataFrom(new: Guild?): Guild {
+        val g = new ?: return this
 
         return Guild(
                 g.id ?: id,
@@ -93,8 +93,10 @@ data class Guild(
                 g.banner ?: banner,
                 g.premiumTier ?: premiumTier,
                 g.premiumSubscriptionCount ?: premiumSubscriptionCount
-        )
+        ).savePrev()
     }
+
+    override val prevVersions: MutableList<Guild> = mutableListOf()
 
     override fun equals(other: Any?): Boolean = (other as? Guild)?.id == id
 

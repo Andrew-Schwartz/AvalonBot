@@ -13,10 +13,10 @@ data class Role(
         val permissions: Int, // bit set
         val managed: Boolean,
         val mentionable: Boolean
-) : Storable {
+) : Storable<Role> {
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Storable?): Role {
-        val r = (new as? Role) ?: throw IllegalArgumentException("Can only copy info from other role")
+    override fun updateDataFrom(new: Role?): Role {
+        val r = new ?: return this
 
         return Role(
                 r.id ?: id,
@@ -27,8 +27,10 @@ data class Role(
                 r.permissions ?: permissions,
                 r.managed ?: managed,
                 r.mentionable ?: mentionable
-        )
+        ).savePrev()
     }
+
+    override val prevVersions: MutableList<Role> = mutableListOf()
 
     override fun equals(other: Any?): Boolean = (other as? Role)?.id == id
 

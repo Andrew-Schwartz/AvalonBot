@@ -4,7 +4,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 
 @ExperimentalCoroutinesApi
-suspend fun blockUntil(pauseTime: Long = 500, predicate: suspend () -> Boolean) {
+suspend fun blockUntil(predicate: suspend () -> Boolean) {
     while (!predicate())
-        delay(pauseTime)
+        delay(1000)
 }

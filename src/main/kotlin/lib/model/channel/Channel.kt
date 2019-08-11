@@ -26,19 +26,19 @@ data class Channel(
         @SerializedName("application_id") val applicationId: Snowflake?,
         @SerializedName("parent_id") val parentId: Snowflake?,
         @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?
-) : Storable {
+) : Storable<Channel> {
     override fun equals(other: Any?): Boolean = (other as? Channel)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
 
-    val nameOrUser: String?
-        get() {
-            return name ?: recipients?.contentToString()
-        }
+//    val nameOrUser: String?
+//        get() {
+//            return name ?: recipients?.asIterable()?.formatIterable { it.username }
+//        }
 
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Storable?): Channel {
-        val c = (new as? Channel) ?: throw IllegalArgumentException("Can only copy info from other channels")
+    override fun updateDataFrom(new: Channel?): Channel {
+        val c = new ?: return this
 
         return Channel(
                 c.id ?: id,
@@ -59,8 +59,10 @@ data class Channel(
                 c.applicationId ?: applicationId,
                 c.parentId ?: parentId,
                 c.lastPinTimestamp ?: lastPinTimestamp
-        )
+        ).savePrev()
     }
+
+    override val prevVersions: MutableList<Channel> = mutableListOf()
 
     val isText: Boolean
         get() = type.isText

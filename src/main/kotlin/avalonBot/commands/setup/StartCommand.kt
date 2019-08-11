@@ -15,6 +15,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.dsl.Bot
 import lib.model.channel.Message
+import lib.rest.http.httpRequests.deletePin
 
 object StartCommand : Command(Setup, AvalonGame) {
     private const val START_NOW = "now"
@@ -52,7 +53,18 @@ object StartCommand : Command(Setup, AvalonGame) {
                 currentState = Setup
                 players.clear()
                 roles.clear()
+                for (pin in pinnedMessages) {
+                    runCatching { deletePin(pin.channelId, pin.id) }
+                            .onFailure { println(it.message) }
+                }
             }
+//            args.getOrNull(0) == START_NOW -> {
+//                if (message.author != steadfast) {
+//                    message.reply("Only Andrew is that cool")
+//                } else {
+//
+//                }
+//            }
             maxEvil == -1 -> message.reply("Between 5 and 10 players are required!")
             roles.size > players.size -> message.reply("You have more roles chosen than you have players!")
             evil > maxEvil -> {

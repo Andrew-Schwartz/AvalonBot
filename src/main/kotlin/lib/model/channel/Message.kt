@@ -31,7 +31,12 @@ data class Message(
         val type: MessageType,
         val activity: MessageActivity,
         val application: MessageApplication
-) : Storable {
+) : Storable<Message> {
+    override val prevVersions: MutableList<Message> = mutableListOf()
+
+//    override val mostRecent: Message?
+//        get() = prevVersions.lastOrNull()
+
     val mentionRoles: List<Snowflake> by lazy { _mentionRoles.map(::Snowflake) }
 
     override fun equals(other: Any?): Boolean = (other as? Message)?.id == id
@@ -42,8 +47,8 @@ data class Message(
         get() = content.split(" +".toRegex()).drop(1)
 
     @Suppress("USELESS_ELVIS", "UNNECESSARY_SAFE_CALL")
-    override fun updateDataFrom(new: Storable?): Message {
-        val m = (new as? Message) ?: throw IllegalArgumentException("Can only copy info from other messages")
+    override fun updateDataFrom(new: Message?): Message {
+        val m = new ?: return this
 
         return Message(
                 m.id ?: id,
@@ -67,6 +72,13 @@ data class Message(
                 m.type ?: type,
                 m.activity ?: activity,
                 m.application ?: application
-        )
+        ).savePrev()
+        /*.apply {
+            for (prevVersion in this@Message.prevVersions ?: mutableListOf()) {
+                prevVersions += prevVersion
+            }
+            prevVersions += this@Message
+        }
+*/
     }
 }

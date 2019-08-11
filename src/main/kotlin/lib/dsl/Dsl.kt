@@ -5,27 +5,27 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.DispatchEvent
 import lib.rest.model.events.receiveEvents.MessageCreate
+import lib.util.A
 import lib.util.Action
 
-@Suppress("unused")
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun <P> Bot.on(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
-    event.actions += λ
-}
-
-@Suppress("unused")
-@KtorExperimentalAPI
-@ExperimentalCoroutinesApi
-fun <P> Bot.off(event: DispatchEvent<P>, λ: suspend P.() -> Unit) {
-    event.actions -= λ
+fun <P> Bot.on(vararg events: DispatchEvent<P>, λ: suspend P.() -> Unit) {
+    events.forEach { it.actions += λ }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun Bot.command(prefix: String = "", respondToBots: Boolean = false, event: DispatchEvent<Message> = MessageCreate, λ: Action<Message>) {
-    on(event) {
-        if (content.startsWith(prefix) && respondToBots || author.isBot != true)
+fun <P> Bot.off(vararg events: DispatchEvent<P>, λ: suspend P.() -> Unit) {
+    events.forEach { it.actions -= λ }
+}
+
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+fun Bot.command(prefix: String = "", respondToBots: Boolean = false, vararg events: DispatchEvent<Message> = A[MessageCreate], λ: Action<Message>) {
+    on(*events) {
+        if (content.startsWith(prefix) && (respondToBots || author.isBot != true)) {
             λ()
+        }
     }
 }

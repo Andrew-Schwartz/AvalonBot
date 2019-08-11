@@ -5,19 +5,26 @@ package lib.util
 import lib.model.Snowflake
 import lib.model.Storable
 
-class Store<T : Storable> {
+class Store<T : Storable<T>> {
     val map: MutableMap<Snowflake, T> = mutableMapOf()
     val size: Int
         get() = map.size
 
     fun add(value: T): T {
-        return if (value.id in map) {
-            map[value.id]!!.updateDataFrom(value) as T
-//            value.updateDataFrom(map[value.id]!!)
-        } else {
-            value
-        }.also { map[value.id] = it }
+        val id = value.id
+        return when (id) {
+            in map -> map[id]!!.updateDataFrom(value)
+            else -> value
+        }.also { map[id] = it }
     }
+//    fun add(value: T): T {
+//        return if (value.id in map) {
+//            map[value.id]!!.updateDataFrom(value) as T
+////            value.updateDataFrom(map[value.id]!!)
+//        } else {
+//            value
+//        }.also { map[value.id] = it }
+//    }
 
 //    inline operator fun plusAssign(value: T) = add(value)
 
@@ -35,32 +42,29 @@ class Store<T : Storable> {
 
     fun putIfAbsent(value: T): T = map.putIfAbsent(value.id, value)!!
 
-    //    suspend fun computeIfAbsent(id: Snowflake, default: suspend () -> T) = map.computeIfAbsent(id) { runBlocking { default() } }
-    suspend fun computeIfAbsent(id: Snowflake, default: suspend () -> T): T {
-        return if (id in map) {
-            map[id]!!
-        } else {
-            default().also { map[id] = it }
-        }
+    suspend fun computeIfAbsent(id: Snowflake, default: suspend () -> T): T =
+            when (id) {
+                in map -> map[id]!!
+                else -> default().also { map[id] = it }
+            }
+}
+
+inline fun <T : Storable<T>> Store<T>.forEach(action: (T) -> Unit) = map.forEach { action(it.value) }
+
+inline fun <T : Storable<T>> Store<T>.all(predicate: (T) -> Boolean) = map.all { predicate(it.value) }
+inline fun <T : Storable<T>> Store<T>.any(predicate: (T) -> Boolean) = map.any { predicate(it.value) }
+inline fun <T : Storable<T>> Store<T>.none(predicate: (T) -> Boolean) = map.none { predicate(it.value) }
+
+inline fun <T : Storable<T>> Store<T>.first(predicate: (T) -> Boolean = { true }): T? {
+    for ((_, v) in map) {
+        if (predicate(v)) return v
     }
+    return null
+}
 
-    inline fun forEach(action: (T) -> Unit) = map.forEach { action(it.value) }
-
-    inline fun all(predicate: (T) -> Boolean) = map.all { predicate(it.value) }
-    inline fun any(predicate: (T) -> Boolean) = map.any { predicate(it.value) }
-    inline fun none(predicate: (T) -> Boolean) = map.none { predicate(it.value) }
-
-    inline fun first(predicate: (T) -> Boolean = { true }): T? {
-        for ((_, v) in map) {
-            if (predicate(v)) return v
-        }
-        return null
+inline fun <T : Storable<T>> Store<T>.last(predicate: (T) -> Boolean = { true }): T? {
+    for ((_, v) in map.entries.reversed()) {
+        if (predicate(v)) return v
     }
-
-    inline fun last(predicate: (T) -> Boolean = { true }): T? {
-        for ((_, v) in map.entries.reversed()) {
-            if (predicate(v)) return v
-        }
-        return null
-    }
+    return null
 }

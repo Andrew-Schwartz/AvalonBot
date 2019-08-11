@@ -17,6 +17,7 @@ import lib.rest.model.events.sendEvents.Heartbeat
 import lib.rest.model.events.sendEvents.Identify
 import lib.rest.model.events.sendEvents.SendEvent
 import lib.util.fromJson
+import lib.util.onNull
 import lib.util.toJson
 import lib.util.toJsonTree
 import kotlin.system.exitProcess
@@ -38,45 +39,19 @@ class DiscordWebsocket(val bot: Bot) {
             }
 
             eventLoop@ while (!incoming.isClosedForReceive) {
-                val message: Frame.Text? = incoming.poll() as Frame.Text?
-
-                // run all eventListeners whose predicate is matched, then remove them
-//                eventListeners -= eventListeners.filter { it.first() }.onEach { it.second() }
+                val message: Frame.Text? = incoming.poll() as? Frame.Text?
 
                 message?.let {
-                    try {
-                        val text = it.readText()
-//                        println(text)
-                        receive(text.fromJson())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+                    runCatching { receive(it.readText().fromJson()) }
+                            .onFailure { println(it.printStackTrace()) }
+//                    try {
+//                        val text = it.readText()
+//                        receive(text.fromJson())
+//                    } catch (e: Exception) {
+//                        e.printStackTrace()
+//                    }
                 }
             }
-//            var i = 0
-//            while (!incoming.isClosedForReceive) {
-//                try {
-//                    val message = incoming.receive() //incoming.receiveOrNull()
-//                    incoming.poll()
-//
-//                    eventListeners -= eventListeners.filter { it.first() }.onEach { println("got one!"); it.second() }
-//
-////                    for (it in eventListeners) {
-////                        if (it.first()) {
-////                            it.second()
-////                            eventListeners.remove(it)
-////                            continue
-////                        }
-////                    }
-//
-//                    receive((message as Frame.Text).readText().fromJson())
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    println("WSS getChannel closed: ${e.message}")
-////                    exitProcess(1)
-//                }
-//                println("yo #${i++}")
-//            }
             println("done with while")
         }
 
@@ -114,15 +89,11 @@ class DiscordWebsocket(val bot: Bot) {
         val data = payload.eventData!!
         val name = payload.eventName!!.replace("_", "")
 
-        val event: DispatchEvent<*> = try {
-            DispatchEvent::class.sealedSubclasses.first {
-                val className = it.simpleName!!.toUpperCase() // null if anonymous, no subclasses are anonymous
-                className == name
-            }.objectInstance!! // all dispatch events are objects
-        } catch (e: NoSuchElementException) {
-            println("no DispatchEvent for name $name, data is:\n$data")
-            return
-        }
+        val event: DispatchEvent<*> = DispatchEvent::class.sealedSubclasses
+                .firstOrNull { it.simpleName?.toUpperCase() == name }
+                ?.objectInstance
+                .onNull { println("No DispatchEvent for $name, data is:\n$data") }
+                ?: return
 
 //        event.runAllActions(data)
 

@@ -130,13 +130,6 @@ data class ResumePayload(
     val guildsIds by lazy { _trace.map(::Snowflake) }
 }
 
-//data class UnavailableGuild(
-//        val id: Snowflake,
-//        val unavailable: Boolean
-//) {
-//
-//}
-
 data class InvalidSessionPayload(
         val op: GatewayOpcode,
         @SerializedName("d") val resumable: Boolean

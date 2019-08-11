@@ -19,10 +19,10 @@ data class User(
         @SerializedName("flags") private val _flags: Int?,
         @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
-) : Storable {
+) : Storable<User> {
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Storable?): User {
-        val u = (new as? User) ?: throw IllegalArgumentException("Can only copy info from other users")
+    override fun updateDataFrom(new: User?): User {
+        val u = new ?: return this
 
         return User(
                 u.id ?: id,
@@ -37,8 +37,10 @@ data class User(
                 u._flags ?: _flags,
                 u.premiumType ?: premiumType,
                 u.member ?: member
-        )
+        ).savePrev()
     }
+
+    override val prevVersions: MutableList<User> = mutableListOf()
 
     override fun equals(other: Any?): Boolean = (other as? User)?.id == id
 

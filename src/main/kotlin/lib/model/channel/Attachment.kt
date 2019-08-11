@@ -12,10 +12,12 @@ data class Attachment(
         @SerializedName("proxy_url") val proxyUrl: String,
         val height: Int?,
         val width: Int?
-) : Storable {
+) : Storable<Attachment> {
+    override val prevVersions: MutableList<Attachment> = mutableListOf()
+
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Storable?): Attachment {
-        val a = (new as? Attachment) ?: throw IllegalArgumentException("Can only copy info from other attachments")
+    override fun updateDataFrom(new: Attachment?): Attachment {
+        val a = new ?: return this
 
         return Attachment(
                 a.id ?: id,
@@ -25,7 +27,7 @@ data class Attachment(
                 a.proxyUrl ?: proxyUrl,
                 a.height ?: height,
                 a.width ?: width
-        )
+        ).savePrev()
     }
 
     override fun equals(other: Any?): Boolean = (other as? Attachment)?.id == id

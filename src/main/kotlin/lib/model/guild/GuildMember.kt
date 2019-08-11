@@ -18,5 +18,5 @@ data class GuildMember(
 ) {
     val username: String = user.username
 
-    val roles by lazy { _roles.map { Snowflake(it) }.also(::println) }
+//    val roles by lazy { _roles.map { Snowflake(it) }.also(::println) }
 }

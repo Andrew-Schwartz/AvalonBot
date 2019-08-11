@@ -6,7 +6,6 @@ import avalonBot.steadfast
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.exceptions.RequestException
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 import kotlin.system.exitProcess
@@ -24,22 +23,19 @@ object ExitCommand : Command(Setup, AvalonGame) {
         when (message.author) {
             steadfast -> {
                 for (pin in pinnedMessages) {
-                    try {
-                        deletePin(pin.channelId, pin.id)
-                    } catch (e: RequestException) {
-                        println(e.message)
-                    }
+                    runCatching { deletePin(pin.channelId, pin.id) }
+                            .onFailure { println(it.message) }
                 }
-                val msg = "Logging off!"
+                val logOff = "Logging off!"
                 message.reply {
-                    title = msg
+                    title = logOff
                     timestamp()
                 }
-                println(msg)
+                println(logOff)
                 exitProcess(1)
             }
             else -> {
-                message.author.sendDM("Only Andrew is special")
+                message.reply("Only Andrew is special")
             }
         }
     }

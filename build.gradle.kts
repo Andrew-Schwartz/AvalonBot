@@ -25,14 +25,6 @@ dependencies {
     implementation("io.ktor:ktor-client-json:$ktorVersion")
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("io.ktor:ktor-gson:$ktorVersion")
-
-//    implementation("net.dv8tion:JDA:3.8.3_463") {
-//        exclude(module = "opus-java")
-//    }
-//    implementation("com.jessecorbett:diskord-jvm:1.4.0")
-
-//    testImplementation("org.jetbrains.kotlin:kotlin-test")
-//    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 }
 
 java {

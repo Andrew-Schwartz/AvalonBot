@@ -13,6 +13,7 @@ import lib.dsl.Bot
 import lib.model.channel.Message
 import lib.util.A
 import lib.util.S
+import lib.util.onNull
 
 object RolesCommand : Command(Setup) {
     private const val CLEAR_ROLES = "reset"
@@ -34,12 +35,8 @@ object RolesCommand : Command(Setup) {
 
         args.filter { it !in A[CLEAR_ROLES, LIST_ROLES] }
                 .mapNotNull { name ->
-                    try {
-                        characters.first { name.equals(it.name, ignoreCase = true) }
-                    } catch (e: NoSuchElementException) {
-                        message.reply("No role by the name $name")
-                        null
-                    }
+                    characters.firstOrNull { name.equals(it.name, ignoreCase = true) }
+                            .onNull { message.reply("No role by the name $name") }
                 }
                 .forEach {
                     if (it in roles) {
