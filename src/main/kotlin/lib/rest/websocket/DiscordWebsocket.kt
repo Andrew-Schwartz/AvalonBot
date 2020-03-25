@@ -17,9 +17,9 @@ import lib.rest.model.events.sendEvents.Heartbeat
 import lib.rest.model.events.sendEvents.Identify
 import lib.rest.model.events.sendEvents.SendEvent
 import lib.util.fromJson
-import lib.util.onNull
 import lib.util.toJson
 import lib.util.toJsonTree
+import main.util.onNull
 import kotlin.system.exitProcess
 
 @KtorExperimentalAPI

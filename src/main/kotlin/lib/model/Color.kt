@@ -1,6 +1,6 @@
 package lib.model
 
-import lib.util.get
+import main.util.get
 
 inline class Color(val value: UInt) {
     constructor(r: UInt, g: UInt, b: UInt) : this(

@@ -14,9 +14,9 @@ import lib.rest.RateLimitInfo
 import lib.rest.http.CreateMessage
 import lib.rest.http.httpRequests.*
 import lib.rest.websocket.DiscordWebsocket
-import lib.util.A
 import lib.util.Store
 import lib.util.ping
+import main.util.A
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

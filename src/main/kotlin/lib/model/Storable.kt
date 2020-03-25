@@ -1,3 +1,5 @@
+@file:Suppress("KotlinDeprecation")
+
 package lib.model
 
 interface Storable<T : Storable<T>> {

@@ -21,9 +21,9 @@ import lib.model.permissions.Role
 import lib.model.user.User
 import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.GatewayOpcode
-import lib.util.A
-import lib.util.Action
 import lib.util.fromJson
+import main.util.A
+import main.util.Action
 
 /**
  * @param P type of the payload attached with this event

@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import lib.model.Snowflake
 import lib.model.Storable
 import lib.model.guild.GuildMember
-import lib.util.L
+import main.util.L
 
 data class User(
         override val id: Snowflake,

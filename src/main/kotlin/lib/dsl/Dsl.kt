@@ -5,19 +5,33 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.DispatchEvent
 import lib.rest.model.events.receiveEvents.MessageCreate
-import lib.util.A
-import lib.util.Action
+import main.commands.Command
+import main.util.A
+import main.util.Action
+import main.util.Listener
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun <P> Bot.on(vararg events: DispatchEvent<P>, λ: suspend P.() -> Unit) {
+fun <P> Bot.on(vararg events: DispatchEvent<P>, λ: Listener<P>) {
     events.forEach { it.actions += λ }
+}
+
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
+fun Bot.on(command: Command) {
+    Command.commandSet += command
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun <P> Bot.off(vararg events: DispatchEvent<P>, λ: suspend P.() -> Unit) {
+fun <P> Bot.off(vararg events: DispatchEvent<P>, λ: Listener<P>) {
     events.forEach { it.actions -= λ }
+}
+
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+fun Bot.off(command: Command) {
+    Command.commandSet -= command
 }
 
 @KtorExperimentalAPI
