@@ -3,7 +3,7 @@ package avalon.commands.setup
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
 import avalon.game.Avalon
-import avalon.game.AvalonData
+import avalon.game.AvalonConfig
 import common.commands.Command
 import common.commands.CommandState
 import common.commands.CommandState.AvalonGame
@@ -34,7 +34,7 @@ object StartAvalonCommand : Command(CommandState.Setup, AvalonGame) {
     @ExperimentalCoroutinesApi
     private suspend fun Bot.startGame(message: Message) {
         val setup = Setup[message.channel, GameType.Avalon]
-        val roles = (setup.data as AvalonData).roles
+        val roles = (setup.config as AvalonConfig).roles
         val maxEvil = when (setup.players.size) {
             in 5..6 -> 2
             in 7..9 -> 3
@@ -56,7 +56,8 @@ object StartAvalonCommand : Command(CommandState.Setup, AvalonGame) {
                     val avalon = Game[message.channel, GameType.Avalon] as Avalon
                     avalon.state.numEvil = maxEvil
                     avalon.state.ladyEnabled = LadyToggleCommand.enabled[message.channel] ?: false
-                    avalon.startGame()
+                    Game.startGame(avalon)
+//                    avalon.startGame()
                 }
             }
             else -> message.reply("error starting game!!!")
@@ -67,7 +68,7 @@ object StartAvalonCommand : Command(CommandState.Setup, AvalonGame) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         val setup = Setup[message.channel, GameType.Avalon]
-        val roles = (setup.data as AvalonData).roles
+        val roles = (setup.config as AvalonConfig).roles
         when (args.getOrNull(0)) {
             START_OVER -> {
                 Game.remove(message.channel, GameType.Avalon)

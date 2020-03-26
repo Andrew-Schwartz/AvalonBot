@@ -3,7 +3,7 @@ package avalon.commands.setup
 import avalon.characters.LoyalServant
 import avalon.characters.MinionOfMordred
 import avalon.characters.characters
-import avalon.game.AvalonData
+import avalon.game.AvalonConfig
 import common.commands.Command
 import common.commands.CommandState
 import common.game.GameType
@@ -35,7 +35,7 @@ object RolesCommand : Command(CommandState.Setup) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         val setup = Setup[message.channel, GameType.Avalon]
-        val roles = (setup.data as AvalonData).roles
+        val roles = (setup.config as AvalonConfig).roles
 
         if (CLEAR_ROLES in args) roles.clear()
 

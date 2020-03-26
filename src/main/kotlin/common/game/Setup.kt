@@ -7,7 +7,7 @@ import lib.model.user.User
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class Setup private constructor(val channel: Channel, private val gameType: GameType, val data: GameData) {
+class Setup private constructor(val channel: Channel, private val gameType: GameType, val config: GameConfig) {
     val players: ArrayList<Player> = arrayListOf()
 
     fun addPlayer(user: User) {

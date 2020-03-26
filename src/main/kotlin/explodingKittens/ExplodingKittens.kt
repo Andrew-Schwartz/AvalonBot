@@ -18,6 +18,10 @@ class ExplodingKittens(setup: Setup) : Game(GameType.ExplodingKittens, setup) {
         }
     }
 
+    override suspend fun stopGame() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     suspend fun drawCard() {
         val card = state.deck.removeAt(0)
         card.run { draw() }

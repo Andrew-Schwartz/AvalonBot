@@ -16,7 +16,7 @@ class AvalonState(val game: Avalon, setup: Setup) {
     val userPlayerMap: Map<User, AvalonPlayer> = players.associateBy { it.user }
 
     @Suppress("UNCHECKED_CAST")
-    val roles = (setup.data as AvalonData).roles
+    val roles = (setup.config as AvalonConfig).roles
 
     val leader get() = players[leaderNum % players.size]
 

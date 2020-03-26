@@ -1,6 +1,6 @@
 package common.game
 
-import avalon.game.AvalonData
+import avalon.game.AvalonConfig
 import avalon.game.AvalonPlayer
 import explodingKittens.KittenPlayer
 import io.ktor.util.KtorExperimentalAPI
@@ -11,17 +11,17 @@ import lib.model.user.User
 @ExperimentalCoroutinesApi
 enum class GameType {
     Avalon {
-        override fun data(): GameData = AvalonData()
+        override fun data(): GameConfig = AvalonConfig()
         override fun player(user: User): Player = AvalonPlayer(user)
         override fun game(setup: Setup): Game = avalon.game.Avalon(setup)
     },
     ExplodingKittens {
-        override fun data(): GameData = TODO("KittenData")
+        override fun data(): GameConfig = TODO("KittenData")
         override fun player(user: User): Player = KittenPlayer(user)
         override fun game(setup: Setup): Game = explodingKittens.ExplodingKittens(setup)
     };
 
-    abstract fun data(): GameData
+    abstract fun data(): GameConfig
     abstract fun player(user: User): Player
     abstract fun game(setup: Setup): Game
 

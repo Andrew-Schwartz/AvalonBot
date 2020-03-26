@@ -1,8 +1,8 @@
 package avalon.game
 
 import avalon.characters.Character
-import common.game.GameData
+import common.game.GameConfig
 
-class AvalonData : GameData {
+class AvalonConfig : GameConfig {
     val roles: ArrayList<Character> = arrayListOf()
 }

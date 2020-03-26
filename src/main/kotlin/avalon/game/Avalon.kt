@@ -289,6 +289,17 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
         }
     }
 
+    override suspend fun stopGame() {
+        bot.run {
+            channel.send {
+                title = "An error has occurred!!"
+                description = "Ending game"
+                color = Colors.red
+            }
+        }
+        cleanupListeners()
+    }
+
     internal fun playerByName(name: String?): AvalonPlayer? {
         name ?: return null
         return state.players.firstOrNull {
