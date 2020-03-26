@@ -2,8 +2,7 @@ package main.game
 
 import lib.model.user.User
 
-open class Player(val name: String, val user: User) {
-    val username = user.username
+open class Player(val user: User)
 
-    val nameAndUser = "$name ($username)"
-}
+val Player.name: String
+    get() = user.username

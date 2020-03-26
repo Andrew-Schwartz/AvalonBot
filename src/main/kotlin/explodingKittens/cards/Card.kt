@@ -1,9 +1,10 @@
 package explodingKittens.cards
 
-import explodingKittens.KittenState
+import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.util.bold
+import main.bot
 import main.util.replaceCamelCase
 import java.io.File
 import kotlin.reflect.KClass
@@ -18,16 +19,16 @@ abstract class Card(val id: Int) {
 
     open val playable: Boolean = true
 
-    val imgDir = File("src/main/resources/images/exploding_kittens/${this::class.simpleName!!.replaceCamelCase("_", true)}")
+    private val imgDir = File("src/main/resources/images/exploding_kittens/${this::class.simpleName!!.replaceCamelCase("_", true)}")
 
     val image: File
         get() = imgDir.listFiles { _, name -> "$id" in name }!!.first()
 
-    open suspend fun KittenState.play() {}
+    open suspend fun ExplodingKittens.play() {}
 
-    open suspend fun KittenState.draw() {
-        val player = currentPlayer
-        with(game.bot) {
+    open suspend fun ExplodingKittens.draw() {
+        val player = state.currentPlayer
+        with(bot) {
             player.user.sendDM {
                 title = "You drew ${name.bold()}"
                 image(image)

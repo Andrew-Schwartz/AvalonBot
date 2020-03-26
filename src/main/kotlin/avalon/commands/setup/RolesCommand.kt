@@ -1,17 +1,17 @@
 package avalon.commands.setup
 
-import avalon.Colors
 import avalon.characters.LoyalServant
 import avalon.characters.MinionOfMordred
 import avalon.characters.characters
+import avalon.game.roles
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 import main.commands.Command
 import main.commands.CommandState.Setup
-import main.roles
 import main.util.A
+import main.util.Colors
 import main.util.S
 import main.util.onNull
 
@@ -53,7 +53,7 @@ object RolesCommand : Command(Setup) {
             }
         } else {
             message.reply {
-                color = Colors.neutral
+                color = Colors.gold
                 title = "Current Roles"
                 description = if (roles.isEmpty()) "none" else roles.joinToString(separator = "\n") { it.name }
             }

@@ -1,6 +1,6 @@
 package avalon.commands.game
 
-import avalon.game.Avalon
+import avalon.game.AvalonState
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -11,14 +11,14 @@ import main.util.onNull
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-class QuestCommand(private val state: Avalon) : Command(AvalonGame) {
+class QuestCommand(private val state: AvalonState) : Command(AvalonGame) {
     override val name: String = "quest"
 
     override val description: String = "Choose which people will go on the quest! Only usable by the current leader"
 
-    override val usage: String = "!quest <player1>;<player2>;...  (the semicolons are necessary)"
+    override val usage: String = "!quest <player1>;<player2>;...  (the semicolons are necessary)" // todo @ pings
 
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         with(message) {
             if (author != state.leader.user) return@with
             val round = state.rounds[state.roundNum]
@@ -26,7 +26,7 @@ class QuestCommand(private val state: Avalon) : Command(AvalonGame) {
             val questers = content.substring(content.indexOf(' ') + 1)
                     .split(" *; *".toRegex())
                     .mapNotNull { arg ->
-                        state.playerByName(arg).onNull { reply("No one by the (nick)name $arg") }
+                        state.game.playerByName(arg).onNull { reply("No one by the (nick)name $arg") }
                     }
                     .toSet()
 

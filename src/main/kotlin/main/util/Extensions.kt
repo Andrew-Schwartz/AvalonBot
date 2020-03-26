@@ -9,7 +9,7 @@ operator fun String.get(range: IntRange): String = substring(range)
 
 inline fun <A, R> Pair<A, A>.map(transform: (A) -> R): Pair<R, R> = transform(first) to transform(second)
 
-fun <T> Iterable<T>.formatIterable(stringify: (T) -> String = { it.toString() }): String {
+fun <T> Iterable<T>.listGrammatically(stringify: (T) -> String = { it.toString() }): String {
     return map(stringify)
             .reduceIndexed { index, acc, name ->
                 "$acc${
@@ -19,8 +19,8 @@ fun <T> Iterable<T>.formatIterable(stringify: (T) -> String = { it.toString() })
             }
 }
 
-fun <T> Array<T>.formatIterable(stringify: (T) -> String = { it.toString() }): String {
-    return asIterable().formatIterable(stringify)
+fun <T> Array<T>.listGrammatically(stringify: (T) -> String = { it.toString() }): String {
+    return asIterable().listGrammatically(stringify)
 }
 
 fun String.replaceCamelCase(with: String, makeLowerCase: Boolean = false): String = map {

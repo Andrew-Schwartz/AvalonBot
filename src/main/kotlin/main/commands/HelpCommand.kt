@@ -1,6 +1,5 @@
 package main.commands
 
-import avalon.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -11,6 +10,7 @@ import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline
 import main.commands.CommandState.All
+import main.util.Colors
 
 object HelpCommand : Command(All) {
     override val name: String = "help"
@@ -24,7 +24,7 @@ object HelpCommand : Command(All) {
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         val allCommandsEmbed: RichEmbed = embed {
             title = "List of commands".underline()
-            color = Colors.neutral
+            color = Colors.gold
             for (c in commandSet)
                 addField(c.name.bold(), c.description)
         }
@@ -46,7 +46,7 @@ object HelpCommand : Command(All) {
 
 suspend fun Command.helpEmbed(): RichEmbed = embed {
     title = "About $name".underline()
-    color = Colors.neutral
+    color = Colors.gold
     addField("Description", this@helpEmbed.description, false)
     addField("Usage", usage.inlineCode())
 }

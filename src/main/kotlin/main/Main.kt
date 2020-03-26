@@ -1,10 +1,9 @@
 package main
 
-import avalon.Colors.neutral
-import avalon.characters.Character
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import lib.dsl.Bot
 import lib.dsl.bot
 import lib.dsl.command
 import lib.dsl.on
@@ -16,19 +15,17 @@ import lib.rest.model.events.receiveEvents.*
 import lib.util.fromJson
 import main.commands.Command
 import main.util.A
-import main.util.formatIterable
-import java.io.File
+import main.util.Colors.gold
+import main.util.listGrammatically
 
 //val config: ConfigJson = File("src/main/resources/config/config.json").readText().fromJson()
 
-val players: MutableMap<String, User> = mutableMapOf()
-val roles: ArrayList<Character> = ArrayList()
-
-val avalonLogo: File = File("src/main/resources/images/avalon/avalonLogo.png")
-val leaderCrown: File = File("src/main/resources/images/avalon/leaderCrown.jpg")
-
 lateinit var steadfast: User
 lateinit var kts: Channel
+
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
+lateinit var bot: Bot
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -39,6 +36,7 @@ fun main() = runBlocking {
             .fromJson<ConfigJson>()
 
     bot(token) {
+        bot = this
         //        blockUntil { false }
 
         steadfast = getUser(sfId)
@@ -48,7 +46,7 @@ fun main() = runBlocking {
             //            steadfast.sendDM {
             kts.send {
                 title = "${this@bot.user.username} is logged on!!"
-                color = neutral
+                color = gold
                 timestamp()
                 url = "https://github.com/Andrew-Schwartz/AvalonBot"
             }
@@ -74,7 +72,7 @@ fun main() = runBlocking {
                     //                    title = "Message from ${this@run.author.username} in ${this@run.channel.nameOrUser} deleted!"
                     title = "Message from ${this@run.author.username} in " +
                             when (this@run.guild) {
-                                null -> "a DM with ${this@run.channel.recipients?.formatIterable { it.username }} "
+                                null -> "a DM with ${this@run.channel.recipients?.listGrammatically { it.username }} "
                                 else -> "${this@run.guild!!.name}/${this@run.channel.name} "
                             } + "was deleted"
                     if (content.isNotEmpty()) {
@@ -96,7 +94,7 @@ fun main() = runBlocking {
                 //                title = "Message from ${this@on.author.username} in ${this@on.channel.nameOrUser} edited!"
                 title = "Message from ${this@on.author.username} in " +
                         when (this@on.guild) {
-                            null -> "a DM with ${this@on.channel.recipients?.formatIterable { it.username }} "
+                            null -> "a DM with ${this@on.channel.recipients?.listGrammatically { it.username }} "
                             else -> "${this@on.guild!!.name}/${this@on.channel.name} "
                         } + "was edited!"
                 if (mostRecent?.content?.isEmpty() == false) {
@@ -123,7 +121,7 @@ fun main() = runBlocking {
         }
 
         command(prefix, events = *A[MessageCreate, MessageUpdate]) {
-            Command.run(this@bot, this, prefix)
+            Command.run(this, prefix)
         }
     }
 }

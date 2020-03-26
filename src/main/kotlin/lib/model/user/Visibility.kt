@@ -12,5 +12,5 @@ enum class Visibility {
      * visible to everyone
      */
     @SerializedName("1")
-    Eveyone
+    Everyone
 }

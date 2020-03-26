@@ -1,6 +1,6 @@
 package explodingKittens.cards
 
-import explodingKittens.KittenState
+import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -9,7 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class Shuffle(id: Int) : Card(id) {
     override val description: String = "Shuffles the deck"
 
-    override suspend fun KittenState.play() {
-        deck.shuffle()
+    override suspend fun ExplodingKittens.play() {
+        state.deck.shuffle()
     }
 }

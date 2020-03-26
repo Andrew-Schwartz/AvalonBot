@@ -8,8 +8,8 @@ import main.game.Player
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class KittenPlayer(name: String, user: User) : Player(name, user) {
+class KittenPlayer(user: User) : Player(user) {
     val hand = arrayListOf<Card>()
 
-    var toDraw = 1
+    var numTurns = 1
 }

@@ -4,40 +4,25 @@ import explodingKittens.cards.Card
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.user.User
+import main.game.Setup
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class KittenState(val game: ExplodingKittens) {
+class KittenState(val game: ExplodingKittens, setup: Setup) {
+    init {
+        Setup.remove(setup)
+    }
+
     var currentPlayerIndex = 0
 
-    val players: List<KittenPlayer>
-        get() = game.gamePlayers.map { it as KittenPlayer }
-    val userPlayerMap: Map<User, KittenPlayer>
-        get() = game.userPlayerMap.mapValues { it as KittenPlayer }
+    val players: ArrayList<KittenPlayer> = setup.players.map { it as KittenPlayer } as ArrayList<KittenPlayer>
+    val userPlayerMap: Map<User, KittenPlayer> = players.associateBy { it.user }
 
     val currentPlayer
         get() = players[currentPlayerIndex]
     val nextPlayer
-        get() = players[next(currentPlayerIndex)]
+        get() = players[game.next(currentPlayerIndex)]
 
     val deck = arrayListOf<Card>()
     var turnOrder = 1
-
-    suspend fun drawCard() {
-        val card = deck.removeAt(0)
-        card.run { draw() }
-    }
-
-    fun endTurn() {
-        currentPlayerIndex = next(currentPlayerIndex)
-    }
-
-    private fun next(index: Int): Int {
-        var index = index
-        index += turnOrder
-        index %= game.gamePlayers.size
-        if (index < 0)
-            index += 5
-        return index
-    }
 }

@@ -1,11 +1,13 @@
 package explodingKittens.cards
 
-import explodingKittens.KittenState
+import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.blockUntil
 import lib.dsl.embed
 import lib.util.bold
+import main.bot
+import main.game.name
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
@@ -14,8 +16,8 @@ class ExplodingKitten(id: Int) : Card(id) {
 
     override val playable = false
 
-    override suspend fun KittenState.draw() {
-        val player = currentPlayer
+    override suspend fun ExplodingKittens.draw() {
+        val player = state.currentPlayer
         val embed = embed {
             title = "Exploding Kitten!".bold()
             image(image)
@@ -27,16 +29,16 @@ class ExplodingKitten(id: Int) : Card(id) {
             player.hand.remove(defuse)
         } else {
             embed.description = "${player.name} cannot defuse the kitten and blows up!"
-            game.gamePlayers.remove(player)
-            currentPlayerIndex-- // todo I think this is needed
+            state.players.remove(player)
+            state.currentPlayerIndex-- // todo I think this is needed
         }
-        with(game.bot) {
-            game.channel.send(embed = embed)
+        with(bot) {
+            channel.send(embed = embed)
             if (defuse != null) {
                 player.user.sendDM("""Where will you put the exploding kitten?
                                      |Reply how far from the top to put it (0 being the topmost card)
                                      |or use a negative number to count from the bottom (-0 is bottom card)
-                                     |There are currently ${deck.size} cards in the deck
+                                     |There are currently ${state.deck.size} cards in the deck
                 """.trimMargin())
 
                 var bottom = true
@@ -55,8 +57,8 @@ class ExplodingKitten(id: Int) : Card(id) {
                             ?: false
                 }
 
-                val index = if (bottom) deck.size - num else num
-                deck.add(index, this@ExplodingKitten)
+                val index = if (bottom) state.deck.size - num else num
+                state.deck.add(index, this@ExplodingKitten)
             }
         }
     }

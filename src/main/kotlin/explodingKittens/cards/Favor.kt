@@ -1,6 +1,6 @@
 package explodingKittens.cards
 
-import explodingKittens.KittenState
+import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.blockUntil
@@ -9,6 +9,7 @@ import lib.dsl.on
 import lib.model.user.User
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.ping
+import main.bot
 import main.util.MessageListener
 import main.util.cards
 import main.util.contains
@@ -19,19 +20,19 @@ import main.util.one
 class Favor(id: Int) : Card(id) {
     override val description: String = "A player of your choice gives you a card of their choice from their hand"
 
-    override suspend fun KittenState.play() {
-        with(game.bot) {
-            game.channel.send("${currentPlayer.user.ping()}, choose another player")
+    override suspend fun ExplodingKittens.play() {
+        with(bot) {
+            channel.send("${state.currentPlayer.user.ping()}, choose another player")
 
             // block until they @ someone in same channel
             var target: User? = null
 
             val getTarget: MessageListener = {
-                game.bot.run {
-                    if (author != currentPlayer.user) return@run
-                    if (channel != game.channel) return@run
-                    if (mentions.one { it in players.map { it.user } })
-                        target = mentions.first { it in players.map { it.user } }
+                bot.run {
+                    if (author != state.currentPlayer.user) return@run
+                    if (channel != this@play.channel) return@run
+                    if (mentions.one { it in state.players.map { it.user } })
+                        target = mentions.first { it in state.players.map { it.user } }
                 }
             }
             on(MessageCreate, λ = getTarget)
@@ -43,12 +44,12 @@ class Favor(id: Int) : Card(id) {
 
             var card: Card? = null
             val getCard: MessageListener = {
-                game.bot.run {
+                bot.run {
                     if (channel != target!!.getDM()) return@run
 
                     val cards = args.cards()
                     if (cards.size != 1) return@run
-                    val hand = userPlayerMap.getValue(target!!).hand
+                    val hand = state.userPlayerMap.getValue(target!!).hand
                     if (cards[0] !in hand) return@run
                     card = hand.first { it::class == cards[0] }
                 }
@@ -58,8 +59,8 @@ class Favor(id: Int) : Card(id) {
             off(MessageCreate, λ = getCard)
 
             // give first player that card and take it from second player
-            currentPlayer.hand -= card!!
-            userPlayerMap.getValue(target!!).hand += card!!
+            state.currentPlayer.hand -= card!!
+            state.userPlayerMap.getValue(target!!).hand += card!!
         }
     }
 }

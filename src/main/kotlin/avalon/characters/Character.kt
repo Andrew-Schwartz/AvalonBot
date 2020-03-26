@@ -1,9 +1,9 @@
 package avalon.characters
 
-import avalon.Colors
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
 import lib.model.Color
+import main.util.Colors
 import java.io.File
 
 val characters: Set<Character> = setOf(
@@ -41,7 +41,7 @@ abstract class Character {
 
     val Loyalty.color: Color
         get() = when (this) {
-            Good -> Colors.good
-            Evil -> Colors.evil
+            Good -> Colors.blue
+            Evil -> Colors.red
         }
 }

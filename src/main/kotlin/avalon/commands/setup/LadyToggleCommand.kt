@@ -3,12 +3,14 @@ package avalon.commands.setup
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
+import lib.model.channel.Channel
 import lib.model.channel.Message
 import main.commands.Command
 import main.commands.CommandState.Setup
 
-object LadyCommand : Command(Setup) {
-    var enabled = false
+object LadyToggleCommand : Command(Setup) {
+    //    var enabled = false
+    val enabled: MutableMap<Channel, Boolean> = mutableMapOf()
 
     override val name: String = "lady"
 
@@ -19,7 +21,7 @@ object LadyCommand : Command(Setup) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
-        enabled = !enabled
-        message.reply("The Lady of the Lake is now ${if (enabled) "en" else "dis"}abled")
+        enabled.compute(message.channel) { _, old -> !(old ?: false) }
+        message.reply("The Lady of the Lake is now ${if (enabled[message.channel] == true) "en" else "dis"}abled")
     }
 }

@@ -1,6 +1,6 @@
 package explodingKittens.cards
 
-import explodingKittens.KittenState
+import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -9,8 +9,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class Skip(id: Int) : Card(id) {
     override val description: String = "End your turn without drawing a card"
 
-    override suspend fun KittenState.play() {
-        currentPlayer.toDraw--
+    override suspend fun ExplodingKittens.play() {
+        state.currentPlayer.numTurns--
         endTurn()
     }
 }
