@@ -1,12 +1,12 @@
 package explodingKittens.commands
 
+import common.commands.Command
+import common.commands.CommandState.KittensGame
 import explodingKittens.KittenState
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
-import main.commands.Command
-import main.commands.CommandState.KittensGame
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
@@ -19,7 +19,7 @@ class HandCommand(private val state: KittenState) : Command(KittensGame) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         with(state) {
             message.author.sendDM(
                     userPlayerMap[message.author]?.hand

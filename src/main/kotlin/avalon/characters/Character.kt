@@ -2,8 +2,8 @@ package avalon.characters
 
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
+import common.util.Colors
 import lib.model.Color
-import main.util.Colors
 import java.io.File
 
 val characters: Set<Character> = setOf(

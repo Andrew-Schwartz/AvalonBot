@@ -1,12 +1,12 @@
-package main.commands
+package common.commands
 
+import common.commands.CommandState.All
+import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.dsl.embed
 import lib.model.channel.Message
-import main.commands.CommandState.All
-import main.util.Colors
 import kotlin.system.measureTimeMillis
 
 object PingCommand : Command(All) {

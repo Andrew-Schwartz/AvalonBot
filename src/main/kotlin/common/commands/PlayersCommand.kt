@@ -1,15 +1,15 @@
-package main.commands
+package common.commands
 
+import common.commands.CommandState.All
+import common.game.GameType
+import common.game.Setup
+import common.game.name
+import common.util.Colors
+import common.util.replaceCamelCase
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
-import main.commands.CommandState.All
-import main.game.GameType
-import main.game.Setup
-import main.game.name
-import main.util.Colors
-import main.util.replaceCamelCase
 
 object PlayersCommand : Command(All) {
     override val name: String = "players"
@@ -20,7 +20,7 @@ object PlayersCommand : Command(All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         val players = GameType.values()
                 .associate { it to Setup[message.channel, it] }
                 .mapValues { it.value.players }

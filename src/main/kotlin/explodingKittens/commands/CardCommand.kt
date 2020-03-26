@@ -1,14 +1,14 @@
 package explodingKittens.commands
 
+import common.commands.Command
+import common.commands.CommandState.KittensGame
+import common.util.cards
 import explodingKittens.KittenState
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 import lib.util.inlineCode
-import main.commands.Command
-import main.commands.CommandState.KittensGame
-import main.util.cards
 import kotlin.reflect.full.primaryConstructor
 
 @ExperimentalCoroutinesApi

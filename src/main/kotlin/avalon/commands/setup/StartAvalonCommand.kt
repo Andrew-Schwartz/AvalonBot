@@ -3,7 +3,14 @@ package avalon.commands.setup
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
 import avalon.game.Avalon
-import avalon.game.roles
+import avalon.game.AvalonData
+import common.commands.Command
+import common.commands.CommandState
+import common.commands.CommandState.AvalonGame
+import common.game.Game
+import common.game.GameType
+import common.game.Setup
+import common.steadfast
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -12,13 +19,6 @@ import lib.dsl.Bot
 import lib.dsl.blockUntil
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
-import main.commands.Command
-import main.commands.CommandState
-import main.commands.CommandState.AvalonGame
-import main.game.Game
-import main.game.GameType
-import main.game.Setup
-import main.steadfast
 
 object StartAvalonCommand : Command(CommandState.Setup, AvalonGame) {
     private const val START_NOW = "now"
@@ -34,6 +34,7 @@ object StartAvalonCommand : Command(CommandState.Setup, AvalonGame) {
     @ExperimentalCoroutinesApi
     private suspend fun Bot.startGame(message: Message) {
         val setup = Setup[message.channel, GameType.Avalon]
+        val roles = (setup.data as AvalonData).roles
         val maxEvil = when (setup.players.size) {
             in 5..6 -> 2
             in 7..9 -> 3
@@ -41,7 +42,7 @@ object StartAvalonCommand : Command(CommandState.Setup, AvalonGame) {
             else -> -1
         }
 
-        val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
+        val (_, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
 
         when {
             maxEvil == -1 -> message.reply("Between 5 and 10 players are required!")
@@ -66,6 +67,7 @@ object StartAvalonCommand : Command(CommandState.Setup, AvalonGame) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         val setup = Setup[message.channel, GameType.Avalon]
+        val roles = (setup.data as AvalonData).roles
         when (args.getOrNull(0)) {
             START_OVER -> {
                 Game.remove(message.channel, GameType.Avalon)

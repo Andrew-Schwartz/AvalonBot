@@ -4,6 +4,8 @@ package lib.rest.model.events.receiveEvents
 
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
+import common.util.A
+import common.util.Action
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -22,8 +24,6 @@ import lib.model.user.User
 import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.GatewayOpcode
 import lib.util.fromJson
-import main.util.A
-import main.util.Action
 
 /**
  * @param P type of the payload attached with this event

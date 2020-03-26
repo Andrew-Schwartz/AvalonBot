@@ -1,14 +1,14 @@
 package lib.dsl
 
+import common.commands.Command
+import common.util.A
+import common.util.Action
+import common.util.Listener
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.DispatchEvent
 import lib.rest.model.events.receiveEvents.MessageCreate
-import main.commands.Command
-import main.util.A
-import main.util.Action
-import main.util.Listener
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

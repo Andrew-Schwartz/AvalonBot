@@ -1,11 +1,21 @@
 package avalon.game
 
-import avalon.characters.*
+import avalon.characters.Assassin
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
+import avalon.characters.LoyalServant
+import avalon.characters.Merlin
+import avalon.characters.MinionOfMordred
 import avalon.commands.game.InfoCommand
 import avalon.commands.game.LadyCommand
 import avalon.commands.game.QuestCommand
+import common.bot
+import common.game.*
+import common.util.A
+import common.util.Colors
+import common.util.Colors.gold
+import common.util.listGrammatically
+import common.util.map
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -20,17 +30,8 @@ import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.inlineCode
 import lib.util.pingReal
 import lib.util.underline
-import main.bot
-import main.game.*
-import main.util.A
-import main.util.Colors
-import main.util.Colors.gold
-import main.util.listGrammatically
-import main.util.map
 
 // BIG TODO: Make all !!'s just crash the current game in the current channel, not the entire bot
-
-val roles: ArrayList<Character> = ArrayList()
 
 //val avalonLogo: File = File("src/main/resources/images/avalon/avalonLogo.png")
 //val leaderCrown: File = File("src/main/resources/images/avalon/leaderCrown.jpg")

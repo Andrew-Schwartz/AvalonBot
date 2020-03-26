@@ -1,5 +1,9 @@
-package main
+package common
 
+import common.commands.Command
+import common.util.A
+import common.util.Colors.gold
+import common.util.listGrammatically
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -13,10 +17,6 @@ import lib.rest.http.httpRequests.getChannel
 import lib.rest.http.httpRequests.getUser
 import lib.rest.model.events.receiveEvents.*
 import lib.util.fromJson
-import main.commands.Command
-import main.util.A
-import main.util.Colors.gold
-import main.util.listGrammatically
 
 //val config: ConfigJson = File("src/main/resources/config/config.json").readText().fromJson()
 

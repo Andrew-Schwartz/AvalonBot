@@ -1,9 +1,9 @@
 package explodingKittens.cards
 
+import common.bot
 import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import main.bot
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

@@ -1,4 +1,4 @@
-package main.game
+package common.game
 
 import lib.model.user.User
 

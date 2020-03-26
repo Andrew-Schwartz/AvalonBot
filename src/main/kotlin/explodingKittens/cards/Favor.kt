@@ -1,5 +1,10 @@
 package explodingKittens.cards
 
+import common.bot
+import common.util.MessageListener
+import common.util.cards
+import common.util.contains
+import common.util.one
 import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -9,11 +14,6 @@ import lib.dsl.on
 import lib.model.user.User
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.ping
-import main.bot
-import main.util.MessageListener
-import main.util.cards
-import main.util.contains
-import main.util.one
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

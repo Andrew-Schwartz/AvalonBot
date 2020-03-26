@@ -1,4 +1,4 @@
-package main.util
+package common.util
 
 import lib.model.color
 

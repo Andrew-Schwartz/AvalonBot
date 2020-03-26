@@ -1,9 +1,9 @@
 package avalon.game
 
+import common.game.Setup
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.user.User
-import main.game.Setup
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -14,6 +14,9 @@ class AvalonState(val game: Avalon, setup: Setup) {
 
     val players: ArrayList<AvalonPlayer> = setup.players.map { it as AvalonPlayer } as ArrayList<AvalonPlayer>
     val userPlayerMap: Map<User, AvalonPlayer> = players.associateBy { it.user }
+
+    @Suppress("UNCHECKED_CAST")
+    val roles = (setup.data as AvalonData).roles
 
     val leader get() = players[leaderNum % players.size]
 

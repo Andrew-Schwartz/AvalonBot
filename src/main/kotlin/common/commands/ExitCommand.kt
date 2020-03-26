@@ -1,12 +1,12 @@
-package main.commands
+package common.commands
 
+import common.commands.CommandState.All
+import common.steadfast
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
-import main.commands.CommandState.All
-import main.steadfast
 import kotlin.system.exitProcess
 
 object ExitCommand : Command(All) {

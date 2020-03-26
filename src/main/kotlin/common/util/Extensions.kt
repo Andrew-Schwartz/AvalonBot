@@ -1,4 +1,4 @@
-package main.util
+package common.util
 
 import explodingKittens.cards.Card
 import io.ktor.util.KtorExperimentalAPI

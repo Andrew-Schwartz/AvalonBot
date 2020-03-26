@@ -1,11 +1,11 @@
 package explodingKittens.cards
 
+import common.bot
+import common.util.replaceCamelCase
 import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.util.bold
-import main.bot
-import main.util.replaceCamelCase
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor

@@ -1,16 +1,16 @@
-package main.commands
+package common.commands
 
 import avalon.commands.setup.LadyToggleCommand
 import avalon.commands.setup.RolesCommand
 import avalon.commands.setup.StartAvalonCommand
+import common.bot
+import common.commands.CommandState.Setup
+import common.util.MS
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Channel
 import lib.model.channel.Message
-import main.bot
-import main.commands.CommandState.Setup
-import main.util.MS
 
 enum class CommandState {
     Setup,

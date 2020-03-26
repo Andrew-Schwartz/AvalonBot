@@ -1,7 +1,7 @@
 package avalon.characters
 
 import avalon.characters.Character.Loyalty.Evil
-import main.util.S
+import common.util.S
 
 object Mordred : Character() {
     override val name: String = "Mordred"

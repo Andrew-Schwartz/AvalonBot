@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package main.util
+package common.util
 
 @Suppress("UNCHECKED_CAST")
 object A {

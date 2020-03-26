@@ -1,4 +1,4 @@
-package main.game
+package common.game
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -7,18 +7,18 @@ import lib.model.user.User
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class Setup private constructor(val channel: Channel, private val gameType: GameType) {
+class Setup private constructor(val channel: Channel, private val gameType: GameType, val data: GameData) {
     val players: ArrayList<Player> = arrayListOf()
 
     fun addPlayer(user: User) {
-        players += gameType.getPlayer(user)
+        players += gameType.player(user)
     }
 
     fun removePlayer(user: User) {
         players.removeIf { it.user == user }
     }
 
-    operator fun contains(user: User) = gameType.getPlayer(user) in players
+    operator fun contains(user: User) = gameType.player(user) in players
 
     companion object {
         private val setups: MutableMap<Channel, MutableMap<GameType, Setup>> = mutableMapOf()
@@ -29,7 +29,7 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
 
         operator fun get(channel: Channel, game: GameType): Setup =
                 setups.computeIfAbsent(channel) {
-                    mutableMapOf(game to Setup(it, game))
+                    mutableMapOf(game to Setup(it, game, game.data()))
                 }[game]!!
     }
 }

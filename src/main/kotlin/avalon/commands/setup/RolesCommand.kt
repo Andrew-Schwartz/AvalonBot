@@ -3,19 +3,21 @@ package avalon.commands.setup
 import avalon.characters.LoyalServant
 import avalon.characters.MinionOfMordred
 import avalon.characters.characters
-import avalon.game.roles
+import avalon.game.AvalonData
+import common.commands.Command
+import common.commands.CommandState
+import common.game.GameType
+import common.game.Setup
+import common.util.A
+import common.util.Colors
+import common.util.S
+import common.util.onNull
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
-import main.commands.Command
-import main.commands.CommandState.Setup
-import main.util.A
-import main.util.Colors
-import main.util.S
-import main.util.onNull
 
-object RolesCommand : Command(Setup) {
+object RolesCommand : Command(CommandState.Setup) {
     private const val CLEAR_ROLES = "reset"
     private const val LIST_ROLES = "list"
 
@@ -28,9 +30,13 @@ object RolesCommand : Command(Setup) {
 
     override val usage: String = "!roles [$CLEAR_ROLES] [$LIST_ROLES] [role1] [role2] [role3] etc..."
 
+    @Suppress("UNCHECKED_CAST")
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+        val setup = Setup[message.channel, GameType.Avalon]
+        val roles = (setup.data as AvalonData).roles
+
         if (CLEAR_ROLES in args) roles.clear()
 
         args.filter { it !in A[CLEAR_ROLES, LIST_ROLES] }

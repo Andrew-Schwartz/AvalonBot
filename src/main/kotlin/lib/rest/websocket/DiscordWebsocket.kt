@@ -1,5 +1,6 @@
 package lib.rest.websocket
 
+import common.util.onNull
 import io.ktor.client.features.websocket.wss
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
@@ -19,7 +20,6 @@ import lib.rest.model.events.sendEvents.SendEvent
 import lib.util.fromJson
 import lib.util.toJson
 import lib.util.toJsonTree
-import main.util.onNull
 import kotlin.system.exitProcess
 
 @KtorExperimentalAPI

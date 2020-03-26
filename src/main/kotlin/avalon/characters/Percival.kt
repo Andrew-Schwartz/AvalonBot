@@ -1,7 +1,7 @@
 package avalon.characters
 
 import avalon.characters.Character.Loyalty.Good
-import main.util.S
+import common.util.S
 
 object Percival : Character() {
     override val name: String = "Percival"

@@ -1,5 +1,7 @@
-package main.commands
+package common.commands
 
+import common.commands.CommandState.All
+import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -9,8 +11,6 @@ import lib.model.channel.Message
 import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline
-import main.commands.CommandState.All
-import main.util.Colors
 
 object HelpCommand : Command(All) {
     override val name: String = "help"

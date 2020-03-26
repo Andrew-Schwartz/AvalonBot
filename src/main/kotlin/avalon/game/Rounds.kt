@@ -1,6 +1,6 @@
 package avalon.game
 
-import main.util.L
+import common.util.L
 
 class Rounds(private val numPlayers: Int) {
     @Suppress("MapGetWithNotNullAssertionOperator")

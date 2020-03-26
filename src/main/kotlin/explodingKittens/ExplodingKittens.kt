@@ -1,11 +1,11 @@
 package explodingKittens
 
+import common.bot
+import common.game.Game
+import common.game.GameType
+import common.game.Setup
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import main.bot
-import main.game.Game
-import main.game.GameType
-import main.game.Setup
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI

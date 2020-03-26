@@ -1,5 +1,6 @@
 package lib.dsl
 
+import common.util.A
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -16,7 +17,6 @@ import lib.rest.http.httpRequests.*
 import lib.rest.websocket.DiscordWebsocket
 import lib.util.Store
 import lib.util.ping
-import main.util.A
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

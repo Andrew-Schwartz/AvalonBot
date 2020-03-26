@@ -1,13 +1,13 @@
-package main.commands
+package common.commands
 
+import common.game.GameType
+import common.game.Setup
+import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 import lib.util.underline
-import main.game.GameType
-import main.game.Setup
-import main.util.Colors
 
 object AddCommand : Command(CommandState.Setup) {
     override val name: String = "addme"

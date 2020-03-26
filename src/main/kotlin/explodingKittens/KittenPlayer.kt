@@ -1,10 +1,10 @@
 package explodingKittens
 
+import common.game.Player
 import explodingKittens.cards.Card
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.user.User
-import main.game.Player
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

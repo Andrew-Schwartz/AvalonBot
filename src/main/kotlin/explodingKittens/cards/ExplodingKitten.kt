@@ -1,13 +1,13 @@
 package explodingKittens.cards
 
+import common.bot
+import common.game.name
 import explodingKittens.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.blockUntil
 import lib.dsl.embed
 import lib.util.bold
-import main.bot
-import main.game.name
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI

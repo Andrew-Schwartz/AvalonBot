@@ -1,8 +1,8 @@
 package avalon.game
 
 import avalon.characters.Character
+import common.game.Player
 import lib.model.user.User
-import main.game.Player
 
 class AvalonPlayer(user: User) : Player(user) {
     var role: Character? = null

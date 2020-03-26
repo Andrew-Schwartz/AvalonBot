@@ -1,4 +1,4 @@
-package main.game
+package common.game
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,10 +22,10 @@ abstract class Game(type: GameType, setup: Setup) {
             games[channel]?.remove(game)
         }
 
-        operator fun get(channel: Channel, game: GameType): Game =
+        operator fun get(channel: Channel, gameType: GameType): Game =
                 games.computeIfAbsent(channel) {
-                    val setup = Setup[channel, game]
-                    mutableMapOf(game to game.getGame(setup))
-                }[game]!!
+                    val setup = Setup[channel, gameType]
+                    mutableMapOf(gameType to gameType.game(setup))
+                }[gameType]!!
     }
 }

@@ -1,12 +1,12 @@
 package avalon.commands.game
 
 import avalon.game.AvalonState
+import common.commands.Command
+import common.commands.CommandState.AvalonGame
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
-import main.commands.Command
-import main.commands.CommandState.AvalonGame
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
