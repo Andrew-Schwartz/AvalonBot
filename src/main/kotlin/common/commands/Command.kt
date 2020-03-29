@@ -2,7 +2,6 @@ package common.commands
 
 import avalon.commands.setup.LadyToggleCommand
 import avalon.commands.setup.RolesCommand
-import avalon.commands.setup.StartAvalonCommand
 import common.bot
 import common.commands.CommandState.Setup
 import common.util.MS
@@ -19,9 +18,7 @@ enum class CommandState {
     All
 }
 
-//var currentState: CommandState = Setup
-
-abstract class Command(vararg val states: CommandState) {
+abstract class Command(vararg val states: CommandState) { // TODO this is just one state and each channel can be in multiple states
     abstract val name: String
 
     abstract val description: String
@@ -35,7 +32,7 @@ abstract class Command(vararg val states: CommandState) {
     companion object {
         val commandSet = MS[
                 HelpCommand,
-                StartAvalonCommand,
+                StartCommand,
                 AddCommand,
                 PlayersCommand,
                 RolesCommand,
@@ -44,21 +41,15 @@ abstract class Command(vararg val states: CommandState) {
                 LadyToggleCommand
         ]
 
-        private val _currentStates: MutableMap<Channel, CommandState> = mutableMapOf()
-
-        var Channel.commandState: CommandState
-            get() = _currentStates.getOrDefault(this, Setup)
-            set(value) {
-                _currentStates[this] = value
-            }
+        val currentStates: MutableMap<Channel, CommandState> = mutableMapOf()
 
         @KtorExperimentalAPI
         @ExperimentalCoroutinesApi
         suspend fun run(message: Message, prefix: String) {
             val commandName = message.content.removePrefix(prefix).takeWhile { it != ' ' }
-            for (command in commandSet)
+            for (command in commandSet.toList()) { // hopefully this fixes the ConcurrentModificationException
                 if (command.name.equals(commandName, ignoreCase = true) &&
-                        (with(bot) { message.channel.commandState } in command.states ||
+                        (with(bot) { message.channel.commandState } in command.states || // TODO switch the order
                                 CommandState.All in command.states)
                 ) {
                     bot.run {
@@ -68,6 +59,14 @@ abstract class Command(vararg val states: CommandState) {
                             command.execute(bot, message, message.args)
                     }
                 }
+
+            }
         }
     }
 }
+
+var Channel.commandState: CommandState
+    get() = Command.currentStates.getOrPut(this) { Setup }
+    set(value) {
+        Command.currentStates[this] = value
+    }

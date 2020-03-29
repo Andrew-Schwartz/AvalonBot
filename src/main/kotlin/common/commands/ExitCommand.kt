@@ -34,7 +34,7 @@ object ExitCommand : Command(All) {
                 exitProcess(1)
             }
             else -> {
-                message.reply("Only Andrew is special")
+                message.reply("Only Andrew is that cool")
             }
         }
     }

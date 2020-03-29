@@ -1,8 +1,10 @@
 package avalon.commands.game
 
-import avalon.game.AvalonState
+import avalon.game.Avalon
 import common.commands.Command
 import common.commands.CommandState.AvalonGame
+import common.game.Game
+import common.game.GameType
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -10,7 +12,7 @@ import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-class LadyCommand(private val state: AvalonState) : Command(AvalonGame) {
+object LadyCommand : Command(AvalonGame) {
     override val name: String = "lady"
 
     override val description: String = "Use to see someone's true loyalty"
@@ -20,6 +22,8 @@ class LadyCommand(private val state: AvalonState) : Command(AvalonGame) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+        val state = (Game[message.channel, GameType.Avalon] as Avalon).state
+
         with(message) {
             if (author != state.ladyOfTheLake?.user) return@with
 

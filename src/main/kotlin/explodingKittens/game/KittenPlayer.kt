@@ -1,4 +1,4 @@
-package explodingKittens
+package explodingKittens.game
 
 import common.game.Player
 import explodingKittens.cards.Card

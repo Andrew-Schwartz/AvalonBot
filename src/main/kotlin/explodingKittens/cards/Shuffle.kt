@@ -1,6 +1,6 @@
 package explodingKittens.cards
 
-import explodingKittens.ExplodingKittens
+import explodingKittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 

@@ -1,0 +1,3 @@
+things to fix
+
+fix crashing when telling players their roles

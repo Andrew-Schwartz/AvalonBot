@@ -33,11 +33,7 @@ suspend fun <T> T?.onNull(λ: suspend () -> Unit): T? {
     return this
 }
 
-fun <T> List<T>.one(predicate: (T) -> Boolean): Boolean =
-        fold(0) { num, t -> if (predicate(t)) num + 1 else num } == 1
-
-fun <T> Array<T>.one(predicate: (T) -> Boolean): Boolean =
-        fold(0) { num, t -> if (predicate(t)) num + 1 else num } == 1
+fun <T> not(predicate: (T) -> Boolean): (T) -> Boolean = { !predicate(it) }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -57,3 +53,8 @@ fun List<String>.cards(): List<KClass<out Card>> {
 @ExperimentalCoroutinesApi
 operator fun <T : Card> List<T>.contains(cardClass: KClass<out T>): Boolean =
         any { it::class == cardClass }
+
+fun
+        <T> List<T>.getOrDefault(index: Int, default: T)
+        : T =
+        if (index in 0..lastIndex) get(index) else default

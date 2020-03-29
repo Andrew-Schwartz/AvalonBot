@@ -25,13 +25,12 @@ import lib.dsl.blockUntil
 import lib.dsl.off
 import lib.dsl.on
 import lib.model.channel.Message
+import lib.rest.http.httpRequests.deletePin
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.inlineCode
-import lib.util.pingReal
+import lib.util.ping
 import lib.util.underline
-
-// BIG TODO: Make all !!'s just crash the current game in the current channel, not the entire bot
 
 //val avalonLogo: File = File("src/main/resources/images/avalon/avalonLogo.png")
 //val leaderCrown: File = File("src/main/resources/images/avalon/leaderCrown.jpg")
@@ -64,7 +63,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 ladyOfTheLake = players.last()
             }
 
-            if (roles.isNotEmpty()) println("BIG PROBLEM")
+            if (roles.isNotEmpty()) throw RuntimeException("ROLES WERE NOT EMPTY")
             roles += players.map { it.role!! }
 
             on(infoCommand)
@@ -77,21 +76,26 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         title = name
                         description = abilitiesDesc
                         color = loyalty.color
-                        if (sees.isNotEmpty()) {
-                            addField("You can see", sees.joinToString(separator = "\n") { it.name }, inline = true)
-                        } else {
-                            addField("You see", "no one", inline = true)
-                        }
+                        val seesString = sees.joinToString(separator = "\n") { it.name }
+                                .takeIf { it.isNotEmpty() }
+                                ?: "no one"
+                        addField("You can see", seesString, true)
                         val seenPeople = players.filter { it.role in sees }
                         if (seenPeople.isNotEmpty()) {
                             addField("You see",
                                     seenPeople
-                                            .filter { it.name != player.name }
-                                            .joinToString(separator = "\n") { it.user.pingReal() },
+                                            .filter { it.name != player.name } // must be commented out for testing
+                                            .joinToString(separator = "\n") {
+                                                val ping = it.user.ping()
+                                                if (ping.isNotEmpty()) it.name else ping
+                                            },
                                     inline = true)
                         }
                         image(picture)
-                    }.pin()
+                    }.apply {
+                        pin()
+                        this@Avalon.pinnedMessages += this
+                    }
                 }
             } // notify all players of their role
 
@@ -106,7 +110,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         if (ladyEnabled && roundNum != 5)
                             description = "${ladyOfTheLake!!.user.username} has the Lady of the Lake"
                         addField(
-                                "Use ${"!quest".inlineCode()} to choose people to send on the quest (separate names with ${";".inlineCode()})",
+                                "Use ${"!quest".inlineCode()} to choose people to send on the quest (ping the people you are sending)",
                                 "Send ${round.players} people on this quest." +
                                         if (round.fails != 1) " 2 failures are needed for this quest to fail." else ""
                         )
@@ -199,14 +203,20 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                             color = Colors.red
                             title = "There " + if (fails == 1) "was 1 fail" else "were $fails fails"
                             description = "Reminder: ${party?.listGrammatically { it.name }} were on this quest"
-                        }.pin()
+                        }.apply {
+                            pin()
+                            this@Avalon.pinnedMessages += this
+                        }
                     } else {
                         goodWins++
                         channel.send {
                             color = Colors.blue
                             title = if (fails == 0) "All $successes were successes" else "There was $fails fail, but ${round.fails} are required this round"
                             description = "Reminder: ${party?.listGrammatically { it.name }} were on this quest"
-                        }.pin()
+                        }.apply {
+                            pin()
+                            this@Avalon.pinnedMessages += this
+                        }
                     }
 
                     when (3) {
@@ -284,7 +294,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     leaderNum++
                 }
 
-                cleanupListeners()
+                cleanup()
             }
         }
     }
@@ -297,7 +307,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 color = Colors.red
             }
         }
-        cleanupListeners()
+        cleanup()
     }
 
     internal fun playerByName(name: String?): AvalonPlayer? {
@@ -311,8 +321,13 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
         state.players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
     }
 
-    private fun cleanupListeners() = bot.run {
+    private suspend fun cleanup() = bot.run {
         off(infoCommand)
         off(questCommand)
+        this@Avalon.pinnedMessages.forEach { pin ->
+            this@run.pinnedMessages -= pin
+            runCatching { deletePin(pin.channelId, pin.id) }
+                    .onFailure { println(it.message) }
+        }
     }
 }

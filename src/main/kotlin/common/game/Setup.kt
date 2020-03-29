@@ -18,18 +18,23 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
         players.removeIf { it.user == user }
     }
 
-    operator fun contains(user: User) = gameType.player(user) in players
+    operator fun contains(user: User) = players.any { it.user == user }
+
+    override fun toString(): String = "Setup(channel.name=${channel.name},gameType=$gameType,config=$config,players=$players)"
 
     companion object {
         private val setups: MutableMap<Channel, MutableMap<GameType, Setup>> = mutableMapOf()
 
-        fun remove(setup: Setup) {
-            setups[setup.channel]?.remove(setup.gameType)
+        fun remove(setup: Setup) = remove(setup.channel, setup.gameType)
+
+        fun remove(channel: Channel, gameType: GameType) {
+            setups[channel]?.remove(gameType)
         }
 
-        operator fun get(channel: Channel, game: GameType): Setup =
-                setups.computeIfAbsent(channel) {
-                    mutableMapOf(game to Setup(it, game, game.data()))
-                }[game]!!
+        operator fun get(channel: Channel, gameType: GameType): Setup =
+                setups.getOrPut(channel) { mutableMapOf() }
+                        .getOrPut(gameType) {
+                            Setup(channel, gameType, gameType.config())
+                        }
     }
 }

@@ -68,6 +68,7 @@ class DiscordWebsocket(val bot: Bot) {
             processDispatch(payload)
         }
         GatewayOpcode.Heartbeat, GatewayOpcode.HeartbeatAck -> {
+            println("received heartbeat: $payload")
             // nothing to do on heartbeat
         }
         GatewayOpcode.Reconnect -> {

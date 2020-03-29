@@ -111,6 +111,10 @@ data class RichEmbed internal constructor(
         )
     }
 
+    override fun toString(): String {
+        return super.toString() + "fields=$fields"
+    }
+
     private fun String.trimTo(maxLen: Int, end: String = "..."): String {
         return when {
             length > maxLen -> take(maxLen - end.length) + end

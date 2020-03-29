@@ -1,54 +1,53 @@
 package common.game
 
-import common.commands.Command
 import common.commands.CommandState
+import common.commands.commandState
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
+import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 abstract class Game(val type: GameType, setup: Setup) {
     val channel = setup.channel
+    val pinnedMessages: ArrayList<Message> = arrayListOf()
+    var started = false
 
     protected abstract suspend fun startGame()
 
     abstract suspend fun stopGame()
 
-//    suspend fun error(message: String? = null) {
-//        stopGame()
-//        remove(channel, type)
-//        println("Error in game ${type.name} in channel ${channel.name}")
-//        if (message != null)
-//            println("error: $message")
-//        throw GameException(message)
-//    }
-//
-//    suspend fun <T> T?.nn(): T = this ?: error("null variable")
-
     companion object {
         suspend fun startGame(game: Game) {
             runCatching {
+                game.started = true
                 game.startGame()
             }.onFailure { e ->
                 println("Error in game ${game.type.name} in channel ${game.channel.name}")
                 e.printStackTrace()
                 game.stopGame()
-                remove(game.channel, game.type)
+                endAndRemove(game.channel, game.type)
             }
         }
 
         private val games: MutableMap<Channel, MutableMap<GameType, Game>> = mutableMapOf()
 
-        fun remove(channel: Channel, game: GameType) {
-            games[channel]?.remove(game)
-            with(Command) { channel.commandState = CommandState.Setup }
+        suspend fun endAndRemove(channel: Channel, gameType: GameType) {
+            games[channel]?.get(gameType)?.stopGame()
+            games[channel]?.remove(gameType)
+            channel.commandState = CommandState.Setup
         }
 
         operator fun get(channel: Channel, gameType: GameType): Game =
-                games.computeIfAbsent(channel) {
-                    val setup = Setup[channel, gameType]
-                    mutableMapOf(gameType to gameType.game(setup))
-                }[gameType]!!
+                games.getOrPut(channel) { mutableMapOf() }
+                        .getOrPut(gameType) {
+                            val setup = Setup[channel, gameType]
+                            gameType.game(setup)
+                        }
+//                games.computeIfAbsent(channel) {
+//                    val setup = Setup[channel, gameType]
+//                    mutableMapOf(gameType to gameType.game(setup))
+//                }[gameType]!!
     }
 }

@@ -2,7 +2,7 @@ package explodingKittens.commands
 
 import common.commands.Command
 import common.commands.CommandState.KittensGame
-import explodingKittens.KittenState
+import explodingKittens.game.KittenState
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot

@@ -4,8 +4,7 @@ import common.bot
 import common.util.MessageListener
 import common.util.cards
 import common.util.contains
-import common.util.one
-import explodingKittens.ExplodingKittens
+import explodingKittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.blockUntil
@@ -31,7 +30,7 @@ class Favor(id: Int) : Card(id) {
                 bot.run {
                     if (author != state.currentPlayer.user) return@run
                     if (channel != this@play.channel) return@run
-                    if (mentions.one { it in state.players.map { it.user } })
+                    if (mentions.filter { it in state.players.map { it.user } }.size == 1)
                         target = mentions.first { it in state.players.map { it.user } }
                 }
             }

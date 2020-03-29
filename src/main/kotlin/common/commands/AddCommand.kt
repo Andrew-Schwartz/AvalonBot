@@ -3,10 +3,13 @@ package common.commands
 import common.game.GameType
 import common.game.Setup
 import common.util.Colors
+import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
+import lib.util.inlineCode
+import lib.util.pingReal
 import lib.util.underline
 
 object AddCommand : Command(CommandState.Setup) {
@@ -14,7 +17,7 @@ object AddCommand : Command(CommandState.Setup) {
 
     override val description: String = """
         adds player who sent this to a game. By default, you are added to Avalon,
-        but you can specify kittens to be added to Exploding Kittens
+        but you can specify ${"kittens".inlineCode()} to be added to Exploding Kittens
     """.trimIndent()
 
     override val usage: String = "!addme [kittens]"
@@ -22,18 +25,23 @@ object AddCommand : Command(CommandState.Setup) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        val gameType = if ("kittens" in args) GameType.ExplodingKittens else GameType.Avalon
+        val gameType = GameType.getType(args.getOrDefault(0, "")) ?: GameType.Avalon
 
         val setup = Setup[message.channel, gameType]
 
-        if (message.author in setup)
-            setup.removePlayer(message.author)
-        else
-            setup.addPlayer(message.author)
+        // removed for testing, todo put back in
+//        if (message.author in setup)
+//            setup.removePlayer(message.author)
+//        else
+        setup.addPlayer(message.author) // todo validate size
 
         message.reply {
             color = Colors.gold
-            addField("Current Players".underline(), setup.players.joinToString(separator = "\n"))
+            val playersList = setup.players
+                    .joinToString(separator = "\n") { it.user.pingReal() }
+                    .takeIf { it.isNotEmpty() }
+                    ?: "None"
+            addField("Current Players".underline(), playersList)
         }
     }
 }

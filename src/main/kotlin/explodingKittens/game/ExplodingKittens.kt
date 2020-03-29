@@ -1,4 +1,4 @@
-package explodingKittens
+package explodingKittens.game
 
 import common.bot
 import common.game.Game
