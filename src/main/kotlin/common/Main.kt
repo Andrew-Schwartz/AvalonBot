@@ -7,10 +7,7 @@ import common.util.listGrammatically
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import lib.dsl.Bot
-import lib.dsl.bot
-import lib.dsl.command
-import lib.dsl.on
+import lib.dsl.*
 import lib.model.channel.Channel
 import lib.model.user.User
 import lib.rest.http.httpRequests.getChannel
@@ -35,9 +32,12 @@ fun main() = runBlocking {
             .readText()
             .fromJson<ConfigJson>()
 
+    println(Command.commandSet.joinToString(separator = "\n"))
+
     bot(token) {
+        blockUntil { false }
+
         bot = this
-        //        blockUntil { false }
 
         steadfast = getUser(sfId)
         kts = getChannel(ktsId)

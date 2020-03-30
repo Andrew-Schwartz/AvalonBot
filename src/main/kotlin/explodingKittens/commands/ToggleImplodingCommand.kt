@@ -10,7 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-class ToggleImplodingCommand : Command(CommandState.Setup) {
+object ToggleImplodingCommand : Command(CommandState.Setup) {
     override val name: String = "implode"
 
     override val description: String = "Toggles whether Exploding Kittens will use the exploding kittens expansion"

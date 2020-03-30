@@ -25,6 +25,8 @@ dependencies {
     implementation("io.ktor:ktor-client-json:$ktorVersion")
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("io.ktor:ktor-gson:$ktorVersion")
+
+    compile("org.reflections:reflections:0.9.12")
 }
 
 java {

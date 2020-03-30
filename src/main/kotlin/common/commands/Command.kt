@@ -1,15 +1,13 @@
 package common.commands
 
-import avalon.commands.setup.LadyToggleCommand
-import avalon.commands.setup.RolesCommand
 import common.bot
 import common.commands.CommandState.Setup
-import common.util.MS
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Channel
 import lib.model.channel.Message
+import org.reflections.Reflections
 
 enum class CommandState {
     Setup,
@@ -30,16 +28,9 @@ abstract class Command(vararg val states: CommandState) { // TODO this is just o
     abstract val execute: suspend Bot.(Message, args: List<String>) -> Unit
 
     companion object {
-        val commandSet = MS[
-                HelpCommand,
-                StartCommand,
-                AddCommand,
-                PlayersCommand,
-                RolesCommand,
-                ExitCommand,
-                PingCommand,
-                LadyToggleCommand
-        ]
+        val commandSet = Reflections("").getSubTypesOf(Command::class.java)
+                .mapNotNull { it.kotlin.objectInstance }
+                .toMutableSet()
 
         val currentStates: MutableMap<Channel, CommandState> = mutableMapOf()
 

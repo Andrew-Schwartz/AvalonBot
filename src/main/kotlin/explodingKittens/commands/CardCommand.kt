@@ -2,8 +2,10 @@ package explodingKittens.commands
 
 import common.commands.Command
 import common.commands.CommandState.KittensGame
+import common.game.Game
+import common.game.GameType
 import common.util.cards
-import explodingKittens.game.KittenState
+import explodingKittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -13,7 +15,7 @@ import kotlin.reflect.full.primaryConstructor
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-class CardCommand(private val state: KittenState) : Command(KittensGame) {
+object CardCommand : Command(KittensGame) {
     override val name: String = "card"
 
     override val description: String = "Gives information about what specific Exploding Kittens cards do"
@@ -23,6 +25,7 @@ class CardCommand(private val state: KittenState) : Command(KittensGame) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+        val state = (Game[message.channel, GameType.ExplodingKittens] as ExplodingKittens).state
         with(state) {
             val cardClasses = args.cards().distinct()
 

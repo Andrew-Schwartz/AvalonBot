@@ -1,6 +1,5 @@
 package lib.dsl
 
-import common.commands.Command
 import common.util.A
 import common.util.Action
 import common.util.Listener
@@ -16,22 +15,10 @@ fun <P> Bot.on(vararg events: DispatchEvent<P>, λ: Listener<P>) {
     events.forEach { it.actions += λ }
 }
 
-@ExperimentalCoroutinesApi
-@KtorExperimentalAPI
-fun Bot.on(command: Command) {
-    Command.commandSet += command
-}
-
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 fun <P> Bot.off(vararg events: DispatchEvent<P>, λ: Listener<P>) {
     events.forEach { it.actions -= λ }
-}
-
-@KtorExperimentalAPI
-@ExperimentalCoroutinesApi
-fun Bot.off(command: Command) {
-    Command.commandSet -= command
 }
 
 @KtorExperimentalAPI
