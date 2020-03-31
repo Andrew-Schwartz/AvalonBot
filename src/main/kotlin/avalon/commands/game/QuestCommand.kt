@@ -2,7 +2,7 @@ package avalon.commands.game
 
 import avalon.game.Avalon
 import common.commands.Command
-import common.commands.CommandState.AvalonGame
+import common.commands.State
 import common.game.Game
 import common.game.GameType
 import io.ktor.util.KtorExperimentalAPI
@@ -12,7 +12,7 @@ import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-object QuestCommand : Command(AvalonGame) {
+object QuestCommand : Command(State.Avalon.Questing) {
     override val name: String = "quest"
 
     override val description: String = "Choose which people will go on the quest! Only usable by the current leader"

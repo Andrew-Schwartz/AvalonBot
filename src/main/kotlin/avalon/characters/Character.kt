@@ -3,10 +3,11 @@ package avalon.characters
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
 import common.util.Colors
+import common.util.S
 import lib.model.Color
 import java.io.File
 
-val characters: Set<Character> = setOf(
+val characters: Set<Character> = S[
         Assassin,
         LoyalServant,
         Merlin,
@@ -15,7 +16,7 @@ val characters: Set<Character> = setOf(
         Morgana,
         Oberon,
         Percival
-)
+]
 
 abstract class Character {
     abstract val name: String

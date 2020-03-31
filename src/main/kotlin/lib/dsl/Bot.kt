@@ -1,6 +1,7 @@
 package lib.dsl
 
 import common.util.A
+import common.util.M
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -21,7 +22,7 @@ import lib.util.ping
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class Bot internal constructor(val token: String) {
-    val authHeaders = mapOf("Authorization" to "Bot $token")
+    val authHeaders = M["Authorization" to "Bot $token"]
     private val socket = DiscordWebsocket(this)
     val rateLimitInfo: RateLimitInfo = RateLimitInfo(null, null, null, null)
 

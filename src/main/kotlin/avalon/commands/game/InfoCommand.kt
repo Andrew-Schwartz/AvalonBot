@@ -2,7 +2,7 @@ package avalon.commands.game
 
 import avalon.game.Avalon
 import common.commands.Command
-import common.commands.CommandState.AvalonGame
+import common.commands.State
 import common.game.Game
 import common.game.GameType
 import common.game.name
@@ -16,7 +16,7 @@ import lib.util.underline
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-object InfoCommand : Command(AvalonGame) { // make these objects now that states are global
+object InfoCommand : Command(State.Avalon.Game) {
     override val name: String = "info"
 
     override val description: String = """

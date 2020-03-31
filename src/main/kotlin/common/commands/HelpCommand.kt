@@ -1,6 +1,6 @@
 package common.commands
 
-import common.commands.CommandState.All
+import common.commands.State.All
 import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi

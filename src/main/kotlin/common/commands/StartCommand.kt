@@ -14,7 +14,7 @@ import lib.dsl.blockUntil
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 
-object StartCommand : Command(CommandState.Setup) {
+object StartCommand : Command(State.Setup) {
     private const val START_NOW = "now"
     private const val START_OVER = "over"
 
@@ -45,7 +45,7 @@ object StartCommand : Command(CommandState.Setup) {
             when (args.lastOrNull()) {
                 START_OVER -> {
                     Game.endAndRemove(message.channel, gameType)
-                    message.channel.commandState = CommandState.Setup
+                    message.channel.states += State.Setup
                     Setup.remove(message.channel, gameType)
                     for (pin in pinnedMessages) {
                         runCatching { deletePin(pin.channelId, pin.id) }

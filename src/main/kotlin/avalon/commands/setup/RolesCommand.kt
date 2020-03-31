@@ -5,7 +5,7 @@ import avalon.characters.MinionOfMordred
 import avalon.characters.characters
 import avalon.game.AvalonConfig
 import common.commands.Command
-import common.commands.CommandState
+import common.commands.State
 import common.game.GameType
 import common.game.Setup
 import common.util.A
@@ -17,7 +17,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-object RolesCommand : Command(CommandState.Setup) {
+object RolesCommand : Command(State.Setup) {
     private const val CLEAR_ROLES = "reset"
     private const val LIST_ROLES = "list"
 

@@ -12,7 +12,7 @@ import lib.util.inlineCode
 import lib.util.pingReal
 import lib.util.underline
 
-object AddCommand : Command(CommandState.Setup) {
+object AddCommand : Command(State.Setup) {
     override val name: String = "addme"
 
     override val description: String = """

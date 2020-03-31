@@ -54,7 +54,6 @@ fun List<String>.cards(): List<KClass<out Card>> {
 operator fun <T : Card> List<T>.contains(cardClass: KClass<out T>): Boolean =
         any { it::class == cardClass }
 
-fun
-        <T> List<T>.getOrDefault(index: Int, default: T)
+fun <T> List<T>.getOrDefault(index: Int, default: T)
         : T =
         if (index in 0..lastIndex) get(index) else default

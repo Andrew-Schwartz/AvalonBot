@@ -2,7 +2,7 @@ package avalon.commands.game
 
 import avalon.game.Avalon
 import common.commands.Command
-import common.commands.CommandState.AvalonGame
+import common.commands.State
 import common.game.Game
 import common.game.GameType
 import io.ktor.util.KtorExperimentalAPI
@@ -12,7 +12,7 @@ import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-object LadyCommand : Command(AvalonGame) {
+object LadyCommand : Command(State.Avalon.Game) {
     override val name: String = "lady"
 
     override val description: String = "Use to see someone's true loyalty"

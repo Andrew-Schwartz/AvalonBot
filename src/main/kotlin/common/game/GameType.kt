@@ -4,8 +4,7 @@ import avalon.characters.Character.Loyalty.Evil
 import avalon.game.AvalonConfig
 import avalon.game.AvalonPlayer
 import common.bot
-import common.commands.CommandState.AvalonGame
-import common.commands.commandState
+import common.commands.State
 import common.util.listGrammatically
 import explodingKittens.game.ExplodingKittens
 import explodingKittens.game.KittenPlayer
@@ -21,9 +20,11 @@ import lib.model.user.User
 @ExperimentalCoroutinesApi
 enum class GameType {
     Avalon {
-        override fun config(): GameConfig = AvalonConfig()
         override fun player(user: User): Player = AvalonPlayer(user)
         override fun game(setup: Setup): Game = avalon.game.Avalon(setup)
+        override val config: GameConfig get() = AvalonConfig()
+        override val commandState: State = State.Avalon.Game
+
         override suspend fun startGame(message: Message) {
             bot.run {
                 val setup = Setup[message.channel, Avalon]
@@ -40,7 +41,6 @@ enum class GameType {
                     roles.size > setup.players.size -> message.reply("You have chosen more roles than there are players")
                     evil > maxEvil -> message.reply("You have too many evil roles: ${roles.filter { it.loyalty == Evil }.listGrammatically()}")
                     evil <= maxEvil -> {
-                        message.channel.commandState = AvalonGame
                         GlobalScope.launch {
                             val avalon = Game[message.channel, Avalon] as avalon.game.Avalon
                             avalon.state.numEvil = maxEvil
@@ -54,17 +54,20 @@ enum class GameType {
         }
     },
     ExplodingKittens {
-        override fun config(): GameConfig = KittensConfig()
         override fun player(user: User): Player = KittenPlayer(user)
         override fun game(setup: Setup): Game = ExplodingKittens(setup)
+        override val config: GameConfig get() = KittensConfig()
+        override val commandState: State = State.Kittens.Game
+
         override suspend fun startGame(message: Message) {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
     };
 
-    abstract fun config(): GameConfig
     abstract fun player(user: User): Player
     abstract fun game(setup: Setup): Game
+    abstract val config: GameConfig
+    abstract val commandState: State
 
     abstract suspend fun startGame(message: Message)
 

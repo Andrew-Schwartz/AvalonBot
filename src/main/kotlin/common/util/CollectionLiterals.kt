@@ -22,3 +22,7 @@ object S {
 object MS {
     inline operator fun <T> get(vararg vals: T): MutableSet<T> = vals.toMutableSet()
 }
+
+object M {
+    inline operator fun <K, V> get(vararg entries: Pair<K, V>): Map<K, V> = entries.toMap()
+}

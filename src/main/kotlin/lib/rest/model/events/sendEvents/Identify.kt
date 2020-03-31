@@ -12,7 +12,6 @@ data class Identify(
         @SerializedName("large_threshold") val largeThreshold: Int = 50,
         val compress: Boolean = false,
         val shard: Array<Int>? = A[0, 1],
-//        val shard: A<Int>? = arrayOf(0, 1),
         val presence: GatewayStatus? = null
 ) : SendEvent {
     override val opcode: GatewayOpcode

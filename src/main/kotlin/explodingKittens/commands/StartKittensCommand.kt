@@ -1,13 +1,13 @@
 package explodingKittens.commands
 
 import common.commands.Command
-import common.commands.CommandState
+import common.commands.State
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-object StartKittensCommand : Command(CommandState.Setup) {
+object StartKittensCommand : Command(State.Setup) {
     override val name: String = "kittenstart"
 
     override val description: String = "if all players are ready, the game will start"

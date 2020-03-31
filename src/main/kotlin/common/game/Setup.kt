@@ -34,7 +34,7 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
         operator fun get(channel: Channel, gameType: GameType): Setup =
                 setups.getOrPut(channel) { mutableMapOf() }
                         .getOrPut(gameType) {
-                            Setup(channel, gameType, gameType.config())
+                            Setup(channel, gameType, gameType.config)
                         }
     }
 }

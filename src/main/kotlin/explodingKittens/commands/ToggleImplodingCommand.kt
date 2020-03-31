@@ -1,7 +1,7 @@
 package explodingKittens.commands
 
 import common.commands.Command
-import common.commands.CommandState
+import common.commands.State
 import common.game.GameType
 import common.game.Setup
 import explodingKittens.game.KittensConfig
@@ -10,7 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-object ToggleImplodingCommand : Command(CommandState.Setup) {
+object ToggleImplodingCommand : Command(State.Setup) {
     override val name: String = "implode"
 
     override val description: String = "Toggles whether Exploding Kittens will use the exploding kittens expansion"

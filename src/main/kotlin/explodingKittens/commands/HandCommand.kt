@@ -1,7 +1,7 @@
 package explodingKittens.commands
 
 import common.commands.Command
-import common.commands.CommandState.KittensGame
+import common.commands.State
 import common.game.Game
 import common.game.GameType
 import explodingKittens.game.ExplodingKittens
@@ -12,7 +12,7 @@ import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-object HandCommand : Command(KittensGame) {
+object HandCommand : Command(State.Kittens.Game) {
     override val name = "hand"
 
     override val description = "Lists the cards in your hand"

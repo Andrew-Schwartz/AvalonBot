@@ -1,7 +1,7 @@
 package explodingKittens.commands
 
 import common.commands.Command
-import common.commands.CommandState.KittensGame
+import common.commands.State
 import common.game.Game
 import common.game.GameType
 import common.util.cards
@@ -15,7 +15,7 @@ import kotlin.reflect.full.primaryConstructor
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-object CardCommand : Command(KittensGame) {
+object CardCommand : Command(State.Kittens.Game) {
     override val name: String = "card"
 
     override val description: String = "Gives information about what specific Exploding Kittens cards do"

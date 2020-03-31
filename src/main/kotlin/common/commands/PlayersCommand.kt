@@ -1,6 +1,6 @@
 package common.commands
 
-import common.commands.CommandState.All
+import common.commands.State.All
 import common.game.GameType
 import common.game.Setup
 import common.game.name
