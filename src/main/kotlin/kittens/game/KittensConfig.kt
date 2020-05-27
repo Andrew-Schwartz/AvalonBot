@@ -1,4 +1,4 @@
-package explodingKittens.game
+package kittens.game
 
 import common.game.GameConfig
 

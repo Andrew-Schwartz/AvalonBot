@@ -20,7 +20,7 @@ object AddCommand : Command(State.Setup) {
         but you can specify ${"kittens".inlineCode()} to be added to Exploding Kittens
     """.trimIndent()
 
-    override val usage: String = "!addme [kittens]"
+    override val usage: String = "addme [kittens]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
@@ -29,11 +29,10 @@ object AddCommand : Command(State.Setup) {
 
         val setup = Setup[message.channel, gameType]
 
-        // removed for testing, todo put back in
-//        if (message.author in setup)
-//            setup.removePlayer(message.author)
-//        else
-        setup.addPlayer(message.author) // todo validate size
+        if (!debug && message.author in setup)
+            setup.removePlayer(message.author)
+        else
+            setup.addPlayer(message.author) // todo validate size
 
         message.reply {
             color = Colors.gold

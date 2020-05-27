@@ -1,11 +1,11 @@
-package explodingKittens.commands
+package kittens.commands
 
 import common.commands.Command
 import common.commands.State
 import common.game.Game
 import common.game.GameType
 import common.util.cards
-import explodingKittens.game.ExplodingKittens
+import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot

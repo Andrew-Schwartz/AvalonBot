@@ -1,7 +1,7 @@
-package explodingKittens.game
+package kittens.game
 
 import common.game.Setup
-import explodingKittens.cards.Card
+import kittens.cards.Card
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.user.User

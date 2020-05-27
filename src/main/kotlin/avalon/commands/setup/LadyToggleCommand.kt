@@ -15,7 +15,7 @@ object LadyToggleCommand : Command(State.Setup) {
 
     override val description: String = "Enable or disable the Lady of the Lake. Starts disabled"
 
-    override val usage: String = "!lady [disable/enable]"
+    override val usage: String = "lady [disable/enable]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

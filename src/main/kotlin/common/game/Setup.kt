@@ -23,7 +23,7 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
     override fun toString(): String = "Setup(channel.name=${channel.name},gameType=$gameType,config=$config,players=$players)"
 
     companion object {
-        private val setups: MutableMap<Channel, MutableMap<GameType, Setup>> = mutableMapOf()
+        internal val setups: MutableMap<Channel, MutableMap<GameType, Setup>> = mutableMapOf()
 
         fun remove(setup: Setup) = remove(setup.channel, setup.gameType)
 

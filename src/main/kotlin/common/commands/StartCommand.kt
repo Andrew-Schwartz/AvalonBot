@@ -24,13 +24,13 @@ object StartCommand : Command(State.Setup) {
         Starts the game if all players are ready. You must specify which game to start (Avalon or Exploding Kittens)
     """.trimIndent()
 
-    override val usage: String = """!start <game> ["$START_NOW"]"""
+    override val usage: String = """start <game> ["$START_NOW"]"""
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+        // exists for the return below to work
         with(message) {
-            // exists for the return below to work
             val gameFromSetups = GameType.values()
                     .map { it to Setup[message.channel, it] }
                     .singleOrNull { it.second.players.isNotEmpty() }
@@ -39,12 +39,12 @@ object StartCommand : Command(State.Setup) {
 
             val gameType = gameFromArgs
                     ?: gameFromSetups
-                    ?: message.reply("Specify which game to start", ping = true).let { return@with }
+                    ?: message.reply(" Specify which game to start", ping = true).let { return@with }
 
             val setup = Setup[message.channel, gameType]
             when (args.lastOrNull()) {
                 START_OVER -> {
-                    Game.endAndRemove(message.channel, gameType)
+                    Game.endAndRemove(message.channel, gameType, "Manually restarted")
                     message.channel.states += State.Setup
                     Setup.remove(message.channel, gameType)
                     for (pin in pinnedMessages) {

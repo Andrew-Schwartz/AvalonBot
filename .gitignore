@@ -6,4 +6,6 @@ build
 
 config.json
 src/main/resources/config
-src/main/kotlin/avalonBot/PersonUser.kt
+
+.idea
+out

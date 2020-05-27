@@ -1,8 +1,8 @@
-package explodingKittens.cards
+package kittens.cards
 
 import common.bot
 import common.util.replaceCamelCase
-import explodingKittens.game.ExplodingKittens
+import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.util.bold

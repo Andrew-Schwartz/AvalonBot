@@ -14,8 +14,8 @@ interface Storable<T : Storable<T>> {
 
     @Suppress("UNCHECKED_CAST")
     fun Storable<T>.savePrev(): T {
-        for (prevVersion in this@Storable.prevVersions
-                ?: mutableListOf()) { // elvis bc prevVersions not initialized by gson
+        // elvis bc prevVersions not initialized by gson
+        for (prevVersion in this@Storable.prevVersions ?: mutableListOf()) {
             prevVersions += prevVersion
         }
         prevVersions.add(this@Storable as T)

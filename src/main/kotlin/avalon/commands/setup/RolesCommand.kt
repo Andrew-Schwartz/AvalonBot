@@ -28,7 +28,7 @@ object RolesCommand : Command(State.Setup) {
         |Roles are Assassin, Merlin, Mordred, Morgana, Oberon, and Percival
         """.trimMargin()
 
-    override val usage: String = "!roles [$CLEAR_ROLES] [$LIST_ROLES] [role1] [role2] [role3] etc..."
+    override val usage: String = "roles [$CLEAR_ROLES] [$LIST_ROLES] [role1] [role2] [role3] etc..."
 
     @Suppress("UNCHECKED_CAST")
     @KtorExperimentalAPI

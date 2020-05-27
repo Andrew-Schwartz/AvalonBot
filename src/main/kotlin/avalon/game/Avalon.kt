@@ -8,6 +8,7 @@ import avalon.characters.Merlin
 import avalon.characters.MinionOfMordred
 import common.bot
 import common.commands.State
+import common.commands.debug
 import common.commands.states
 import common.commands.values
 import common.game.*
@@ -31,9 +32,6 @@ import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.inlineCode
 import lib.util.ping
 import lib.util.underline
-
-//val avalonLogo: File = File("src/main/resources/images/avalon/avalonLogo.png")
-//val leaderCrown: File = File("src/main/resources/images/avalon/leaderCrown.jpg")
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -79,10 +77,10 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         if (seenPeople.isNotEmpty()) {
                             addField("You see",
                                     seenPeople
-                                            .filter { it.name != player.name } // must be commented out for testing
+                                            .filter { debug || it.name != player.name } // must be commented out for testing
                                             .joinToString(separator = "\n") {
                                                 val ping = it.user.ping()
-                                                if (ping.isNotEmpty()) it.name else ping
+                                                if (ping.isEmpty()) it.name else ping
                                             },
                                     inline = true)
                         }
@@ -287,16 +285,16 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     leaderNum++
                 }
 
-                cleanup()
+                stopGame("Game Completed!")
             }
         }
     }
 
-    override suspend fun stopGame() {
+    override suspend fun stopGame(message: String) {
         bot.run {
             channel.send {
-                title = "An error has occurred!!"
-                description = "Ending game"
+                title = "Ending game"
+                description = message
                 color = Colors.red
             }
         }

@@ -14,7 +14,7 @@ object PingCommand : Command(All) {
 
     override val description: String = "pongs, and says how long it took"
 
-    override val usage: String = "!ping"
+    override val usage: String = "ping"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

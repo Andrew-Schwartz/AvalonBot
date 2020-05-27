@@ -65,7 +65,7 @@ class Bot internal constructor(val token: String) {
             else -> pingText + content
         }
 
-        val embed: Embed? = when {
+        val embed = when {
             embed == null && builder == null -> null
             embed == null -> RichEmbed().apply { builder!!.invoke(RichEmbed()) }.build()
             else -> embed.apply { builder?.invoke(this) }.build()

@@ -24,7 +24,7 @@ object InfoCommand : Command(State.Avalon.Game) {
         turn order, number of victories for each team, the current leader, and the round number
     """.trimIndent()
 
-    override val usage: String = "!info (only works while a game of Avalon is in progress)"
+    override val usage: String = "info (only works while a game of Avalon is in progress)"
 
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         val state = (Game[message.channel, GameType.Avalon] as Avalon).state
@@ -42,7 +42,6 @@ object InfoCommand : Command(State.Avalon.Game) {
             addField("Number of Evil Victories".underline(), "$state.evilWins", true)
             addField("Current Leader".underline(), state.players[state.rounds[state.roundNum].players].user.ping(), true)
             addField("Round Number".underline(), "$state.roundNum", true)
-//          addField("Number of rejected party proposals", rounds[roundNum].fails.toString(), true) that's how many is required not happened lol
         }
     }
 }

@@ -17,7 +17,7 @@ object HelpCommand : Command(All) {
 
     override val description: String = "sends setup help text, or specific help text if given a command name"
 
-    override val usage: String = "!help [command name]"
+    override val usage: String = "help [command name]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
@@ -25,20 +25,20 @@ object HelpCommand : Command(All) {
         val allCommandsEmbed: RichEmbed = embed {
             title = "List of commands".underline()
             color = Colors.gold
-            for (c in commandSet)
-                addField(c.name.bold(), c.description)
+            commandSet.filter { it.state in message.channel.states }
+                    .forEach { addField(it.name.bold(), it.description) }
         }
 
         if (args.isEmpty()) {
-            message.author.sendDM(embed = allCommandsEmbed)
+            message.author.sendDM(embed = allCommandsEmbed) // DM cuz its long
         } else {
             val name = args[0]
             val command = commandSet.firstOrNull { it.name == name }
 
             when {
                 name == "here" -> message.reply(embed = allCommandsEmbed)
-                command != null -> message.author.sendDM(embed = command.helpEmbed())
-                else -> message.channel.send("Unrecognized command. To learn more about a command, use ${usage.inlineCode()}")
+                command != null -> message.reply(embed = command.helpEmbed())
+                else -> message.reply("Unrecognized command. To learn more about a command, use !${usage.inlineCode()}")
             }
         }
     }
@@ -48,5 +48,5 @@ suspend fun Command.helpEmbed(): RichEmbed = embed {
     title = "About $name".underline()
     color = Colors.gold
     addField("Description", this@helpEmbed.description, false)
-    addField("Usage", usage.inlineCode())
+    addField("Usage", "!${usage.inlineCode()}")
 }

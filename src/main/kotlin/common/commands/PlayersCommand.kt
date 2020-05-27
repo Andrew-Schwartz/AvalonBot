@@ -16,7 +16,7 @@ object PlayersCommand : Command(All) {
 
     override val description: String = "displays a list of all players currently in the game"
 
-    override val usage: String = """!players [ping]"""
+    override val usage: String = "players [ping]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

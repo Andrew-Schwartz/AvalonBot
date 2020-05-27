@@ -32,7 +32,9 @@ sealed class DispatchEvent<P> {
     val actions: ArrayList<Action<P>> = ArrayList()
 }
 
-// inline extension, not member function, because P needs to be reified for `fromJson`
+/**
+ * inline extension, not member function, because `P` needs to be reified for `fromJson`
+ */
 @Suppress("unused", "NonAsciiCharacters")
 inline fun <reified P> DispatchEvent<P>.withJson(payload: JsonElement, λ: P.() -> Unit) = with(payload.fromJson(), λ)
 

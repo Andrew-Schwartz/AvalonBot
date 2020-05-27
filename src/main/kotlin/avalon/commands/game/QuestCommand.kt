@@ -17,7 +17,7 @@ object QuestCommand : Command(State.Avalon.Questing) {
 
     override val description: String = "Choose which people will go on the quest! Only usable by the current leader"
 
-    override val usage: String = "!quest <@player1> <@player2>..."
+    override val usage: String = "quest <@player1> <@player2>..."
 
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         val state = (Game[message.channel, GameType.Avalon] as Avalon).state

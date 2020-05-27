@@ -17,7 +17,7 @@ object LadyCommand : Command(State.Avalon.Game) {
 
     override val description: String = "Use to see someone's true loyalty"
 
-    override val usage: String = "!lady <player>"
+    override val usage: String = "lady <player>"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

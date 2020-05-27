@@ -1,4 +1,4 @@
-package explodingKittens.cards
+package kittens.cards
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi

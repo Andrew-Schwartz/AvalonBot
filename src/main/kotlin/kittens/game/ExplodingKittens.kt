@@ -1,4 +1,4 @@
-package explodingKittens.game
+package kittens.game
 
 import common.bot
 import common.game.Game
@@ -18,7 +18,7 @@ class ExplodingKittens(setup: Setup) : Game(GameType.ExplodingKittens, setup) {
         }
     }
 
-    override suspend fun stopGame() {
+    override suspend fun stopGame(message: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

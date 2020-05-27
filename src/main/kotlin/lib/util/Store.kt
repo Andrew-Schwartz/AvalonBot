@@ -17,16 +17,6 @@ class Store<T : Storable<T>> {
             else -> value
         }.also { map[id] = it }
     }
-//    fun add(value: T): T {
-//        return if (value.id in map) {
-//            map[value.id]!!.updateDataFrom(value) as T
-////            value.updateDataFrom(map[value.id]!!)
-//        } else {
-//            value
-//        }.also { map[value.id] = it }
-//    }
-
-//    inline operator fun plusAssign(value: T) = add(value)
 
     fun remove(id: Snowflake) {
         map -= id

@@ -16,7 +16,7 @@ abstract class Game(val type: GameType, setup: Setup) {
 
     protected abstract suspend fun startGame()
 
-    abstract suspend fun stopGame()
+    abstract suspend fun stopGame(message: String)
 
     companion object {
         suspend fun startGame(game: Game) {
@@ -30,14 +30,14 @@ abstract class Game(val type: GameType, setup: Setup) {
             }.onFailure { e ->
                 println("Error in game ${game.type.name} in channel ${game.channel.name}")
                 e.printStackTrace()
-                endAndRemove(game.channel, game.type)
+                endAndRemove(game.channel, game.type, e.message ?: "Unknown Error")
             }
         }
 
-        private val games: MutableMap<Channel, MutableMap<GameType, Game>> = mutableMapOf()
+        internal val games: MutableMap<Channel, MutableMap<GameType, Game>> = mutableMapOf()
 
-        suspend fun endAndRemove(channel: Channel, gameType: GameType) {
-            games[channel]?.get(gameType)?.stopGame()
+        suspend fun endAndRemove(channel: Channel, gameType: GameType, message: String) {
+            games[channel]?.get(gameType)?.stopGame(message)
             games[channel]?.remove(gameType)
             channel.states -= gameType.commandState
             channel.states += State.Setup

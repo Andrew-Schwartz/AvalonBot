@@ -1,10 +1,10 @@
-package explodingKittens.cards
+package kittens.cards
 
 import common.bot
 import common.util.MessageListener
 import common.util.cards
 import common.util.contains
-import explodingKittens.game.ExplodingKittens
+import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.blockUntil

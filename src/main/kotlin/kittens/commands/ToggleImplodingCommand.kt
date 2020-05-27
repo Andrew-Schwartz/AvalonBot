@@ -1,10 +1,10 @@
-package explodingKittens.commands
+package kittens.commands
 
 import common.commands.Command
 import common.commands.State
 import common.game.GameType
 import common.game.Setup
-import explodingKittens.game.KittensConfig
+import kittens.game.KittensConfig
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -15,7 +15,7 @@ object ToggleImplodingCommand : Command(State.Setup) {
 
     override val description: String = "Toggles whether Exploding Kittens will use the exploding kittens expansion"
 
-    override val usage: String = "!implode"
+    override val usage: String = "implode"
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->

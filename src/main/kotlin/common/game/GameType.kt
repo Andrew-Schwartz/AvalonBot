@@ -6,10 +6,10 @@ import avalon.game.AvalonPlayer
 import common.bot
 import common.commands.State
 import common.util.listGrammatically
-import explodingKittens.game.ExplodingKittens
-import explodingKittens.game.KittenPlayer
-import explodingKittens.game.KittensConfig
 import io.ktor.util.KtorExperimentalAPI
+import kittens.game.ExplodingKittens
+import kittens.game.KittenPlayer
+import kittens.game.KittensConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

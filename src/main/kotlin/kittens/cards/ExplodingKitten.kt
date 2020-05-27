@@ -1,8 +1,8 @@
-package explodingKittens.cards
+package kittens.cards
 
 import common.bot
 import common.game.name
-import explodingKittens.game.ExplodingKittens
+import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.blockUntil

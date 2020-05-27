@@ -39,23 +39,14 @@ class DiscordWebsocket(val bot: Bot) {
             }
 
             eventLoop@ while (!incoming.isClosedForReceive) {
-                val message: Frame.Text? = incoming.poll() as? Frame.Text?
+                val message = incoming.receive() as Frame.Text
 
-                message?.let {
-                    runCatching { receive(it.readText().fromJson()) }
-                            .onFailure { println(it.printStackTrace()) }
-//                    try {
-//                        val text = it.readText()
-//                        receive(text.fromJson())
-//                    } catch (e: Exception) {
-//                        e.printStackTrace()
-//                    }
-                }
+                runCatching { receive(message.readText().fromJson()) }
+                        .onFailure { println(it.printStackTrace()) }
             }
             println("done with while")
         }
 
-        println("closed")
         client.close()
         exitProcess(1)
     }
@@ -68,7 +59,7 @@ class DiscordWebsocket(val bot: Bot) {
             processDispatch(payload)
         }
         GatewayOpcode.Heartbeat, GatewayOpcode.HeartbeatAck -> {
-            println("received heartbeat: $payload")
+//            println("received heartbeat: $payload")
             // nothing to do on heartbeat
         }
         GatewayOpcode.Reconnect -> {
@@ -79,7 +70,6 @@ class DiscordWebsocket(val bot: Bot) {
         }
         else -> {
             println("should not receive ${payload.opcode}, it's content was ${payload.eventData}")
-//            throw IllegalStateException("${payload.opcode} should not be received")
         }
     }
 

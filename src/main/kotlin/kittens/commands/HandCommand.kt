@@ -1,10 +1,10 @@
-package explodingKittens.commands
+package kittens.commands
 
 import common.commands.Command
 import common.commands.State
 import common.game.Game
 import common.game.GameType
-import explodingKittens.game.ExplodingKittens
+import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -17,7 +17,7 @@ object HandCommand : Command(State.Kittens.Game) {
 
     override val description = "Lists the cards in your hand"
 
-    override val usage = "!hand"
+    override val usage = "hand"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
