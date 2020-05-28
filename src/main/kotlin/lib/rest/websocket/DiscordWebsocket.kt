@@ -42,7 +42,7 @@ class DiscordWebsocket(val bot: Bot) {
                 val message = incoming.receive() as Frame.Text
 
                 runCatching { receive(message.readText().fromJson()) }
-                        .onFailure { println(it.printStackTrace()) }
+                        .onFailure { it.printStackTrace() }
             }
             println("done with while")
         }
@@ -63,9 +63,11 @@ class DiscordWebsocket(val bot: Bot) {
             // nothing to do on heartbeat
         }
         GatewayOpcode.Reconnect -> {
+            println(payload)
             TODO("implement Reconnect")
         }
         GatewayOpcode.InvalidSession -> {
+            println(payload)
             TODO("implement InvalidSession")
         }
         else -> {

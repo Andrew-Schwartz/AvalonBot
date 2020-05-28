@@ -18,7 +18,7 @@ object LogCommand : Command(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         if (message.author == steadfast) {
             println("\ndebug = $debug")
             println("Games: ")
@@ -31,7 +31,7 @@ object LogCommand : Command(State.All) {
             }
             message.reply("logged to stdout")
         } else {
-            message.reply("Only Andrew can do that")
+            message.reply("Only Andrew is that cool")
         }
     }
 }

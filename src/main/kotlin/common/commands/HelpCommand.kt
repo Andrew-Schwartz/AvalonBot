@@ -1,6 +1,7 @@
 package common.commands
 
-import common.commands.State.All
+import common.steadfast
+import common.util.A
 import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,33 +13,40 @@ import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline
 
-object HelpCommand : Command(All) {
+object HelpCommand : Command(State.All) {
     override val name: String = "help"
 
-    override val description: String = "sends setup help text, or specific help text if given a command name"
+    override val description: String = "sends setup help text, or specific help text if given a command name, such" +
+            "as ${"addme".inlineCode()}"
 
-    override val usage: String = "help [command name]"
+    override val usage: String = "help [command (type)]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        val allCommandsEmbed: RichEmbed = embed {
-            title = "List of commands".underline()
-            color = Colors.gold
-            commandSet.filter { it.state in message.channel.states }
-                    .forEach { addField(it.name.bold(), it.description) }
+        val allCommandsEmbed: suspend () -> RichEmbed = {
+            embed {
+                title = "List of commands".underline()
+                color = Colors.gold
+                commandSet.filter { debug || it.state in message.channel.states }
+                        .filter { debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand] }
+                        .sortedWith(StateComparator)
+                        .forEach {
+                            val name = "▶ ${it.state.typeName().toLowerCase()} - ${it.name}".bold()
+                            addField(name, it.description)
+                        }
+            }
         }
-
         if (args.isEmpty()) {
-            message.author.sendDM(embed = allCommandsEmbed) // DM cuz its long
+            message.author.sendDM(embed = allCommandsEmbed()) // DM cuz its long
         } else {
-            val name = args[0]
+            val name = args[0].toLowerCase()
             val command = commandSet.firstOrNull { it.name == name }
 
             when {
-                name == "here" -> message.reply(embed = allCommandsEmbed)
+                name == "here" -> message.reply(embed = allCommandsEmbed())
                 command != null -> message.reply(embed = command.helpEmbed())
-                else -> message.reply("Unrecognized command. To learn more about a command, use !${usage.inlineCode()}")
+                else -> message.reply("Unrecognized command. To learn more about a command, use ${"!$usage".inlineCode()}")
             }
         }
     }
@@ -48,5 +56,5 @@ suspend fun Command.helpEmbed(): RichEmbed = embed {
     title = "About $name".underline()
     color = Colors.gold
     addField("Description", this@helpEmbed.description, false)
-    addField("Usage", "!${usage.inlineCode()}")
+    addField("Usage", "!${usage}".inlineCode())
 }

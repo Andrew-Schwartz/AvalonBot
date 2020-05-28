@@ -10,7 +10,7 @@ import common.bot
 import common.commands.State
 import common.commands.debug
 import common.commands.states
-import common.commands.values
+import common.commands.subStates
 import common.game.*
 import common.util.A
 import common.util.Colors
@@ -96,7 +96,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 gameLoop@ while (goodWins < 3 && evilWins < 3) {
                     val round = rounds[roundNum]
 
-                    channel.states += State.Avalon.Questing
+                    channel.states += State.Avalon.Quest
                     channel.send(pingTargets = A[leader.user]) {
                         color = gold
                         title = "The leader is ${leader.name}".underline()
@@ -111,7 +111,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     party = null
 
                     blockUntil { party != null } // turn listener
-                    channel.states -= State.Avalon.Questing
+                    channel.states -= State.Avalon.Quest
                     channel.send {
                         title = "${leader.name} has chosen that ${party?.listGrammatically { it.name }} will go on this quest"
                         description = "react to my DM to Approve or Reject this party"
@@ -264,13 +264,13 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
 
                     if (ladyEnabled && roundNum in 2..4 && goodWins < 3 && evilWins < 3) {
-                        channel.states += State.Avalon.Ladying
+                        channel.states += State.Avalon.Lady
                         channel.send {
                             title = "Now ${ladyOfTheLake!!.name} will use the Lady of the Lake on someone to find their alignment"
                             description = "use ${"!lady".inlineCode()} and a player's name/username"
                         }
                         blockUntil { ladyTarget != null }
-                        channel.states -= State.Avalon.Ladying
+                        channel.states -= State.Avalon.Lady
 
                         ladyOfTheLake!!.user.sendDM {
                             title = "${ladyTarget!!.name} is ${ladyTarget!!.role?.loyalty}"
@@ -313,7 +313,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
     }
 
     private suspend fun cleanup() = bot.run {
-        channel.states.removeAll(values<State.Avalon>())
+        channel.states.removeAll(subStates<State.Avalon>())
         this@Avalon.pinnedMessages.forEach { pin ->
             this@run.pinnedMessages -= pin
             runCatching { deletePin(pin.channelId, pin.id) }

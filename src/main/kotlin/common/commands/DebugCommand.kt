@@ -8,7 +8,7 @@ import lib.model.channel.Message
 
 var debug = false
 
-object DebugCommand : Command(State.Setup) {
+object DebugCommand : Command(State.All) {
     override val name: String = "debug"
 
     override val description: String = "Enables debug mode for games. Only Andrew can do this"
@@ -19,10 +19,10 @@ object DebugCommand : Command(State.Setup) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         if (message.author == steadfast) {
-            when (args.firstOrNull()) {
+            when (args.firstOrNull()?.toLowerCase()) {
                 null -> debug = !debug
-                "true" -> debug = true
-                "false" -> debug = false
+                "true", "on" -> debug = true
+                "false", "off" -> debug = false
             }
             message.reply("Debug mode is now ${if (debug) "on" else "off"}")
         } else {

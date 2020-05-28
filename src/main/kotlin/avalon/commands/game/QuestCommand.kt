@@ -12,7 +12,7 @@ import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-object QuestCommand : Command(State.Avalon.Questing) {
+object QuestCommand : Command(State.Avalon.Quest) {
     override val name: String = "quest"
 
     override val description: String = "Choose which people will go on the quest! Only usable by the current leader"

@@ -38,7 +38,7 @@ abstract class Command(val state: State) {
                         (with(bot) { command.state in message.channel.states })
                 ) {
                     bot.run {
-                        if (message.args.getOrNull(0) == "help"/* && command != HelpCommand*/)
+                        if (message.args.getOrNull(0) == "help")
                             message.reply(embed = command.helpEmbed())
                         else
                             command.execute(bot, message, message.args)
