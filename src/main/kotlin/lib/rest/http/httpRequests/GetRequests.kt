@@ -15,6 +15,7 @@ import lib.model.user.User
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.GetChannelMessages
+import lib.rest.http.RateLimit
 import lib.rest.model.BotGateway
 import lib.util.fromJson
 
@@ -23,12 +24,15 @@ import lib.util.fromJson
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.getRequest(url: String): HttpResponse {
-    return client.get(api + url) {
+private suspend fun Bot.getRequest(url: String, routeKey: String): HttpResponse {
+    RateLimit.route(routeKey).limit()
+
+    return client.get<HttpResponse>(api + url) {
         authHeaders.forEach { (key, value) ->
             header(key, value)
         }
-    }
+        header("X-RateLimit-Precision", "millisecond")
+    }.also { RateLimit.update(it, routeKey) }
 }
 
 /**
@@ -37,7 +41,7 @@ private suspend fun Bot.getRequest(url: String): HttpResponse {
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getChannel(id: Snowflake): Channel {
-    return channels.computeIfAbsent(id) { getRequest("/channels/$id").fromJson() }
+    return channels.computeIfAbsent(id) { getRequest("/channels/$id", "GET-getChannel-$id").fromJson() }
 }
 
 /**
@@ -49,12 +53,12 @@ suspend fun Bot.getChannel(id: Snowflake): Channel {
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Message> {
-    return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().map {
-        messages.add(it)
-    }.toTypedArray()
-//    return getRequest("/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}").fromJson<Array<Message>>().also {
-//        for (message in it) messages.add(message)
-//    }
+    return getRequest(
+            "/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}",
+            "GET-getMessages-${getChannelMessages.channel}"
+    )
+            .fromJson<Array<Message>>()
+            .also { it.asSequence().forEach { messages.add(it) } }
 }
 
 /**
@@ -66,10 +70,11 @@ suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Messa
 @ExperimentalCoroutinesApi
 suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake, forceRequest: Boolean = false): Message {
     val url = "/channels/$channelId/messages/$messageId"
+    val routeKey = "GET-getMessage-$channelId"
     return if (forceRequest) {
-        getRequest(url).fromJson<Message>().let { messages.add(it) }
+        getRequest(url, routeKey).fromJson<Message>().let { messages.add(it) }
     } else {
-        messages.computeIfAbsent(messageId) { getRequest(url).fromJson() }
+        messages.computeIfAbsent(messageId) { getRequest(url, routeKey).fromJson() }
     }
 }
 
@@ -80,7 +85,7 @@ suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake, forceRequ
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getReactions(channelId: Snowflake, messageId: Snowflake, emoji: Char): Array<User> {
-    return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji").fromJson()
+    return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji", "GET-getReactions-$channelId").fromJson()
 }
 
 /**
@@ -91,7 +96,7 @@ suspend fun Bot.getReactions(channelId: Snowflake, messageId: Snowflake, emoji: 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getPins(channelId: Snowflake): Array<Message> {
-    return getRequest("/channels/$channelId/pins").fromJson<Array<Message>>().also {
+    return getRequest("/channels/$channelId/pins", "GET-getPins-$channelId").fromJson<Array<Message>>().also {
         for (message in it) {
             messages.add(message)
         }
@@ -105,7 +110,7 @@ suspend fun Bot.getPins(channelId: Snowflake): Array<Message> {
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getUser(id: Snowflake): User {
-    return users.computeIfAbsent(id) { getRequest("/users/$id").fromJson() }
+    return users.computeIfAbsent(id) { getRequest("/users/$id", "GET-getUser").fromJson() }
 }
 
 /**
@@ -117,7 +122,7 @@ suspend fun Bot.getUser(id: Snowflake): User {
 @ExperimentalCoroutinesApi
 suspend fun Bot.getGuilds(before: Boolean? = null, after: Boolean? = null, limit: Int = 100): Array<Guild> {
     TODO("figure out how the before and after work")
-    return getRequest("/users/@me/guilds?").fromJson()
+    return getRequest("/users/@me/guilds?", "GET-getGuilds").fromJson()
 }
 
 /**
@@ -126,13 +131,13 @@ suspend fun Bot.getGuilds(before: Boolean? = null, after: Boolean? = null, limit
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getUserConnection(): Array<Connection> = getRequest("/users/@me/connections").fromJson()
+suspend fun Bot.getUserConnection(): Array<Connection> = getRequest("/users/@me/connections", "GET-getUserConnection").fromJson()
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getGuild(id: Snowflake): Guild = guilds.computeIfAbsent(id) { getRequest("/guilds/$id").fromJson() }
+suspend fun Bot.getGuild(id: Snowflake): Guild = guilds.computeIfAbsent(id) { getRequest("/guilds/$id", "GET-getGuild-$id").fromJson() }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.gateway(): String = getRequest("/gateway/bot").fromJson<BotGateway>().url.removePrefix("wss://")
+suspend fun Bot.gateway(): String = getRequest("/gateway/bot", "GET-gateway").fromJson<BotGateway>().url.removePrefix("wss://")
 

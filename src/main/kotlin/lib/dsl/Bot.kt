@@ -4,16 +4,16 @@ import common.util.A
 import common.util.M
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lib.exceptions.PermissionException
 import lib.model.Snowflake
 import lib.model.channel.Channel
-import lib.model.channel.Embed
 import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
-import lib.rest.RateLimitInfo
 import lib.rest.http.CreateMessage
+import lib.rest.http.RateLimit
 import lib.rest.http.httpRequests.*
 import lib.rest.websocket.DiscordWebsocket
 import lib.util.Store
@@ -24,7 +24,6 @@ import lib.util.ping
 class Bot internal constructor(val token: String) {
     val authHeaders = M["Authorization" to "Bot $token"]
     private val socket = DiscordWebsocket(this)
-    val rateLimitInfo: RateLimitInfo = RateLimitInfo(null, null, null, null)
 
     val pinnedMessages: MutableList<Message> = mutableListOf()
 
@@ -103,6 +102,7 @@ class Bot internal constructor(val token: String) {
             builder: suspend RichEmbed.() -> Unit = {}
     ): Message {
         val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.ping() }
+
         @Suppress("NAME_SHADOWING")
         val embed = embed.apply { builder() }.takeIf { it.isNotEmpty }?.build()
 
@@ -160,6 +160,13 @@ class Bot internal constructor(val token: String) {
 
     val Channel.guild: Guild?
         get() = runBlocking { getGuild(guildId ?: return@runBlocking null) }
+
+    suspend fun RateLimit.limit() {
+        if (remaining == 0) {
+            println("rate limited for $resetAfter seconds")
+            delay(((resetAfter ?: 0.0) * 1000.0).toLong())
+        }
+    }
 }
 
 @Suppress("NonAsciiCharacters")

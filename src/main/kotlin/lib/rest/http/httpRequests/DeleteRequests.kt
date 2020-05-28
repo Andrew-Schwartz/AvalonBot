@@ -13,6 +13,8 @@ import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.rest.api
 import lib.rest.client
+import lib.rest.http.RateLimit
+//import lib.rest.http.RateLimit.Companion.update
 import lib.rest.model.events.receiveEvents.ChannelDelete
 import lib.rest.model.events.receiveEvents.ChannelUpdate
 import lib.rest.model.events.receiveEvents.MessageDelete
@@ -20,12 +22,15 @@ import lib.util.fromJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.deleteRequest(url: String): HttpResponse {
-    return client.delete(api + url) {
+private suspend fun Bot.deleteRequest(url: String, routeKey: String): HttpResponse {
+    RateLimit.route(routeKey).limit()
+
+    return client.delete<HttpResponse>(api + url) {
         authHeaders.forEach { (k, v) ->
             header(k, v)
         }
-    }
+        header("X-RateLimit-Precision", "millisecond")
+    }.also { RateLimit.update(it, routeKey) }
 }
 
 /**
@@ -40,7 +45,7 @@ private suspend fun Bot.deleteRequest(url: String): HttpResponse {
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.closeChannel(channelId: Snowflake): Channel {
-    return deleteRequest("/channels/$channelId").fromJson()
+    return deleteRequest("/channels/$channelId", "DELETE-closeChannel-$channelId").fromJson()
 }
 
 /**
@@ -53,7 +58,7 @@ suspend fun Bot.closeChannel(channelId: Snowflake): Channel {
 @ExperimentalCoroutinesApi
 suspend fun Bot.deleteReaction(channelId: Snowflake, messageId: Snowflake, emoji: Char, userId: Snowflake? = null) {
     val user = userId?.value ?: "@me"
-    deleteRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/$user")
+    deleteRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/$user", "DELETE-deleteReaction-$channelId")
 }
 
 /**
@@ -63,7 +68,7 @@ suspend fun Bot.deleteReaction(channelId: Snowflake, messageId: Snowflake, emoji
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.deleteAllReactions(channelId: Snowflake, messageId: Snowflake) {
-    deleteRequest("/channels/$channelId/messages/$messageId/reactions")
+    deleteRequest("/channels/$channelId/messages/$messageId/reactions", "DELETE-deleteAllReactions-$channelId")
 }
 
 /**
@@ -74,7 +79,7 @@ suspend fun Bot.deleteAllReactions(channelId: Snowflake, messageId: Snowflake) {
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.deleteMessage(channelId: Snowflake, messageId: Snowflake) {
-    deleteRequest("/channels/$channelId/messages/$messageId")
+    deleteRequest("/channels/$channelId/messages/$messageId", "DELETE-deleteMessage-$channelId")
 }
 
 /**
@@ -87,7 +92,7 @@ suspend fun Bot.deleteMessage(channelId: Snowflake, messageId: Snowflake) {
 suspend fun Bot.deleteChannelPermission(channelId: Snowflake, overwriteId: Snowflake) {
     getChannel(channelId).guildId ?: throw IllegalArgumentException("Only usable for guild channels")
 
-    deleteRequest("/channels/$channelId/permissions/$overwriteId")
+    deleteRequest("/channels/$channelId/permissions/$overwriteId", "DELETE-deleteChannelPermission-$channelId")
 }
 
 /**
@@ -96,7 +101,7 @@ suspend fun Bot.deleteChannelPermission(channelId: Snowflake, overwriteId: Snowf
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.leaveGuild(id: Snowflake) {
-    val response = deleteRequest("/users/@me/guilds/$id")
+    val response = deleteRequest("/users/@me/guilds/$id", "DELETE-leaveGuild-$id")
     if (response.status != HttpStatusCode.NoContent) {
         throw RequestException("Deleting guild $id did not succeed")
     }
@@ -105,7 +110,7 @@ suspend fun Bot.leaveGuild(id: Snowflake) {
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.deletePin(channelId: Snowflake, messageId: Snowflake) {
-    val response = deleteRequest("/channels/$channelId/pins/$messageId")
+    val response = deleteRequest("/channels/$channelId/pins/$messageId", "DELETE-deletePin-$channelId")
     if (response.status != HttpStatusCode.NoContent) {
         throw RequestException("Deleting pin for message $messageId in channel ${getChannel(channelId).name} did not succeed")
     }

@@ -18,6 +18,7 @@ import lib.model.channel.Message
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.ModifyChannelOptions
+import lib.rest.http.RateLimit
 import lib.rest.model.events.receiveEvents.ChannelUpdate
 import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.fromJson
@@ -26,19 +27,22 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.patchRequest(url: String, jsonBody: String): HttpResponse {
-    return client.patch(api + url) {
+private suspend fun Bot.patchRequest(url: String, routeKey: String, jsonBody: String): HttpResponse {
+    RateLimit.route(routeKey).limit()
+
+    return client.patch<HttpResponse>(api + url) {
         authHeaders.forEach { (k, v) ->
             header(k, v)
         }
+        header("X-RateLimit-Precision", "millisecond")
 
         body = TextContent(jsonBody, ContentType.Application.Json)
-    }
+    }.also { RateLimit.update(it, routeKey) }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.patchRequest(url: String, json: JsonElement) = patchRequest(url, json.toJson())
+private suspend inline fun Bot.patchRequest(url: String, routeKey: String, json: JsonElement) = patchRequest(url, routeKey, json.toJson())
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#modify-channel]
@@ -50,7 +54,7 @@ private suspend inline fun Bot.patchRequest(url: String, json: JsonElement) = pa
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.modifyChannel(channelId: Snowflake, modifyInfo: ModifyChannelOptions): Result<Channel> {
-    val response = patchRequest("/channels/$channelId", (modifyInfo forChannel getChannel(channelId)).toJson())
+    val response = patchRequest("/channels/$channelId", "PATCH-modifyChannel-$channelId", (modifyInfo forChannel getChannel(channelId)).toJson())
     return when (response.status) {
         HttpStatusCode.BadRequest -> Result.failure(RequestException("400 Bad Request, Invalid parameters"))
         else -> Result.success(response.fromJson())
@@ -67,7 +71,7 @@ suspend fun Bot.modifyChannel(channelId: Snowflake, modifyInfo: ModifyChannelOpt
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.editMessage(channelId: Snowflake, messageId: Snowflake, content: String? = null, embed: Embed? = null): Message {
-    return patchRequest("/channels/$channelId/messages/$messageId", j {
+    return patchRequest("/channels/$channelId/messages/$messageId", "PATCH-editMessage-$channelId", j {
         if (content != null)
             "content" to content.take(2000)
         if (embed != null)

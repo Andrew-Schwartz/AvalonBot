@@ -13,26 +13,26 @@ import lib.model.Snowflake
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.EditChannelPermissions
-import lib.rest.rateLimit
-import lib.rest.updateRateLimitInfo
+import lib.rest.http.RateLimit
 import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.putRequest(url: String, jsonBody: String = ""): HttpResponse {
-    rateLimit()
+private suspend fun Bot.putRequest(url: String, routeKey: String, jsonBody: String = ""): HttpResponse {
+    RateLimit.route(routeKey).limit()
 
     return client.put<HttpResponse>(api + url) {
         authHeaders.forEach { (k, v) ->
             header(k, v)
         }
+        header("X-RateLimit-Precision", "millisecond")
         body = TextContent(jsonBody, Application.Json)
-    }.also(::updateRateLimitInfo)
+    }.also { RateLimit.update(it, routeKey) }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.putRequest(url: String, json: JsonElement) = putRequest(url, json.toJson())
+private suspend inline fun Bot.putRequest(url: String, routeKey: String, json: JsonElement) = putRequest(url, routeKey, json.toJson())
 
 /**
  * Create a reaction for the message.
@@ -44,7 +44,7 @@ private suspend inline fun Bot.putRequest(url: String, json: JsonElement) = putR
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.createReaction(channelId: Snowflake, messageId: Snowflake, emoji: Char) {
-    putRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/@me")
+    putRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/@me", "PUT-createReaction-$channelId")
 }
 
 /**
@@ -57,11 +57,13 @@ suspend fun Bot.createReaction(channelId: Snowflake, messageId: Snowflake, emoji
 suspend fun Bot.editChannelPermissions(channelId: Snowflake, overwriteId: Snowflake, editChannelPermissions: EditChannelPermissions) {
     getChannel(channelId).guildId ?: throw IllegalArgumentException("Only usable for guild channels")
 
-    putRequest("/channels/$channelId/permissions/$overwriteId", editChannelPermissions.toJson())
+    putRequest("/channels/$channelId/permissions/$overwriteId",
+            "PUT-editChannelPermissions-$channelId",
+            editChannelPermissions.toJson())
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.addPin(channelId: Snowflake, messageId: Snowflake) {
-    putRequest("/channels/$channelId/pins/$messageId")
+    putRequest("/channels/$channelId/pins/$messageId", "PUT-addPin-$channelId")
 }

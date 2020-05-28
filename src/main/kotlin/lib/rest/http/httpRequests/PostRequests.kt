@@ -20,44 +20,45 @@ import lib.model.channel.Message
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.CreateMessage
+import lib.rest.http.RateLimit
 import lib.rest.model.events.receiveEvents.TypingStart
-import lib.rest.rateLimit
-import lib.rest.updateRateLimitInfo
 import lib.util.fromJson
 import lib.util.j
 import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postRequest(url: String, jsonBody: String = ""): HttpResponse {
-    rateLimit()
+private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = ""): HttpResponse {
+    RateLimit.route(routeKey).limit()
 
     return client.post<HttpResponse>(api + url) {
         authHeaders.forEach { (key, value) ->
             header(key, value)
         }
+        header("X-RateLimit-Precision", "millisecond")
         body = TextContent(jsonBody, Application.Json)
-    }.also(::updateRateLimitInfo)
+    }.also { RateLimit.update(it, routeKey) }
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.postRequest(url: String, json: JsonElement) = postRequest(url, json.toJson())
+private suspend inline fun Bot.postRequest(url: String, routeKey: String, json: JsonElement) = postRequest(url, routeKey, json.toJson())
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postFormDataRequest(url: String, formData: FormBuilder.() -> Unit): HttpResponse {
-    rateLimit()
+private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, formData: FormBuilder.() -> Unit): HttpResponse {
+    RateLimit.route(routeKey).limit()
 
     return client.post<HttpResponse>(api + url) {
         authHeaders.forEach { (key, value) ->
             header(key, value)
         }
+        header("X-RateLimit-Precision", "millisecond")
 
         body = MultiPartFormDataContent(formData {
             formData()
         })
-    }.also(::updateRateLimitInfo)
+    }.also { RateLimit.update(it, routeKey) }
 }
 
 /**
@@ -75,9 +76,9 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
     val url = "/channels/${channel.id}/messages"
 
     val response = if (files == null) {
-        postRequest(url, createMessage.toJson())
+        postRequest(url, "POST-createMessage-${channel.id}", createMessage.toJson())
     } else {
-        postFormDataRequest(url) {
+        postFormDataRequest(url, "POST-createMessage-${channel.id}") {
             if (content.isNotEmpty() || embed != null) {
                 val payload = createMessage.copy(file = null).toJson()
                 append("payload_json", payload)
@@ -109,7 +110,7 @@ suspend fun Bot.bulkDeleteMessages(channelId: Snowflake, messages: Set<Message>)
     if (messages.size < 2) throw IllegalArgumentException("At least 2 messages are needed for bulk deletion")
 
     val array: Array<Message> = messages.take(100).toTypedArray()
-    postRequest("/channels/$channelId/messages/bulk-delete", j { "messages" to array })
+    postRequest("/channels/$channelId/messages/bulk-delete", "POST-bulkDeleteMessages-$channelId", j { "messages" to array })
 }
 
 /**
@@ -123,7 +124,7 @@ suspend fun Bot.bulkDeleteMessages(channelId: Snowflake, messages: Set<Message>)
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.triggerTypingIndicator(channelId: Snowflake) {
-    postRequest("/channels/$channelId/typing")
+    postRequest("/channels/$channelId/typing", "POST-triggerTypingIndicator-$channelId")
 }
 
 /**
@@ -136,6 +137,6 @@ suspend fun Bot.triggerTypingIndicator(channelId: Snowflake) {
 @ExperimentalCoroutinesApi
 suspend fun Bot.createDM(userId: Snowflake): Channel {
     return channels.computeIfAbsent(userId) {
-        postRequest("/users/@me/channels", j { "recipient_id" to "$userId" }).fromJson()
+        postRequest("/users/@me/channels", "POST-createDM", j { "recipient_id" to "$userId" }).fromJson()
     }
 }
