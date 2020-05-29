@@ -77,7 +77,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         if (seenPeople.isNotEmpty()) {
                             addField("You see",
                                     seenPeople
-                                            .filter { debug || it.name != player.name } // must be commented out for testing
+                                            .filter { debug || it.name != player.name }
                                             .joinToString(separator = "\n") {
                                                 val ping = it.user.ping()
                                                 if (ping.isEmpty()) it.name else ping
@@ -110,7 +110,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
                     party = null
 
-                    blockUntil { party != null } // turn listener
+                    blockUntil { party != null } // turn listener // TODO make this just .await
                     channel.states -= State.Avalon.Quest
                     channel.send {
                         title = "${leader.name} has chosen that ${party?.listGrammatically { it.name }} will go on this quest"
@@ -119,13 +119,15 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     players.forEach { it.user.getDM().startTyping() }
                     val approveChar = '✔'
                     val rejectChar = '❌'
-                    val messages: ArrayList<Message> = arrayListOf()
+                    val messages = arrayListOf<Message>()
                     for (player in players) {
                         val msg = player.user.sendDM("React ✔ to vote to approve the quest, or ❌ to reject it\n" +
                                 "The proposed party is ${party?.listGrammatically { it.name }}")
                         messages += msg
-                        msg.react(approveChar)
-                        msg.react(rejectChar)
+                        launch { //todo this should make it faster I think
+                            msg.react(approveChar)
+                            msg.react(rejectChar)
+                        }
                     }
                     println("All players can now vote on the party")
 
@@ -150,8 +152,9 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                 }
                                 for (msg in messages) {
                                     val reactors = msg.reactions(approveChar)
-                                    addField(userPlayerMap[msg.channel.recipients?.first()]?.name
-                                            ?: "Lol it's null", if (reactors.size == 2) "Approved" else "Rejected", inline = true)
+                                    addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
+                                            if (reactors.size == 2) "Approved" else "Rejected",
+                                            inline = true)
                                 }
                             }
                         }
@@ -166,8 +169,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         description = "Now ${party?.listGrammatically { it.name }} will either succeed or fail the quest"
                         for (msg in messages) {
                             val reactors = msg.reactions(approveChar)
-                            addField(name = userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
-                                    value = if (reactors.size == 2) "Approved" else "Rejected",
+                            addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
+                                    if (reactors.size == 2) "Approved" else "Rejected",
                                     inline = true)
                         }
                     }
@@ -176,9 +179,11 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     for (player in party!!) {
                         val msg = player.user.sendDM("React ✔ to succeed the quest" + if (player.role?.loyalty == Evil) ", or ❌ to fail it" else "")
                         messages += msg
-                        msg.react(approveChar)
-                        if (player.role?.loyalty == Evil)
-                            msg.react(rejectChar)
+                        launch {
+                            msg.react(approveChar)
+                            if (player.role?.loyalty == Evil)
+                                msg.react(rejectChar)
+                        }
                     }
                     println("Everyone can now succeed/fail the quest")
 
@@ -230,24 +235,24 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                 }
                                 on(MessageCreate, MessageUpdate, λ = assassinateListener)
 
-                                GlobalScope.launch {
-                                    blockUntil { merlinGuess != null }
-                                    off(MessageCreate, MessageUpdate, λ = assassinateListener)
+//                                launch {
+                                blockUntil { merlinGuess != null }
+                                off(MessageCreate, MessageUpdate, λ = assassinateListener)
 
-                                    if ((merlinGuess!! as AvalonPlayer).role == Merlin) {
-                                        channel.send {
-                                            color = Colors.red
-                                            title = "Correct! ${merlinGuess!!.name} was Merlin! The bad guys win!"
-                                            revealAllRoles()
-                                        }
-                                    } else {
-                                        channel.send {
-                                            color = Colors.blue
-                                            title = "Incorrect! The good guys win!"
-                                            revealAllRoles()
-                                        }
+                                if ((merlinGuess!! as AvalonPlayer).role == Merlin) {
+                                    channel.send {
+                                        color = Colors.red
+                                        title = "Correct! ${merlinGuess!!.name} was Merlin! The bad guys win!"
+                                        revealAllRoles()
+                                    }
+                                } else {
+                                    channel.send {
+                                        color = Colors.blue
+                                        title = "Incorrect! The good guys win!"
+                                        revealAllRoles()
                                     }
                                 }
+//                                }
                             } else {
                                 channel.send {
                                     color = Colors.blue
@@ -255,15 +260,19 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                     players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
                                 }
                             }
+                            break@gameLoop
                         }
-                        evilWins -> channel.send {
-                            color = Colors.red
-                            title = "The bad guys win!"
-                            players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
+                        evilWins -> {
+                            channel.send {
+                                color = Colors.red
+                                title = "The bad guys win!"
+                                players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
+                            }
+                            break@gameLoop
                         }
                     }
 
-                    if (ladyEnabled && roundNum in 2..4 && goodWins < 3 && evilWins < 3) {
+                    if (ladyEnabled && roundNum in 2..4) {
                         channel.states += State.Avalon.Lady
                         channel.send {
                             title = "Now ${ladyOfTheLake!!.name} will use the Lady of the Lake on someone to find their alignment"

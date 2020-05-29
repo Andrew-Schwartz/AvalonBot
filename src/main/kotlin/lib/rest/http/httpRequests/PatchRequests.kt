@@ -1,11 +1,10 @@
 package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
-import io.ktor.client.request.header
-import io.ktor.client.request.patch
 import io.ktor.client.response.HttpResponse
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,10 +14,7 @@ import lib.model.Snowflake
 import lib.model.channel.Channel
 import lib.model.channel.Embed
 import lib.model.channel.Message
-import lib.rest.api
-import lib.rest.client
 import lib.rest.http.ModifyChannelOptions
-import lib.rest.http.RateLimit
 import lib.rest.model.events.receiveEvents.ChannelUpdate
 import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.fromJson
@@ -27,18 +23,8 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.patchRequest(url: String, routeKey: String, jsonBody: String): HttpResponse {
-    RateLimit.route(routeKey).limit()
-
-    return client.patch<HttpResponse>(api + url) {
-        authHeaders.forEach { (k, v) ->
-            header(k, v)
-        }
-        header("X-RateLimit-Precision", "millisecond")
-
-        body = TextContent(jsonBody, ContentType.Application.Json)
-    }.also { RateLimit.update(it, routeKey) }
-}
+private suspend fun Bot.patchRequest(url: String, routeKey: String, jsonBody: String): HttpResponse =
+        request(routeKey, url, HttpMethod.Patch, TextContent(jsonBody, ContentType.Application.Json))
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

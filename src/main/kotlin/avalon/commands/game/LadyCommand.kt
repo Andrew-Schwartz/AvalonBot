@@ -12,7 +12,7 @@ import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
-object LadyCommand : Command(State.Avalon.Game) {
+object LadyCommand : Command(State.Avalon.Lady) {
     override val name: String = "lady"
 
     override val description: String = "Use to see someone's true loyalty"

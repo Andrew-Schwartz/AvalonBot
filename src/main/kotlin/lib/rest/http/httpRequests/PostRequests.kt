@@ -5,22 +5,18 @@ import io.ktor.client.request.forms.FormBuilder
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.append
 import io.ktor.client.request.forms.formData
-import io.ktor.client.request.header
-import io.ktor.client.request.post
 import io.ktor.client.response.HttpResponse
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.ContentType.Application
+import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.Snowflake
 import lib.model.channel.Channel
 import lib.model.channel.Message
-import lib.rest.api
-import lib.rest.client
 import lib.rest.http.CreateMessage
-import lib.rest.http.RateLimit
 import lib.rest.model.events.receiveEvents.TypingStart
 import lib.util.fromJson
 import lib.util.j
@@ -28,17 +24,8 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = ""): HttpResponse {
-    RateLimit.route(routeKey).limit()
-
-    return client.post<HttpResponse>(api + url) {
-        authHeaders.forEach { (key, value) ->
-            header(key, value)
-        }
-        header("X-RateLimit-Precision", "millisecond")
-        body = TextContent(jsonBody, Application.Json)
-    }.also { RateLimit.update(it, routeKey) }
-}
+private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = ""): HttpResponse =
+        request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json))
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -46,20 +33,8 @@ private suspend inline fun Bot.postRequest(url: String, routeKey: String, json: 
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, formData: FormBuilder.() -> Unit): HttpResponse {
-    RateLimit.route(routeKey).limit()
-
-    return client.post<HttpResponse>(api + url) {
-        authHeaders.forEach { (key, value) ->
-            header(key, value)
-        }
-        header("X-RateLimit-Precision", "millisecond")
-
-        body = MultiPartFormDataContent(formData {
-            formData()
-        })
-    }.also { RateLimit.update(it, routeKey) }
-}
+private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, formData: FormBuilder.() -> Unit): HttpResponse =
+        request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }))
 
 /**
  * Post a message to a guild text or DM channel.

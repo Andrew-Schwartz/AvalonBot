@@ -1,8 +1,8 @@
 package lib.rest.http.httpRequests
 
-import io.ktor.client.request.delete
-import io.ktor.client.request.header
 import io.ktor.client.response.HttpResponse
+import io.ktor.client.utils.EmptyContent
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,10 +11,6 @@ import lib.exceptions.RequestException
 import lib.model.Snowflake
 import lib.model.channel.Channel
 import lib.model.channel.Message
-import lib.rest.api
-import lib.rest.client
-import lib.rest.http.RateLimit
-//import lib.rest.http.RateLimit.Companion.update
 import lib.rest.model.events.receiveEvents.ChannelDelete
 import lib.rest.model.events.receiveEvents.ChannelUpdate
 import lib.rest.model.events.receiveEvents.MessageDelete
@@ -22,16 +18,8 @@ import lib.util.fromJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.deleteRequest(url: String, routeKey: String): HttpResponse {
-    RateLimit.route(routeKey).limit()
-
-    return client.delete<HttpResponse>(api + url) {
-        authHeaders.forEach { (k, v) ->
-            header(k, v)
-        }
-        header("X-RateLimit-Precision", "millisecond")
-    }.also { RateLimit.update(it, routeKey) }
-}
+private suspend fun Bot.deleteRequest(url: String, routeKey: String): HttpResponse =
+        request(routeKey, url, HttpMethod.Delete, EmptyContent)
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#deleteclose-channel]

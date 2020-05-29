@@ -1,8 +1,8 @@
 package lib.rest.http.httpRequests
 
-import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.response.HttpResponse
+import io.ktor.client.utils.EmptyContent
+import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -12,10 +12,7 @@ import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.Connection
 import lib.model.user.User
-import lib.rest.api
-import lib.rest.client
 import lib.rest.http.GetChannelMessages
-import lib.rest.http.RateLimit
 import lib.rest.model.BotGateway
 import lib.util.fromJson
 
@@ -24,16 +21,8 @@ import lib.util.fromJson
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.getRequest(url: String, routeKey: String): HttpResponse {
-    RateLimit.route(routeKey).limit()
-
-    return client.get<HttpResponse>(api + url) {
-        authHeaders.forEach { (key, value) ->
-            header(key, value)
-        }
-        header("X-RateLimit-Precision", "millisecond")
-    }.also { RateLimit.update(it, routeKey) }
-}
+private suspend fun Bot.getRequest(url: String, routeKey: String): HttpResponse =
+        request(routeKey, url, HttpMethod.Get, EmptyContent)
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#get-channel]

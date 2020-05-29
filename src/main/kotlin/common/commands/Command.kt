@@ -44,7 +44,6 @@ abstract class Command(val state: State) {
                             command.execute(bot, message, message.args)
                     }
                 }
-
             }
         }
     }
