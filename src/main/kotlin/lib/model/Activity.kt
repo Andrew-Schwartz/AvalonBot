@@ -2,20 +2,38 @@ package lib.model
 
 import com.google.gson.annotations.SerializedName
 
+/**
+ * Bots can only send [name], [url], and [type]
+ */
 data class Activity(
         val name: String,
-        val type: Int, // TODO make an enum
-        val url: String?,
-        val timestamps: Timestamps?,
-        @SerializedName("application_id") val applicationId: Snowflake?,
-        val details: String?,
-        val state: String?,
-        val party: Party,
-        val assets: Assets,
-        val secrets: Secrets,
-        val instance: Boolean,
-        val flags: Int
+        val type: ActivityType,
+        val url: String? = null,
+        @SerializedName("created_at") val createdAt: Int? = null,
+        val timestamps: Timestamps? = null,
+        @SerializedName("application_id") val applicationId: Snowflake? = null,
+        val details: String? = null,
+        val state: String? = null,
+        val party: Party? = null,
+        val assets: Assets? = null,
+        val secrets: Secrets? = null,
+        val instance: Boolean? = null,
+        val flags: Int? = null
 )
+
+enum class ActivityType(val id: Int) {
+    @SerializedName("0")
+    Game(0),
+
+    @SerializedName("1")
+    Streaming(1),
+
+    @SerializedName("2")
+    Listening(2),
+
+    @SerializedName("4")
+    Custom(4)
+}
 
 data class Timestamps(
         val start: Long?,

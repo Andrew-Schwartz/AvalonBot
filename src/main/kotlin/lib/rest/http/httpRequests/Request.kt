@@ -3,7 +3,7 @@ package lib.rest.http.httpRequests
 import common.util.loop
 import io.ktor.client.request.header
 import io.ktor.client.request.request
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
@@ -22,7 +22,6 @@ suspend fun Bot.request(
         body: Any
 ): HttpResponse = loop {
     RateLimit.route(routeKey).limit()
-
     val response = client.request<HttpResponse>(api + endpoint) {
         authHeaders.forEach { (k, v) -> header(k, v) }
         header("X-RateLimit-Precision", "millisecond")

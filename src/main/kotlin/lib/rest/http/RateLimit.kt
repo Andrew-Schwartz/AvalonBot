@@ -1,6 +1,6 @@
 package lib.rest.http
 
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.statement.HttpResponse
 
 data class RateLimit(
         var limit: Int? = null,

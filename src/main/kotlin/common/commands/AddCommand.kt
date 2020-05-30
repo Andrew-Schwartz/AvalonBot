@@ -29,10 +29,10 @@ object AddCommand : Command(State.Setup) {
 
         val setup = Setup[message.channel, gameType]
 
-        if (!debug && message.author in setup)
-            setup.removePlayer(message.author)
+        if (debug || message.author !in setup)
+            setup.addPlayer(message.author)
         else
-            setup.addPlayer(message.author) // todo validate size
+            setup.removePlayer(message.author) // todo validate size
 
         message.reply {
             color = Colors.gold

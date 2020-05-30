@@ -23,13 +23,11 @@ import lib.util.ping
 @ExperimentalCoroutinesApi
 class Bot internal constructor(val token: String) {
     val authHeaders = M["Authorization" to "Bot $token"]
-    private val socket = DiscordWebsocket(this)
+    val websocket = DiscordWebsocket(this)
 
     val pinnedMessages: MutableList<Message> = mutableListOf()
 
     lateinit var user: User
-
-    var sessionId: String? = null
 
     val guilds: Store<Guild> = Store()
     val channels: Store<Channel> = Store()
@@ -135,7 +133,7 @@ class Bot internal constructor(val token: String) {
     }
 
     suspend fun launchSocket() {
-        socket.run()
+        websocket.run()
     }
 
     val Snowflake.user: User

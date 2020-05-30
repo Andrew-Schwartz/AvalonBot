@@ -15,7 +15,7 @@ repositories {
 //    maven(url = "https://gitlab.com/api/v4/projects/10363714/packages/maven")
 }
 
-val ktorVersion = "1.2.1"
+val ktorVersion = "1.3.0"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

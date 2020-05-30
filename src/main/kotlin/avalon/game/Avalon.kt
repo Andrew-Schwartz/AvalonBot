@@ -124,7 +124,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         val msg = player.user.sendDM("React ✔ to vote to approve the quest, or ❌ to reject it\n" +
                                 "The proposed party is ${party?.listGrammatically { it.name }}")
                         messages += msg
-                        launch { //todo this should make it faster I think
+                        launch {
                             msg.react(approveChar)
                             msg.react(rejectChar)
                         }

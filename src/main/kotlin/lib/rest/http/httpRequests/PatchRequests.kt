@@ -1,7 +1,7 @@
 package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.statement.HttpResponse
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod

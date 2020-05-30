@@ -3,8 +3,8 @@ package lib.util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
-import io.ktor.client.response.HttpResponse
-import io.ktor.client.response.readText
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
 
 val gson: Gson = GsonBuilder().run {
     //    serializeNulls()

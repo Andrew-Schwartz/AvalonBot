@@ -12,7 +12,7 @@ data class Connection(
         val revoked: Boolean,
         val integrations: Array<Integration>,
         val verified: Boolean,
-        val friend_sync: Boolean,
+        @SerializedName("friend_sync") val friendSync: Boolean,
         @SerializedName("show_activity") val showActivity: Boolean,
         val visibility: Visibility
 )

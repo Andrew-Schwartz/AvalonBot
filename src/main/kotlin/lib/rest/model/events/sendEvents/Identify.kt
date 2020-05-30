@@ -9,10 +9,12 @@ import lib.rest.model.GatewayOpcode
 data class Identify(
         val token: String,
         val properties: ConnectionProperties,
-        @SerializedName("large_threshold") val largeThreshold: Int = 50,
         val compress: Boolean = false,
+        @SerializedName("large_threshold") val largeThreshold: Int = 50,
         val shard: Array<Int>? = A[0, 1],
-        val presence: GatewayStatus? = null
+        val presence: GatewayStatus? = null,
+        @SerializedName("guild_subscriptions") val guildSubscriptions: Boolean = true,
+        val intents: Int? = null
 ) : SendEvent {
     override val opcode: GatewayOpcode
         get() = GatewayOpcode.Identify

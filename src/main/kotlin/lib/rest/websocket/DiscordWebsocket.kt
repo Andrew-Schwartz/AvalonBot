@@ -2,53 +2,66 @@ package lib.rest.websocket
 
 import common.util.onNull
 import io.ktor.client.features.websocket.wss
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.readText
-import io.ktor.http.cio.websocket.send
+import io.ktor.http.cio.websocket.*
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import lib.dsl.Bot
+import lib.model.Activity
+import lib.model.ActivityType
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
 import lib.rest.model.GatewayPayload
 import lib.rest.model.events.receiveEvents.*
-import lib.rest.model.events.sendEvents.ConnectionProperties
-import lib.rest.model.events.sendEvents.Heartbeat
-import lib.rest.model.events.sendEvents.Identify
-import lib.rest.model.events.sendEvents.SendEvent
+import lib.rest.model.events.sendEvents.*
 import lib.util.fromJson
 import lib.util.toJson
 import lib.util.toJsonTree
-import kotlin.system.exitProcess
+import java.time.Instant
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class DiscordWebsocket(val bot: Bot) {
-    lateinit var sendWebsocket: suspend (String) -> Unit
+    private lateinit var sendWebsocket: suspend (String) -> Unit
+    lateinit var close: suspend (CloseReason.Codes, message: String) -> Unit
 
     private var heartbeatJob: Job? = null
     private var sequenceNumber: Int? = null
+    var sessionId: String? = null
+
+    private var lastAck: Instant? = null
+    private var lastHeartbeat: Instant? = null
 
     suspend fun run(): Nothing {
-        client.wss(host = bot.gateway(), port = 443) {
-            sendWebsocket = { send(it) }
+        while (true) {
+            println("Starting websocket")
+            client.wss(host = bot.gateway(), port = 443) {
+                sendWebsocket = { send(it) }
+                close = { code, message -> close(CloseReason(code, message)) }
 
-            launch {
-                println("closed because ${this@wss.closeReason.await()}")
+                launch {
+                    println("closed because ${closeReason.await()}")
+                }
+
+                if (sessionId != null) {
+                    val resume = Resume(bot.token, sessionId!!, sequenceNumber!!)
+                    println("Resuming: $resume")
+                    sendGatewayEvent(resume)
+                }
+
+                eventLoop@ while (!incoming.isClosedForReceive) {
+                    val message = incoming.receive() as Frame.Text
+
+                    runCatching { receive(message.readText().fromJson()) }
+                            .onFailure { it.printStackTrace() }
+                }
+                close(CloseReason(CloseReason.Codes.GOING_AWAY, "Incoming is closed"))
             }
-
-            eventLoop@ while (!incoming.isClosedForReceive) {
-                val message = incoming.receive() as Frame.Text
-
-                runCatching { receive(message.readText().fromJson()) }
-                        .onFailure { it.printStackTrace() }
-            }
-            println("done with while")
         }
 
-        client.close()
-        exitProcess(1)
+//        run()
+//        client.close()
+//        exitProcess(1)
     }
 
     private suspend fun receive(payload: GatewayPayload): Unit = when (payload.opcode) {
@@ -58,9 +71,11 @@ class DiscordWebsocket(val bot: Bot) {
         GatewayOpcode.Dispatch -> {
             processDispatch(payload)
         }
-        GatewayOpcode.Heartbeat, GatewayOpcode.HeartbeatAck -> {
-//            println("received heartbeat: $payload")
-            // nothing to do on heartbeat
+        GatewayOpcode.Heartbeat -> {
+            println("recv: Heartbeat")
+        }
+        GatewayOpcode.HeartbeatAck -> {
+            lastAck = Instant.now()
         }
         GatewayOpcode.Reconnect -> {
             println(payload)
@@ -93,11 +108,12 @@ class DiscordWebsocket(val bot: Bot) {
         when (event) {
             Ready -> Ready.withJson(data) {
                 bot.user = user
-                bot.sessionId = sessionId
+                this@DiscordWebsocket.sessionId = sessionId
 
                 Ready.actions.forEach { it() }
             }
             Resumed -> Resumed.withJson(data) {
+                println(this)
                 TODO("implement action on resume")
             }
             InvalidSession -> InvalidSession.withJson(data) {
@@ -217,20 +233,35 @@ class DiscordWebsocket(val bot: Bot) {
     }
 
     private suspend fun initializeConnection(payload: GatewayPayload) {
-        sendGateway(Identify(bot.token, ConnectionProperties()))
+        val identify = Identify(
+                bot.token,
+                ConnectionProperties(),
+                presence = GatewayStatus(
+                        null,
+                        Activity("Playin Avalon", ActivityType.Custom),
+                        Status.Online,
+                        false
+                ))
+        sendGatewayEvent(identify)
+        val delayTime = payload.eventData!!.asJsonObject["heartbeat_interval"].asLong
 
         heartbeatJob?.cancel()
         heartbeatJob = CoroutineScope(Dispatchers.Default).launch {
             while (isActive) {
                 sequenceNumber?.let {
-                    sendGateway(Heartbeat(it))
-                    delay(payload.eventData!!.asJsonObject["heartbeat_interval"].asLong)
+                    if (lastHeartbeat?.isAfter(lastAck ?: Instant.MIN) == true) {
+                        println("ACK not recent enough, closing websocket")
+                        close(CloseReason.Codes.SERVICE_RESTART, "No Heartbeat ACK, reconnecting")
+                    }
+                    sendGatewayEvent(Heartbeat(it))
+                    lastHeartbeat = Instant.now()
+                    delay(delayTime)
                 }
             }
         }
     }
 
-    private suspend fun sendGateway(payload: SendEvent) {
+    private suspend fun sendGatewayEvent(payload: SendEvent) {
         val message = GatewayPayload(payload.opcode.code, payload.toJsonTree(), sequenceNumber)
         sendWebsocket(message.toJson())
     }

@@ -2,6 +2,7 @@ package common.commands
 
 import common.commands.State.All
 import common.steadfast
+import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -30,6 +31,7 @@ object ExitCommand : Command(All) {
                 timestamp()
             }
             println(logOff)
+            websocket.close(CloseReason.Codes.GOING_AWAY, "Exit Command")
             exitProcess(1)
         } else {
             message.reply("Only Andrew is that cool")

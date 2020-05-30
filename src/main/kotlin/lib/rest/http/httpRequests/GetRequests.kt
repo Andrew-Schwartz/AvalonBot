@@ -1,6 +1,6 @@
 package lib.rest.http.httpRequests
 
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.utils.EmptyContent
 import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
