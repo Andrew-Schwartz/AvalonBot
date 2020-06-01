@@ -6,10 +6,10 @@ import common.commands.State
 import common.game.Game
 import common.game.GameType
 import common.game.name
-import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
+import lib.model.Color
 import lib.model.channel.Message
 import lib.util.ping
 import lib.util.underline
@@ -31,9 +31,9 @@ object InfoCommand : Command(State.Avalon.Game) {
         message.reply {
             title = "Avalon Info".underline()
             color = when {
-                state.goodWins > state.evilWins -> Colors.blue
-                state.goodWins > state.evilWins -> Colors.gold
-                else -> Colors.red
+                state.goodWins > state.evilWins -> Color.blue
+                state.goodWins > state.evilWins -> Color.gold
+                else -> Color.red
             }
 
 //          description = "Here's where there would be an edited pic of the Avalon board if I was cool"

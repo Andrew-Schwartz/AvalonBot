@@ -5,7 +5,6 @@ package lib.rest.model.events.receiveEvents
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 import common.util.A
-import common.util.Action
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -29,20 +28,25 @@ import lib.util.fromJson
  * @param P type of the payload attached with this event
  */
 sealed class DispatchEvent<P> {
-    val actions: ArrayList<Action<P>> = ArrayList()
+    val actions: ArrayList<suspend P.() -> Unit> = ArrayList()
+
+//    fun fromJson(payload: JsonElement): P = gson.fromJson(payload, object : TypeToken<P>() {}.type)
 }
 
 /**
  * inline extension, not member function, because `P` needs to be reified for `fromJson`
  */
 @Suppress("unused", "NonAsciiCharacters")
-inline fun <reified P> DispatchEvent<P>.withJson(payload: JsonElement, λ: P.() -> Unit) = with(payload.fromJson(), λ)
+inline fun <reified P : Any> DispatchEvent<P>.withJson(payload: JsonElement, λ: P.() -> Unit) = with(payload.fromJson(), λ)
 
-suspend inline fun <reified P> DispatchEvent<P>.runAllActions(payload: JsonElement) {
-    for (action: Action<P> in actions) {
-        payload.fromJson<P>().action()
-    }
-}
+//fun <P : Any> DispatchEvent<P>.fromJson(payload: JsonElement): P = gson.fromJson(payload, object : TypeToken<P>() {}.type)
+
+//suspend inline fun <reified P : Any> DispatchEvent<P>.runAllActions(payload: JsonElement) {
+//    val p = payload.fromJson(P::class)
+//    for (action in actions) {
+//        payload.fromJson(this::class)
+//    }
+//}
 
 object Ready : DispatchEvent<ReadyPayload>()
 

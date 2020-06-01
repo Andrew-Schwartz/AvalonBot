@@ -13,8 +13,6 @@ import common.commands.states
 import common.commands.subStates
 import common.game.*
 import common.util.A
-import common.util.Colors
-import common.util.Colors.gold
 import common.util.listGrammatically
 import common.util.map
 import io.ktor.util.KtorExperimentalAPI
@@ -25,6 +23,8 @@ import lib.dsl.RichEmbed
 import lib.dsl.blockUntil
 import lib.dsl.off
 import lib.dsl.on
+import lib.model.Color
+import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 import lib.rest.model.events.receiveEvents.MessageCreate
@@ -140,7 +140,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         rejectedQuests++
                         if (rejectedQuests == 5) {
                             channel.send {
-                                color = Colors.red
+                                color = Color.red
                                 title = "There have been 5 rejected parties in a row so the bad guys win"
                             }
                             break@gameLoop
@@ -198,7 +198,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     if (fails >= round.fails) {
                         evilWins++
                         channel.send {
-                            color = Colors.red
+                            color = Color.red
                             title = "There " + if (fails == 1) "was 1 fail" else "were $fails fails"
                             description = "Reminder: ${party?.listGrammatically { it.name }} were on this quest"
                         }.apply {
@@ -208,7 +208,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     } else {
                         goodWins++
                         channel.send {
-                            color = Colors.blue
+                            color = Color.blue
                             title = if (fails == 0) "All $successes were successes" else "There was $fails fail, but ${round.fails} are required this round"
                             description = "Reminder: ${party?.listGrammatically { it.name }} were on this quest"
                         }.apply {
@@ -241,13 +241,13 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 
                                 if ((merlinGuess!! as AvalonPlayer).role == Merlin) {
                                     channel.send {
-                                        color = Colors.red
+                                        color = Color.red
                                         title = "Correct! ${merlinGuess!!.name} was Merlin! The bad guys win!"
                                         revealAllRoles()
                                     }
                                 } else {
                                     channel.send {
-                                        color = Colors.blue
+                                        color = Color.blue
                                         title = "Incorrect! The good guys win!"
                                         revealAllRoles()
                                     }
@@ -255,7 +255,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 //                                }
                             } else {
                                 channel.send {
-                                    color = Colors.blue
+                                    color = Color.blue
                                     title = "The good guys win!"
                                     players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
                                 }
@@ -264,7 +264,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         }
                         evilWins -> {
                             channel.send {
-                                color = Colors.red
+                                color = Color.red
                                 title = "The bad guys win!"
                                 players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
                             }
@@ -304,7 +304,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             channel.send {
                 title = "Ending game"
                 description = message
-                color = Colors.red
+                color = Color.red
             }
         }
         cleanup()

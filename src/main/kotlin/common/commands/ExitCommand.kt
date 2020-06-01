@@ -31,7 +31,7 @@ object ExitCommand : Command(All) {
                 timestamp()
             }
             println(logOff)
-            websocket.close(CloseReason.Codes.GOING_AWAY, "Exit Command")
+            websocket.close(CloseReason.Codes.NORMAL, "Exiting")
             exitProcess(1)
         } else {
             message.reply("Only Andrew is that cool")

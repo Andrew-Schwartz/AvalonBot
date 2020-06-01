@@ -1,15 +1,15 @@
 package kittens.cards
 
 import common.bot
-import common.util.MessageListener
 import common.util.cards
 import common.util.contains
-import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
+import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.blockUntil
 import lib.dsl.off
 import lib.dsl.on
+import lib.model.channel.Message
 import lib.model.user.User
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.util.ping
@@ -26,7 +26,7 @@ class Favor(id: Int) : Card(id) {
             // block until they @ someone in same channel
             var target: User? = null
 
-            val getTarget: MessageListener = {
+            val getTarget: suspend Message.() -> Unit = {
                 bot.run {
                     if (author != state.currentPlayer.user) return@run
                     if (channel != this@play.channel) return@run
@@ -42,7 +42,7 @@ class Favor(id: Int) : Card(id) {
             target!!.sendDM("Name a card in your hand to give up")
 
             var card: Card? = null
-            val getCard: MessageListener = {
+            val getCard: suspend Message.() -> Unit = {
                 bot.run {
                     if (channel != target!!.getDM()) return@run
 

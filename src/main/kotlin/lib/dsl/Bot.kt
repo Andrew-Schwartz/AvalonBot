@@ -161,7 +161,7 @@ class Bot internal constructor(val token: String) {
 
     suspend fun RateLimit.limit() {
         if (remaining == 0) {
-            println("rate limited for $resetAfter seconds")
+            println("rate limited for $resetAfter seconds in bucket $bucket")
             delay(((resetAfter ?: 0.0) * 1000.0).toLong())
         }
     }

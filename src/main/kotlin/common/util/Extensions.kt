@@ -1,7 +1,7 @@
 package common.util
 
-import kittens.cards.Card
 import io.ktor.util.KtorExperimentalAPI
+import kittens.cards.Card
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.reflect.KClass
 
@@ -28,6 +28,7 @@ fun String.replaceCamelCase(with: String, makeLowerCase: Boolean = false): Strin
     else "${if (makeLowerCase) it.toLowerCase() else it}"
 }.joinToString(separator = "")
 
+// TODO non suspending version
 suspend fun <T> T?.onNull(λ: suspend () -> Unit): T? {
     if (this == null) λ()
     return this

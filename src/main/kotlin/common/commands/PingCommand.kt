@@ -1,11 +1,11 @@
 package common.commands
 
 import common.commands.State.All
-import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.dsl.embed
+import lib.model.Color
 import lib.model.channel.Message
 import kotlin.system.measureTimeMillis
 
@@ -21,7 +21,7 @@ object PingCommand : Command(All) {
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         val embed = embed {
             title = "Pong!"
-            color = Colors.gold
+            color = Color.gold
         }
         var msg: Message? = null
         val time = measureTimeMillis {

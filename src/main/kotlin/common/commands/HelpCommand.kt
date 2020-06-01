@@ -2,12 +2,12 @@ package common.commands
 
 import common.steadfast
 import common.util.A
-import common.util.Colors
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.dsl.RichEmbed
 import lib.dsl.embed
+import lib.model.Color
 import lib.model.channel.Message
 import lib.util.bold
 import lib.util.inlineCode
@@ -27,7 +27,7 @@ object HelpCommand : Command(State.All) {
         val allCommandsEmbed: suspend () -> RichEmbed = {
             embed {
                 title = "List of commands".underline()
-                color = Colors.gold
+                color = Color.gold
                 commandSet.filter { debug || it.state in message.channel.states }
                         .filter { debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand] }
                         .sortedWith(StateComparator)
@@ -54,7 +54,7 @@ object HelpCommand : Command(State.All) {
 
 suspend fun Command.helpEmbed(): RichEmbed = embed {
     title = "About $name".underline()
-    color = Colors.gold
+    color = Color.gold
     addField("Description", this@helpEmbed.description, false)
     addField("Usage", "!${usage}".inlineCode())
 }

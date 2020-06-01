@@ -2,11 +2,11 @@ package common.commands
 
 import common.game.GameType
 import common.game.Setup
-import common.util.Colors
 import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
+import lib.model.Color
 import lib.model.channel.Message
 import lib.util.inlineCode
 import lib.util.pingReal
@@ -35,7 +35,7 @@ object AddCommand : Command(State.Setup) {
             setup.removePlayer(message.author) // todo validate size
 
         message.reply {
-            color = Colors.gold
+            color = Color.gold
             val playersList = setup.players
                     .joinToString(separator = "\n") { it.user.pingReal() }
                     .takeIf { it.isNotEmpty() }

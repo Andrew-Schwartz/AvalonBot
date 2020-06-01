@@ -2,7 +2,6 @@ package avalon.characters
 
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
-import common.util.Colors
 import common.util.S
 import lib.model.Color
 import java.io.File
@@ -42,7 +41,7 @@ abstract class Character {
 
     val Loyalty.color: Color
         get() = when (this) {
-            Good -> Colors.blue
-            Evil -> Colors.red
+            Good -> Color.blue
+            Evil -> Color.red
         }
 }

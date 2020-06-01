@@ -4,11 +4,11 @@ import common.commands.State.All
 import common.game.GameType
 import common.game.Setup
 import common.game.name
-import common.util.Colors
 import common.util.replaceCamelCase
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
+import lib.model.Color
 import lib.model.channel.Message
 
 object PlayersCommand : Command(All) {
@@ -32,10 +32,10 @@ object PlayersCommand : Command(All) {
                 val (game, players) = players.entries.first()
                 title = "Players in " + game.name.replaceCamelCase(" ")
                 description = players.joinToString(separator = "\n") { it.name }
-                color = Colors.gold
+                color = Color.gold
             }
             else -> message.reply {
-                color = Colors.gold
+                color = Color.gold
                 title = "Players"
                 players.forEach { (game, players) ->
                     addField(
