@@ -3,6 +3,8 @@ package common.util
 import io.ktor.util.KtorExperimentalAPI
 import kittens.cards.Card
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 
 operator fun String.get(range: IntRange): String = substring(range)
@@ -58,3 +60,5 @@ operator fun <T : Card> List<T>.contains(cardClass: KClass<out T>): Boolean =
 fun <T> List<T>.getOrDefault(index: Int, default: T)
         : T =
         if (index in 0..lastIndex) get(index) else default
+
+fun now(): String = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("dd HH:mm:ss"))

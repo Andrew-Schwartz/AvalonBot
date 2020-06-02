@@ -1,6 +1,7 @@
 package lib.rest.http.httpRequests
 
 import common.util.loop
+import common.util.now
 import io.ktor.client.request.header
 import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
@@ -30,7 +31,7 @@ suspend fun Bot.request(
     }
     RateLimit.update(response, routeKey)
     if (response.status == HttpStatusCode.TooManyRequests) {
-        println("429 on '$endpoint'. Retrying...")
+        println("[${now()}] 429 on '$endpoint'. Retrying...")
         null
     } else {
         response

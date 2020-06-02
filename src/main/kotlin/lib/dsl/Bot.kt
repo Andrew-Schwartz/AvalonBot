@@ -49,7 +49,7 @@ class Bot internal constructor(val token: String) {
     suspend fun Message.edit(
             content: String? = null,
             embed: RichEmbed? = null,
-            pingTargets: Array<User> = emptyArray(), //
+            pingTargets: Array<User> = emptyArray(),
             builder: (suspend RichEmbed.() -> Unit)? = null
     ): Message {
         if (author != user) throw PermissionException("Can only edit messages you have sent")

@@ -2,6 +2,7 @@ package common
 
 import common.commands.Command
 import common.util.A
+import common.util.now
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -14,10 +15,7 @@ import lib.model.channel.Channel
 import lib.model.user.User
 import lib.rest.http.httpRequests.getChannel
 import lib.rest.http.httpRequests.getUser
-import lib.rest.model.events.receiveEvents.MessageCreate
-import lib.rest.model.events.receiveEvents.MessageUpdate
-import lib.rest.model.events.receiveEvents.Ready
-import lib.rest.model.events.receiveEvents.Resumed
+import lib.rest.model.events.receiveEvents.*
 import lib.util.fromJson
 
 lateinit var steadfast: User
@@ -42,7 +40,7 @@ fun main() = runBlocking {
         kts = getChannel(ktsId)
 
         on(Ready) {
-            println("Ready!")
+            println("[${now()}] Ready!")
             kts.send {
                 title = this@bot.user.username + " is logged on!!"
                 color = gold
@@ -52,7 +50,7 @@ fun main() = runBlocking {
         }
 
         on(Resumed) {
-            println("resumed: $this")
+            println("[${now()}] resumed: $this")
             kts.send {
                 title = this@bot.user.username + " has resumed!"
                 color = gold
@@ -63,5 +61,10 @@ fun main() = runBlocking {
         command(prefix, events = *A[MessageCreate, MessageUpdate]) {
             Command.run(this, prefix)
         }
+
+//        command(prefix, events = *A[])
+
+        // Adds necessary intent
+        MessageReactionAdd
     }
 }

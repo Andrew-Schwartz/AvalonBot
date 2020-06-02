@@ -34,8 +34,8 @@ data class Message(
 ) : Storable<Message> {
     override val prevVersions: MutableList<Message> = mutableListOf()
 
-//    override val mostRecent: Message?
-//        get() = prevVersions.lastOrNull()
+    override val mostRecent: Message?
+        get() = prevVersions.lastOrNull()
 
     val mentionRoles: List<Snowflake> by lazy { _mentionRoles.map(::Snowflake) }
 

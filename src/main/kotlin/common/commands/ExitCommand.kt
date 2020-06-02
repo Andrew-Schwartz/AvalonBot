@@ -2,6 +2,7 @@ package common.commands
 
 import common.commands.State.All
 import common.steadfast
+import common.util.now
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +31,7 @@ object ExitCommand : Command(All) {
                 title = logOff
                 timestamp()
             }
-            println(logOff)
+            println("[${now()}] $logOff")
             websocket.close(CloseReason.Codes.NORMAL, "Exiting")
             exitProcess(1)
         } else {

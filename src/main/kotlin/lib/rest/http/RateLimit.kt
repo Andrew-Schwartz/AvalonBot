@@ -1,6 +1,8 @@
 package lib.rest.http
 
+import common.util.now
 import io.ktor.client.statement.HttpResponse
+import java.time.OffsetDateTime
 
 data class RateLimit(
         var limit: Int? = null,
@@ -22,7 +24,8 @@ data class RateLimit(
                 it.resetAfter = this["X-RateLimit-Reset-After"]?.toDouble() ?: it.resetAfter
                 it.bucket = bucket
             }
-            println("$routeKey -> $bucket -> ${buckets[bucket]!!}")
+            OffsetDateTime.now()
+            println("[${now()}] $routeKey -> $bucket -> ${buckets[bucket]!!}")
         }
 
         fun route(routeKey: String): RateLimit {

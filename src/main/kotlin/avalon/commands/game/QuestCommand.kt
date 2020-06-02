@@ -3,6 +3,7 @@ package avalon.commands.game
 import avalon.game.Avalon
 import common.commands.Command
 import common.commands.State
+import common.commands.debug
 import common.game.Game
 import common.game.GameType
 import io.ktor.util.KtorExperimentalAPI
@@ -28,7 +29,7 @@ object QuestCommand : Command(State.Avalon.Quest) {
 
             val questers = mentions
                     .mapNotNull { state.userPlayerMap[it] }
-//                    .filterNot { it.user == author }
+                    .filter { debug || it.user != author }
                     .toSet()
 
             if (questers.size != round.players) {
