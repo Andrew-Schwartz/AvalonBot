@@ -60,7 +60,7 @@ enum class GameType {
         override val commandState: State = State.Kittens.Game
 
         override suspend fun startGame(message: Message) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            TODO("not implemented")
         }
     };
 

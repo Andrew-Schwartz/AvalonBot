@@ -10,7 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.dsl.Bot
-import lib.dsl.blockUntil
+import lib.dsl.suspendUntil
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 
@@ -67,7 +67,7 @@ object StartCommand : Command(State.Setup) {
                     botMsg.react(rejectChar)
 
                     GlobalScope.launch {
-                        blockUntil {
+                        suspendUntil {
                             val (approves, rejects) = botMsg.reactions(approveChar, rejectChar)
                             when {
                                 setup.players.all { it.user in approves } -> true

@@ -2,11 +2,11 @@ package kittens.cards
 
 import common.bot
 import common.game.name
-import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
+import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.blockUntil
 import lib.dsl.embed
+import lib.dsl.suspendUntil
 import lib.util.bold
 
 @ExperimentalCoroutinesApi
@@ -44,9 +44,9 @@ class ExplodingKitten(id: Int) : Card(id) {
                 var bottom = true
                 var num = 0
 
-                blockUntil {
+                suspendUntil {
                     val message = player.user.getDM().lastMessage
-                    if (message.author != player.user) return@blockUntil false
+                    if (message.author != player.user) return@suspendUntil false
                     message.content.trim()
                             .toIntOrNull()
                             ?.let {

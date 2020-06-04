@@ -211,14 +211,24 @@ object MessageDeleteBulk : DispatchEvent<MessageDeleteBulkPayload>() {
     }
 }
 
-// TODO use these to listen for reactions not a blocking loop
-object MessageReactionAdd : DispatchEvent<MessageReactionUpdatePayload>() {
+/**
+ * Either [MessageReactionAdd] or [MessageReactionRemove]
+ *
+ * Not actually sent by Discord
+ */
+object MessageReactionUpdate : DispatchEvent<MessageReactionUpdatePayload>() {
     init {
         intents += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
     }
 }
 
-object MessageReactionRemove : DispatchEvent<MessageReactionUpdatePayload>() {
+object MessageReactionAdd : DispatchEvent<MessageReactionAddPayload>() {
+    init {
+        intents += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
+    }
+}
+
+object MessageReactionRemove : DispatchEvent<MessageReactionRemovePayload>() {
     init {
         intents += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
     }
@@ -327,7 +337,30 @@ data class GuildEmojisPayload(
         val emojis: Array<Emoji>
 )
 
+/**
+ * Never (de)serialized
+ */
 data class MessageReactionUpdatePayload(
+        val userId: Snowflake,
+        val messageId: Snowflake,
+        val channelId: Snowflake,
+        val guildId: Snowflake?,
+        val emoji: Emoji,
+        val type: Type
+) {
+    enum class Type { Add, Remove }
+}
+
+data class MessageReactionAddPayload(
+        @SerializedName("user_id") val userId: Snowflake,
+        @SerializedName("message_id") val messageId: Snowflake,
+        @SerializedName("channel_id") val channelId: Snowflake,
+        @SerializedName("guild_id") val guildId: Snowflake?,
+        val member: GuildMember?,
+        val emoji: Emoji
+)
+
+data class MessageReactionRemovePayload(
         @SerializedName("user_id") val userId: Snowflake,
         @SerializedName("message_id") val messageId: Snowflake,
         @SerializedName("channel_id") val channelId: Snowflake,

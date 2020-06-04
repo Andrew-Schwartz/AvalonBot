@@ -62,7 +62,6 @@ fun main() = runBlocking {
             Command.run(this, prefix)
         }
 
-//        command(prefix, events = *A[])
 
         // Adds necessary intent
         MessageReactionAdd

@@ -6,9 +6,9 @@ import common.util.contains
 import io.ktor.util.KtorExperimentalAPI
 import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.blockUntil
 import lib.dsl.off
 import lib.dsl.on
+import lib.dsl.suspendUntil
 import lib.model.channel.Message
 import lib.model.user.User
 import lib.rest.model.events.receiveEvents.MessageCreate
@@ -35,7 +35,7 @@ class Favor(id: Int) : Card(id) {
                 }
             }
             on(MessageCreate, λ = getTarget)
-            blockUntil { target != null }
+            suspendUntil { target != null }
             off(MessageCreate, λ = getTarget)
 
             // that player chooses one of their cards (secretly)
@@ -54,7 +54,7 @@ class Favor(id: Int) : Card(id) {
                 }
             }
             on(MessageCreate, λ = getCard)
-            blockUntil { card != null }
+            suspendUntil { card != null }
             off(MessageCreate, λ = getCard)
 
             // give first player that card and take it from second player

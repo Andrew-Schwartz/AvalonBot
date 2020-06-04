@@ -7,14 +7,17 @@ import io.ktor.http.cio.websocket.*
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import lib.dsl.Bot
-import lib.dsl.on
+import lib.exceptions.InvalidSessionException
 import lib.model.Activity
 import lib.model.ActivityType
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
+import lib.rest.model.GatewayOpcode.Dispatch
 import lib.rest.model.GatewayPayload
 import lib.rest.model.events.receiveEvents.*
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Remove
 import lib.rest.model.events.receiveEvents.PresenceUpdate
 import lib.rest.model.events.sendEvents.*
 import lib.util.fromJson
@@ -29,12 +32,13 @@ class DiscordWebsocket(val bot: Bot) {
     lateinit var close: suspend (CloseReason.Codes, message: String) -> Unit
 
     private var heartbeatJob: Job? = null
-    var sequenceNumber: Int? = null; private set
-    var sessionId: String? = null; private set
+    private var sequenceNumber: Int? = null
+    private var sessionId: String? = null
     private var authed = false
 
     private var lastAck: Instant? = null
     private var lastHeartbeat: Instant? = null
+    private var strikes: Int = 0
 
     suspend fun run(): Nothing {
         defaultListeners()
@@ -42,21 +46,26 @@ class DiscordWebsocket(val bot: Bot) {
             println("[${now()}] Starting websocket")
             runCatching {
                 client.wss(host = bot.gateway(), port = 443) {
+                    // set up 'callback's to interact with ws from other functions
                     sendWebsocket = { send(it) }
                     close = { code, message ->
                         lastAck = null
                         lastHeartbeat = null
+                        strikes = 0
                         close(CloseReason(code, message))
                     }
 
-                    launch {
-                        println("[${now()}] closed because ${closeReason.await()}")
-                    }
-
+                    // Resume on reconnect
                     if (sessionId != null) {
                         val resume = Resume(bot.token, sessionId!!, sequenceNumber!!)
-                        println("[${now()}] Resuming: $resume")
+                        println("[${now()}] Sending Resume...")
                         sendGatewayEvent(resume)
+                    }
+
+                    // diagnostic
+                    launch {
+                        val closeReason = closeReason.await()
+                        println("[${now()}] closed because $closeReason")
                     }
 
                     eventLoop@ while (!incoming.isClosedForReceive) {
@@ -67,33 +76,40 @@ class DiscordWebsocket(val bot: Bot) {
                     }
                     close(CloseReason.Codes.GOING_AWAY, "Incoming is closed")
                 }
-            }
-                    .onFailure { println("[${now()}] caught $it") }
+            }.onFailure { println("[${now()}] caught $it") }
         }
     }
 
-    private suspend fun receive(payload: GatewayPayload) = when (payload.opcode) {
-        GatewayOpcode.Hello -> {
-            initializeConnection(payload)
-        }
-        GatewayOpcode.Dispatch -> {
-            processDispatch(payload)
-        }
-        GatewayOpcode.Heartbeat -> {
-            println("recv: Heartbeat")
-        }
-        GatewayOpcode.HeartbeatAck -> {
-            lastAck = Instant.now()
-        }
-        GatewayOpcode.Reconnect -> {
-            println("[${now()}] recv: Reconnect")
-        }
-        GatewayOpcode.InvalidSession -> {
-            println("[${now()}] recv Invalid Session: $payload")
-//            TODO("implement InvalidSession")
-        }
-        else -> {
-            println("should not receive ${payload.opcode}, it's content was ${payload.eventData}")
+    private suspend fun receive(payload: GatewayPayload) {
+        when (payload.opcode) {
+            GatewayOpcode.Hello -> {
+                initializeConnection(payload)
+            }
+            Dispatch -> {
+                processDispatch(payload)
+            }
+            GatewayOpcode.Heartbeat -> {
+                println("recv: Heartbeat")
+            }
+            GatewayOpcode.HeartbeatAck -> {
+                lastAck = Instant.now()
+            }
+            GatewayOpcode.Reconnect -> {
+                println("[${now()}] recv: Reconnect")
+            }
+            GatewayOpcode.InvalidSession -> {
+                println("[${now()}] recv Invalid Session: $payload")
+                val resumable = payload.eventData!!.asBoolean
+                if (!resumable) {
+                    authed = false
+                    sequenceNumber = null
+                    sessionId = null
+                    throw InvalidSessionException("Non Resumable session")
+                }
+            }
+            else -> {
+                println("should not receive ${payload.opcode}, it's content was ${payload.eventData}")
+            }
         }
     }
 
@@ -126,12 +142,7 @@ class DiscordWebsocket(val bot: Bot) {
             }
             Resumed -> Resumed.withJson(payload) {
                 Resumed.actions.forEach { it() }
-//                TODO("implement action on resume")
             }
-//            InvalidSession -> InvalidSession.withJson(payload) {
-//                println("received event invalid session: $this")
-//                TODO("probably reconnect if you can on invalid session")
-//            }
             ChannelCreate -> ChannelCreate.withJson(payload) {
                 bot.channels.add(this).run {
                     ChannelCreate.actions.forEach { it() }
@@ -213,29 +224,35 @@ class DiscordWebsocket(val bot: Bot) {
             }
             MessageDelete -> MessageDelete.withJson(payload) {
                 MessageDelete.actions.forEach { it() }
-//                bot.messages -= getC
             }
             MessageDeleteBulk -> MessageDeleteBulk.withJson(payload) {
                 MessageDeleteBulk.actions.forEach { it() }
             }
             MessageReactionAdd -> MessageReactionAdd.withJson(payload) {
                 MessageReactionAdd.actions.forEach { it() }
+                MessageReactionUpdate.actions.forEach {
+                    with(MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Add)) {
+                        it()
+                    }
+                }
             }
             MessageReactionRemove -> MessageReactionRemove.withJson(payload) {
                 MessageReactionRemove.actions.forEach { it() }
+                MessageReactionUpdate.actions.forEach {
+                    with(MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Remove)) {
+                        it()
+                    }
+                }
             }
             MessageReactionRemoveAll -> MessageReactionRemoveAll.withJson(payload) {
                 MessageReactionRemoveAll.actions.forEach { it() }
             }
             MessageReactionRemoveEmoji -> MessageReactionRemoveEmoji.withJson(payload) {
-                lib.rest.model.events.receiveEvents.MessageReactionRemoveEmoji.actions.forEach { it() }
+                MessageReactionRemoveEmoji.actions.forEach { it() }
             }
             PresenceUpdate -> PresenceUpdate.withJson(payload) {
                 PresenceUpdate.actions.forEach { it() }
             }
-//            PresencesReplace -> PresencesReplace.withJson(payload) {
-//                PresencesReplace.actions.forEach { it() }
-//            }
             TypingStart -> TypingStart.withJson(payload) {
                 TypingStart.actions.forEach { it() }
             }
@@ -251,6 +268,7 @@ class DiscordWebsocket(val bot: Bot) {
             WebhookUpdate -> WebhookUpdate.withJson(payload) {
                 WebhookUpdate.actions.forEach { it() }
             }
+            MessageReactionUpdate -> throw IllegalStateException("Message Reaction Update isn't real")
         }
     }
 
@@ -277,7 +295,10 @@ class DiscordWebsocket(val bot: Bot) {
             while (isActive) {
                 sequenceNumber?.let {
                     if (lastHeartbeat != null && lastAck != null && lastHeartbeat!!.isAfter(lastAck!!)) {
-                        close(CloseReason.Codes.SERVICE_RESTART, "ACK not recent enough, closing websocket")
+                        strikes++
+                        println("[${now()}] ACK Strike $strikes")
+                        if (strikes >= 3)
+                            close(CloseReason.Codes.SERVICE_RESTART, "ACK not recent enough, closing websocket")
                     }
                     sendGatewayEvent(Heartbeat(it))
                     lastHeartbeat = Instant.now()
@@ -288,7 +309,7 @@ class DiscordWebsocket(val bot: Bot) {
     }
 
     private suspend fun sendGatewayEvent(payload: SendEvent) {
-        val message = GatewayPayload(payload.opcode.code, payload.toJsonTree()/*, sequenceNumber*/)
+        val message = GatewayPayload(payload.opcode.code, payload.toJsonTree())
         sendWebsocket(message.toJson())
     }
 
@@ -296,9 +317,6 @@ class DiscordWebsocket(val bot: Bot) {
         Ready.actions.add(0) {
             bot.user = this.user
             this@DiscordWebsocket.sessionId = sessionId
-        }
-        bot.on(Resumed) {
-            println("[${now()}] received event resume: $this")
         }
     }
 }

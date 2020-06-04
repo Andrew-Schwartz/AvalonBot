@@ -126,7 +126,6 @@ suspend fun Bot.getUserConnection(): Array<Connection> = getRequest("/users/@me/
 @ExperimentalCoroutinesApi
 suspend fun Bot.getGuild(id: Snowflake): Guild = guilds.computeIfAbsent(id) { getRequest("/guilds/$id", "GET-getGuild-$id").fromJson() }
 
-// todo check these https://discord.com/developers/docs/topics/gateway#session-start-limit-object
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.gateway(): String = getRequest("/gateway/bot", "GET-gateway").fromJson<BotGateway>().url.removePrefix("wss://")

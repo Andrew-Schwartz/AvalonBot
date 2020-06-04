@@ -4,7 +4,6 @@ import common.util.A
 import common.util.M
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import lib.exceptions.PermissionException
 import lib.model.Snowflake
@@ -13,7 +12,6 @@ import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
 import lib.rest.http.CreateMessage
-import lib.rest.http.RateLimit
 import lib.rest.http.httpRequests.*
 import lib.rest.websocket.DiscordWebsocket
 import lib.util.Store
@@ -158,13 +156,6 @@ class Bot internal constructor(val token: String) {
 
     val Channel.guild: Guild?
         get() = runBlocking { getGuild(guildId ?: return@runBlocking null) }
-
-    suspend fun RateLimit.limit() {
-        if (remaining == 0) {
-            println("rate limited for $resetAfter seconds in bucket $bucket")
-            delay(((resetAfter ?: 0.0) * 1000.0).toLong())
-        }
-    }
 }
 
 @Suppress("NonAsciiCharacters")

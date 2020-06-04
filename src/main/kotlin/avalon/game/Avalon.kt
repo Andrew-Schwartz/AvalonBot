@@ -20,18 +20,24 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.dsl.RichEmbed
-import lib.dsl.blockUntil
 import lib.dsl.off
 import lib.dsl.on
+import lib.dsl.suspendUntil
 import lib.model.Color
 import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
+import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.events.receiveEvents.MessageCreate
+import lib.rest.model.events.receiveEvents.MessageReactionUpdate
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Remove
 import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.inlineCode
 import lib.util.ping
 import lib.util.underline
+import kotlin.math.absoluteValue
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -110,7 +116,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
                     party = null
 
-                    blockUntil { party != null } // turn listener // TODO make this just .await
+                    suspendUntil { party != null } // turn listener
                     channel.states -= State.Avalon.Quest
                     channel.send {
                         title = "${leader.name} has chosen that ${party?.listGrammatically { it.name }} will go on this quest"
@@ -119,22 +125,42 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     players.forEach { it.user.getDM().startTyping() }
                     val approveChar = '✔'
                     val rejectChar = '❌'
-                    val messages = arrayListOf<Message>()
+//                    val messages = arrayListOf<Message>()
+                    val reacts = mutableMapOf<Message, Int>() // -1 = reject, +1 = approve
                     for (player in players) {
                         val msg = player.user.sendDM("React ✔ to vote to approve the quest, or ❌ to reject it\n" +
                                 "The proposed party is ${party?.listGrammatically { it.name }}")
-                        messages += msg
+//                        messages += msg
+                        reacts[msg] = 0
                         launch {
                             msg.react(approveChar)
                             msg.react(rejectChar)
                         }
                     }
+                    val reactListener: suspend MessageReactionUpdatePayload.() -> Unit = {
+                        val msg = getMessage(channelId, messageId)
+                        if (user.isBot == false && msg in reacts.keys) {
+                            val delta = when (emoji.name[0]) {
+                                approveChar -> 1
+                                rejectChar -> -1
+                                else -> 0
+                            } * when (type) {
+                                Add -> 1
+                                Remove -> -1
+                            }
+                            reacts[msg] = reacts[msg]!! + delta
+                        }
+                    }
+                    on(MessageReactionUpdate, λ = reactListener)
                     println("All players can now vote on the party")
 
-                    blockUntil {
-                        messages.all { (it.reactions(approveChar).size == 2) xor (it.reactions(rejectChar).size == 2) }
+                    suspendUntil(50) {
+//                        messages.all { (it.reactions(approveChar).size == 2) xor (it.reactions(rejectChar).size == 2) }
+                        reacts.values.all { it.absoluteValue == 1 }
                     }
-                    val (approve, reject) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
+                    off(MessageReactionUpdate, λ = reactListener)
+//                    val (approve, reject) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
+                    val (approve, reject) = reacts.values.partition { it == 1 }.map { it.size }
                     if (reject >= approve) {
                         leaderNum++
                         rejectedQuests++
@@ -150,7 +176,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                     1 -> "There is now 1 reject"
                                     else -> "There are now $rejectedQuests rejects in a row"
                                 }
-                                for (msg in messages) {
+                                for (msg in reacts.keys) {
                                     val reactors = msg.reactions(approveChar)
                                     addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
                                             if (reactors.size == 2) "Approved" else "Rejected",
@@ -167,33 +193,37 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         color = gold
                         title = "The party has been accepted!"
                         description = "Now ${party?.listGrammatically { it.name }} will either succeed or fail the quest"
-                        for (msg in messages) {
+                        for (msg in reacts.keys) {
                             val reactors = msg.reactions(approveChar)
                             addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
                                     if (reactors.size == 2) "Approved" else "Rejected",
                                     inline = true)
                         }
                     }
-                    messages.clear()
+                    reacts.clear()
                     party!!.forEach { it.user.getDM().startTyping() }
                     for (player in party!!) {
                         val msg = player.user.sendDM("React ✔ to succeed the quest" + if (player.role?.loyalty == Evil) ", or ❌ to fail it" else "")
-                        messages += msg
+//                        messages += msg
+                        reacts[msg] = 0
                         launch {
                             msg.react(approveChar)
                             if (player.role?.loyalty == Evil)
                                 msg.react(rejectChar)
                         }
                     }
+                    on(MessageReactionUpdate, λ = reactListener)
                     println("Everyone can now succeed/fail the quest")
 
 
-                    blockUntil {
-                        messages.all { msg ->
-                            msg.reactions(approveChar).size == 2 || msg.reactions(rejectChar).size == 2
-                        }
+                    suspendUntil(50) {
+//                        messages.all { msg ->
+//                            msg.reactions(approveChar).size == 2 || msg.reactions(rejectChar).size == 2
+//                        }
+                        reacts.values.all { it.absoluteValue == 1 }
                     }
-                    val (successes: Int, fails: Int) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
+                    off(MessageReactionUpdate, λ = reactListener)
+                    val (successes, fails) = reacts.values.partition { it == 1 }.map { it.size }
 
                     if (fails >= round.fails) {
                         evilWins++
@@ -236,7 +266,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                 on(MessageCreate, MessageUpdate, λ = assassinateListener)
 
 //                                launch {
-                                blockUntil { merlinGuess != null }
+                                suspendUntil { merlinGuess != null }
                                 off(MessageCreate, MessageUpdate, λ = assassinateListener)
 
                                 if ((merlinGuess!! as AvalonPlayer).role == Merlin) {
@@ -278,7 +308,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                             title = "Now ${ladyOfTheLake!!.name} will use the Lady of the Lake on someone to find their alignment"
                             description = "use ${"!lady".inlineCode()} and a player's name/username"
                         }
-                        blockUntil { ladyTarget != null }
+                        suspendUntil { ladyTarget != null }
                         channel.states -= State.Avalon.Lady
 
                         ladyOfTheLake!!.user.sendDM {

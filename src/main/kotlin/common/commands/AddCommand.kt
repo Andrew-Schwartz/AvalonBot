@@ -32,7 +32,7 @@ object AddCommand : Command(State.Setup) {
         if (debug || message.author !in setup)
             setup.addPlayer(message.author)
         else
-            setup.removePlayer(message.author) // todo validate size
+            setup.removePlayer(message.author) // todo validate size ??? why did I write this what does it mean
 
         message.reply {
             color = Color.gold
@@ -40,7 +40,7 @@ object AddCommand : Command(State.Setup) {
                     .joinToString(separator = "\n") { it.user.pingReal() }
                     .takeIf { it.isNotEmpty() }
                     ?: "None"
-            addField("Current Players".underline(), playersList)
+            addField("$gameType Current Players".underline(), playersList)
         }
     }
 }

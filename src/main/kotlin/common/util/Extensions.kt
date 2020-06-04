@@ -3,8 +3,11 @@ package common.util
 import io.ktor.util.KtorExperimentalAPI
 import kittens.cards.Card
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.time.Duration
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.pow
 import kotlin.reflect.KClass
 
 operator fun String.get(range: IntRange): String = substring(range)
@@ -30,7 +33,6 @@ fun String.replaceCamelCase(with: String, makeLowerCase: Boolean = false): Strin
     else "${if (makeLowerCase) it.toLowerCase() else it}"
 }.joinToString(separator = "")
 
-// TODO non suspending version
 suspend fun <T> T?.onNull(λ: suspend () -> Unit): T? {
     if (this == null) λ()
     return this
@@ -62,3 +64,9 @@ fun <T> List<T>.getOrDefault(index: Int, default: T)
         if (index in 0..lastIndex) get(index) else default
 
 fun now(): String = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("dd HH:mm:ss"))
+
+fun Instant.durationSince(start: Instant): Duration = Duration.between(start, this)
+
+fun Instant.elapsed(): Duration = durationSince(Instant.now())
+
+fun Int.pow(n: Int): Int = toDouble().pow(n).toInt()
