@@ -108,7 +108,7 @@ class DiscordWebsocket(val bot: Bot) {
                 }
             }
             else -> {
-                println("should not receive ${payload.opcode}, it's content was ${payload.eventData}")
+                println("[${now()}] should not receive ${payload.opcode}, it's content was ${payload.eventData}")
             }
         }
     }

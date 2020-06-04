@@ -24,6 +24,13 @@ data class RateLimit(
         }
     }
 
+    override fun toString(): String {
+        val duration = reset?.durationSince(Instant.now())
+                ?.takeIf { !it.isNegative }
+                ?.let { it.seconds + it.nano / 10.0.pow(9) }
+        return "RateLimit(limit=$limit, remaining=$remaining, reset=$duration, bucket=$bucket)"
+    }
+
     companion object {
         private const val GLOBAL = "GLOBAL"
         private val routeBucketMap: MutableMap<String, String> = mutableMapOf()
