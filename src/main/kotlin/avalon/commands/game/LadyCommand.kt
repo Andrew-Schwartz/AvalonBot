@@ -27,12 +27,10 @@ object LadyCommand : Command(State.Avalon.Lady) {
         with(message) {
             if (author != state.ladyOfTheLake?.user) return@with
 
-            val name = content.substringAfter(' ')
-
-            when (val potentialTarget = state.game.playerByName(name)) {
-                null -> reply("No user found for the name $name")
+            when (val potentialTarget = message.mentions.firstOrNull()?.let { state.userPlayerMap[it] }) {
+                null -> reply("No user given")
                 state.ladyOfTheLake -> reply("You can't use the Lady of the Lake to determine your own loyalty")
-                in state.pastLadies -> reply("$name has already had the Lady of the Lake")
+                in state.pastLadies -> reply("${potentialTarget.user.username} has already had the Lady of the Lake")
                 else -> state.ladyTarget = potentialTarget
             }
         }

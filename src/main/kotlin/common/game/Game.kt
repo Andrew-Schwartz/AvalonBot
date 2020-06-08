@@ -23,9 +23,7 @@ abstract class Game(val type: GameType, setup: Setup) {
             runCatching {
                 game.started = true
                 game.channel.states += game.type.commandState
-                if (GameType.values().map { it.commandState }.all { it in game.channel.states }) {
-                    game.channel.states -= State.Setup
-                }
+                game.channel.states -= State.Setup
                 game.startGame()
             }.onFailure { e ->
                 println("Error in game ${game.type.name} in channel ${game.channel.name}")

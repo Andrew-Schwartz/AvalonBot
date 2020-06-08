@@ -13,7 +13,6 @@ import lib.model.ActivityType
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
-import lib.rest.model.GatewayOpcode.Dispatch
 import lib.rest.model.GatewayPayload
 import lib.rest.model.events.receiveEvents.*
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
@@ -48,12 +47,7 @@ class DiscordWebsocket(val bot: Bot) {
                 client.wss(host = bot.gateway(), port = 443) {
                     // set up 'callback's to interact with ws from other functions
                     sendWebsocket = { send(it) }
-                    close = { code, message ->
-                        lastAck = null
-                        lastHeartbeat = null
-                        strikes = 0
-                        close(CloseReason(code, message))
-                    }
+                    close = { code, message -> close(CloseReason(code, message)) }
 
                     // Resume on reconnect
                     if (sessionId != null) {
@@ -76,7 +70,12 @@ class DiscordWebsocket(val bot: Bot) {
                     }
                     close(CloseReason.Codes.GOING_AWAY, "Incoming is closed")
                 }
-            }.onFailure { println("[${now()}] caught $it") }
+            }.onFailure {
+                lastAck = null
+                lastHeartbeat = null
+                strikes = 0
+                println("[${now()}] caught $it")
+            }
         }
     }
 
@@ -85,7 +84,7 @@ class DiscordWebsocket(val bot: Bot) {
             GatewayOpcode.Hello -> {
                 initializeConnection(payload)
             }
-            Dispatch -> {
+            GatewayOpcode.Dispatch -> {
                 processDispatch(payload)
             }
             GatewayOpcode.Heartbeat -> {
@@ -96,7 +95,9 @@ class DiscordWebsocket(val bot: Bot) {
             }
             GatewayOpcode.Reconnect -> {
                 println("[${now()}] recv: Reconnect")
+                close(CloseReason.Codes.SERVICE_RESTART, "Reconnect requested by Discord")
             }
+            // TODO fix reconnecting after this happens
             GatewayOpcode.InvalidSession -> {
                 println("[${now()}] recv Invalid Session: $payload")
                 val resumable = payload.eventData!!.asBoolean
@@ -285,6 +286,7 @@ class DiscordWebsocket(val bot: Bot) {
                     ),
                     intents = DispatchEvent.intents.bits
             )
+            println("[${now()}] send: $identify")
             sendGatewayEvent(identify)
             authed = true
         }
@@ -317,6 +319,7 @@ class DiscordWebsocket(val bot: Bot) {
         Ready.actions.add(0) {
             bot.user = this.user
             this@DiscordWebsocket.sessionId = sessionId
+            bot.logInTime = Instant.now()
         }
     }
 }

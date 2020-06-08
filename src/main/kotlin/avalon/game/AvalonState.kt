@@ -22,7 +22,7 @@ class AvalonState(val game: Avalon, setup: Setup) {
 
     lateinit var rounds: Rounds; internal set
     var numEvil = 0
-    var ladyEnabled = false
+    var ladyEnabled = (setup.config as AvalonConfig).ladyEnabled
 
     internal var party: Set<AvalonPlayer>? = null
     internal var ladyTarget: AvalonPlayer? = null

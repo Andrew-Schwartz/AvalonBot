@@ -62,7 +62,6 @@ fun main() = runBlocking {
             Command.run(this, prefix)
         }
 
-
         // Adds necessary intent
         MessageReactionAdd
     }

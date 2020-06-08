@@ -46,7 +46,6 @@ enum class GameType {
                             avalon.state.numEvil = maxEvil
                             Game.startGame(avalon)
                         }
-                        message // exists to make ide not be angry
                     }
                     else -> message.reply("Error starting Avalon game")
                 }

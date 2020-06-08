@@ -6,6 +6,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
+// TODO map by channel
 var debug = false
 
 object DebugCommand : Command(State.All) {

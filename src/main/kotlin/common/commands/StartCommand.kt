@@ -14,7 +14,8 @@ import lib.dsl.suspendUntil
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 
-object StartCommand : Command(State.Setup) {
+// State.All so that `!start over` works
+object StartCommand : Command(State.All) {
     private const val START_NOW = "now"
     private const val START_OVER = "over"
 

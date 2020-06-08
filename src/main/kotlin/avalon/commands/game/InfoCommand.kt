@@ -38,10 +38,10 @@ object InfoCommand : Command(State.Avalon.Game) {
 
 //          description = "Here's where there would be an edited pic of the Avalon board if I was cool"
             description = "Order of leaders\n".underline() + state.players.joinToString(separator = "\n") { it.name }
-            addField("Number of Good Victories".underline(), "$state.goodWins", true)
-            addField("Number of Evil Victories".underline(), "$state.evilWins", true)
-            addField("Current Leader".underline(), state.players[state.rounds[state.roundNum].players].user.ping(), true)
-            addField("Round Number".underline(), "$state.roundNum", true)
+            addField("Number of Good Victories".underline(), "${state.goodWins}", true)
+            addField("Number of Evil Victories".underline(), "${state.evilWins}", true)
+            addField("Current Leader".underline(), state.leader.user.ping(), true)
+            addField("Round Number".underline(), "${state.roundNum}", true)
         }
     }
 }

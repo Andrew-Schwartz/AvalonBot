@@ -13,6 +13,7 @@ data class RateLimit(
         var reset: Instant? = null,
         var bucket: String? = null
 ) {
+    // todo optional channel to put TypingIndicator so it doesn't look like it died
     suspend fun limit() {
         reset?.let { reset ->
             val duration = reset.durationSince(Instant.now())

@@ -1,5 +1,6 @@
 package avalon.characters
 
+import avalon.characters.Character.Loyalty
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
 import common.util.S
@@ -38,10 +39,10 @@ abstract class Character {
 
         abstract val image: File
     }
-
-    val Loyalty.color: Color
-        get() = when (this) {
-            Good -> Color.blue
-            Evil -> Color.red
-        }
 }
+
+val Loyalty.color: Color
+    get() = when (this) {
+        Good -> Color.blue
+        Evil -> Color.red
+    }

@@ -21,6 +21,7 @@ object LadyToggleCommand : Command(State.Setup) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         val config = Setup[message.channel, GameType.Avalon].config as AvalonConfig
+
         when {
             args.isEmpty() -> config.ladyEnabled = !config.ladyEnabled
             args[0].equals("disabled", true) -> config.ladyEnabled = false

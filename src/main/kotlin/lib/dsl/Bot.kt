@@ -13,15 +13,18 @@ import lib.model.guild.Guild
 import lib.model.user.User
 import lib.rest.http.CreateMessage
 import lib.rest.http.httpRequests.*
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import lib.rest.websocket.DiscordWebsocket
 import lib.util.Store
 import lib.util.ping
+import java.time.Instant
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class Bot internal constructor(val token: String) {
     val authHeaders = M["Authorization" to "Bot $token"]
     val websocket = DiscordWebsocket(this)
+    var logInTime: Instant? = null
 
     val pinnedMessages: MutableList<Message> = mutableListOf()
 
@@ -156,6 +159,9 @@ class Bot internal constructor(val token: String) {
 
     val Channel.guild: Guild?
         get() = runBlocking { getGuild(guildId ?: return@runBlocking null) }
+
+    val MessageReactionUpdatePayload.user: User
+        get() = runBlocking { getUser(userId) }
 }
 
 @Suppress("NonAsciiCharacters")

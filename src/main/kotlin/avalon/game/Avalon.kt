@@ -1,11 +1,8 @@
 package avalon.game
 
-import avalon.characters.Assassin
+import avalon.characters.*
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
-import avalon.characters.LoyalServant
-import avalon.characters.Merlin
-import avalon.characters.MinionOfMordred
 import common.bot
 import common.commands.State
 import common.commands.debug
@@ -46,6 +43,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 
     override suspend fun startGame(): Unit = bot.run {
         with(state) {
+            channel.states -= State.Setup
             rounds = Rounds(players.size)
             val numGood = players.size - state.numEvil
             val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
@@ -139,7 +137,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
                     val reactListener: suspend MessageReactionUpdatePayload.() -> Unit = {
                         val msg = getMessage(channelId, messageId)
-                        if (user.isBot == false && msg in reacts.keys) {
+                        if (user.isBot != true && msg in reacts.keys) {
                             val delta = when (emoji.name[0]) {
                                 approveChar -> 1
                                 rejectChar -> -1
@@ -154,7 +152,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     on(MessageReactionUpdate, λ = reactListener)
                     println("All players can now vote on the party")
 
-                    suspendUntil(50) {
+                    suspendUntil(25) {
 //                        messages.all { (it.reactions(approveChar).size == 2) xor (it.reactions(rejectChar).size == 2) }
                         reacts.values.all { it.absoluteValue == 1 }
                     }
@@ -177,6 +175,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                     else -> "There are now $rejectedQuests rejects in a row"
                                 }
                                 for (msg in reacts.keys) {
+//                                for (msg in messages) {
                                     val reactors = msg.reactions(approveChar)
                                     addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
                                             if (reactors.size == 2) "Approved" else "Rejected",
@@ -193,6 +192,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         color = gold
                         title = "The party has been accepted!"
                         description = "Now ${party?.listGrammatically { it.name }} will either succeed or fail the quest"
+//                        for (msg in messages) {
                         for (msg in reacts.keys) {
                             val reactors = msg.reactions(approveChar)
                             addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
@@ -200,6 +200,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                     inline = true)
                         }
                     }
+//                    messages.clear()
                     reacts.clear()
                     party!!.forEach { it.user.getDM().startTyping() }
                     for (player in party!!) {
@@ -215,8 +216,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     on(MessageReactionUpdate, λ = reactListener)
                     println("Everyone can now succeed/fail the quest")
 
-
-                    suspendUntil(50) {
+                    suspendUntil(25) {
 //                        messages.all { msg ->
 //                            msg.reactions(approveChar).size == 2 || msg.reactions(rejectChar).size == 2
 //                        }
@@ -224,6 +224,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
                     off(MessageReactionUpdate, λ = reactListener)
                     val (successes, fails) = reacts.values.partition { it == 1 }.map { it.size }
+//                    val (successes, fails) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
 
                     if (fails >= round.fails) {
                         evilWins++
@@ -258,9 +259,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                 }
                                 var merlinGuess: Player? = null
                                 val assassinateListener: suspend Message.() -> Unit = {
-                                    if (userPlayerMap[author]?.role == Assassin && content.startsWith("!ass")) {
-                                        val name = args[0]
-                                        merlinGuess = playerByName(name)
+                                    if (userPlayerMap[author]?.role == Assassin && content.startsWith("!ass") && mentions.size == 1) {
+                                        merlinGuess = userPlayerMap[mentions.first()]
                                     }
                                 }
                                 on(MessageCreate, MessageUpdate, λ = assassinateListener)
@@ -353,6 +353,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 
     private suspend fun cleanup() = bot.run {
         channel.states.removeAll(subStates<State.Avalon>())
+        channel.states += State.Setup
         this@Avalon.pinnedMessages.forEach { pin ->
             this@run.pinnedMessages -= pin
             runCatching { deletePin(pin.channelId, pin.id) }
