@@ -14,7 +14,7 @@ object DebugCommand : Command(State.All) {
 
     override val description: String = "Enables debug mode for games. Only Andrew can do this"
 
-    override val usage: String = "debug [true/false]"
+    override val usage: String = "debug [true/false] [channel/dm id]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

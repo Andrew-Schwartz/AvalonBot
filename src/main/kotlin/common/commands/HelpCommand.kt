@@ -17,7 +17,8 @@ object HelpCommand : Command(State.All) {
     override val name: String = "help"
 
     override val description: String = "sends setup help text, or specific help text if given a command name, such" +
-            "as ${"addme".inlineCode()}"
+            "as ${"addme".inlineCode()}. Parameters documented by ${"usage".inlineCode()} are required if surrounded" +
+            "by angle brackets <...> and optional if surrounded by square bracktes [...]"
 
     override val usage: String = "help [command (type)]"
 

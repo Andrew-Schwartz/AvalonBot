@@ -5,16 +5,16 @@ import common.commands.State
 import common.game.Game
 import common.game.GameType
 import common.util.cards
-import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
+import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 import lib.util.inlineCode
 import kotlin.reflect.full.primaryConstructor
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 object CardCommand : Command(State.Kittens.Game) {
     override val name: String = "card"
 

@@ -67,6 +67,6 @@ fun now(): String = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("dd 
 
 fun Instant.durationSince(start: Instant): Duration = Duration.between(start, this)
 
-fun Instant.elapsed(): Duration = durationSince(Instant.now())
+fun Instant.elapsed(): Duration = Instant.now().durationSince(this)
 
 fun Int.pow(n: Int): Int = toDouble().pow(n).toInt()

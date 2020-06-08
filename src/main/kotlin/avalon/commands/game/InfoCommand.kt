@@ -14,8 +14,8 @@ import lib.model.channel.Message
 import lib.util.ping
 import lib.util.underline
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 object InfoCommand : Command(State.Avalon.Game) {
     override val name: String = "info"
 

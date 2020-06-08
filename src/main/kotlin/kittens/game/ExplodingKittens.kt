@@ -7,8 +7,8 @@ import common.game.Setup
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 class ExplodingKittens(setup: Setup) : Game(GameType.ExplodingKittens, setup) {
     val state: KittenState = KittenState(this, setup)
 

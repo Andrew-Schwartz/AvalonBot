@@ -21,8 +21,8 @@ import lib.util.fromJson
 lateinit var steadfast: User
 lateinit var kts: Channel
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 lateinit var bot: Bot
 
 @KtorExperimentalAPI

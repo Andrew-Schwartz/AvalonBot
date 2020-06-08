@@ -4,14 +4,14 @@ import common.commands.Command
 import common.commands.State
 import common.game.Game
 import common.game.GameType
-import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
+import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 object HandCommand : Command(State.Kittens.Game) {
     override val name = "hand"
 

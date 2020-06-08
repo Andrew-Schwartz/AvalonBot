@@ -7,8 +7,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
 import lib.model.channel.Message
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 abstract class Game(val type: GameType, setup: Setup) {
     val channel = setup.channel
     val pinnedMessages: ArrayList<Message> = arrayListOf()

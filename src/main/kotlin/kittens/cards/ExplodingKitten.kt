@@ -9,8 +9,8 @@ import lib.dsl.embed
 import lib.dsl.suspendUntil
 import lib.util.bold
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 class ExplodingKitten(id: Int) : Card(id) {
     override val description: String = "Explodes when drawn unless a ${"Defuse".bold()} card is used"
 

@@ -17,14 +17,14 @@ import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import lib.rest.websocket.DiscordWebsocket
 import lib.util.Store
 import lib.util.ping
-import java.time.Instant
+import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class Bot internal constructor(val token: String) {
     val authHeaders = M["Authorization" to "Bot $token"]
     val websocket = DiscordWebsocket(this)
-    var logInTime: Instant? = null
+    var logInTime: OffsetDateTime? = null
 
     val pinnedMessages: MutableList<Message> = mutableListOf()
 

@@ -1,9 +1,13 @@
 package lib.rest.http
 
+import common.bot
 import common.util.durationSince
 import common.util.now
 import io.ktor.client.statement.HttpResponse
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import lib.model.channel.Channel
 import java.time.Instant
 import kotlin.math.pow
 
@@ -13,13 +17,27 @@ data class RateLimit(
         var reset: Instant? = null,
         var bucket: String? = null
 ) {
-    // todo optional channel to put TypingIndicator so it doesn't look like it died
     suspend fun limit() {
         reset?.let { reset ->
             val duration = reset.durationSince(Instant.now())
             if (remaining == 0 && !duration.isNegative) {
                 val delayTime = duration.seconds + duration.nano / 10.0.pow(9)
                 println("rate limited for $delayTime seconds in bucket $bucket")
+                delay((delayTime * 1000.0).toLong())
+            }
+        }
+    }
+
+    // Duplication rather than optional param so only this method has to be annotated as Experimental
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun limit(typeChannel: Channel) {
+        reset?.let { reset ->
+            val duration = reset.durationSince(Instant.now())
+            if (remaining == 0 && !duration.isNegative) {
+                val delayTime = duration.seconds + duration.nano / 10.0.pow(9)
+                println("rate limited for $delayTime seconds in bucket $bucket")
+                with(bot) { typeChannel.startTyping() }
                 delay((delayTime * 1000.0).toLong())
             }
         }

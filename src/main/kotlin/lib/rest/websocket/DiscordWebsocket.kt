@@ -23,6 +23,7 @@ import lib.util.fromJson
 import lib.util.toJson
 import lib.util.toJsonTree
 import java.time.Instant
+import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -319,7 +320,7 @@ class DiscordWebsocket(val bot: Bot) {
         Ready.actions.add(0) {
             bot.user = this.user
             this@DiscordWebsocket.sessionId = sessionId
-            bot.logInTime = Instant.now()
+            bot.logInTime = OffsetDateTime.now()
         }
     }
 }

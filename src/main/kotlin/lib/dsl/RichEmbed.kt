@@ -75,6 +75,27 @@ data class RichEmbed internal constructor(
         footer = EmbedFooter(text, iconUrl, proxyIconUrl)
     }
 
+    override fun toString(): String {
+        return super.toString() + "fields=$fields"
+    }
+
+    private fun String.trimTo(maxLen: Int, end: String = "..."): String {
+        return when {
+            length > maxLen -> take(maxLen - end.length) + end
+            else -> this
+        }
+    }
+
+    private fun ensureLimits() {
+        val totalChars = (title?.length ?: 0) +
+                (description?.length ?: 0) +
+                (fields.sumBy { it.name.length + it.value.length }) +
+                (footer?.text?.length ?: 0) +
+                (author?.username?.length ?: 0)
+        if (totalChars > 6000)
+            throw EmbedLimitException("Embeds cannot have more than 6000 characters in total")
+    }
+
     fun build(): Embed {
         val author = author?.let {
             EmbedAuthor(
@@ -109,27 +130,6 @@ data class RichEmbed internal constructor(
                 fields = fields?.take(25)?.toTypedArray(),
                 files = files
         )
-    }
-
-    override fun toString(): String {
-        return super.toString() + "fields=$fields"
-    }
-
-    private fun String.trimTo(maxLen: Int, end: String = "..."): String {
-        return when {
-            length > maxLen -> take(maxLen - end.length) + end
-            else -> this
-        }
-    }
-
-    private fun ensureLimits() {
-        val totalChars = (title?.length ?: 0) +
-                (description?.length ?: 0) +
-                (fields.sumBy { it.name.length + it.value.length }) +
-                (footer?.text?.length ?: 0) +
-                (author?.username?.length ?: 0)
-        if (totalChars > 6000)
-            throw EmbedLimitException("Embeds cannot have more than 6000 characters in total")
     }
 
     operator fun invoke(λ: RichEmbed.() -> Unit): RichEmbed = apply { λ() }

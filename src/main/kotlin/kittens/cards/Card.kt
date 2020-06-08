@@ -2,16 +2,16 @@ package kittens.cards
 
 import common.bot
 import common.util.replaceCamelCase
-import kittens.game.ExplodingKittens
 import io.ktor.util.KtorExperimentalAPI
+import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.util.bold
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
-@ExperimentalCoroutinesApi
 @KtorExperimentalAPI
+@ExperimentalCoroutinesApi
 abstract class Card(val id: Int) {
     val name = this::class.simpleName!!.replaceCamelCase(" ", false)
 
