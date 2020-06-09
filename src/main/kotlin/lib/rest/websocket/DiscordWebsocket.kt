@@ -124,7 +124,7 @@ class DiscordWebsocket(val bot: Bot) {
 
         val kClass = DispatchEvent::class.sealedSubclasses
                 .firstOrNull { it.simpleName?.toUpperCase() == name }
-                .onNull { println("No DispatchEvent for $name, data is:\n$payload") }
+                .onNull { println("[${now()}] No DispatchEvent for $name, data is:\n$payload") }
                 ?: return
 
         val event: DispatchEvent<*> = kClass.objectInstance!!

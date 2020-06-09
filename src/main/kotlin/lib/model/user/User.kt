@@ -2,12 +2,13 @@ package lib.model.user
 
 import com.google.gson.annotations.SerializedName
 import common.util.L
-import lib.model.Snowflake
+import lib.model.IntoId
 import lib.model.Storable
+import lib.model.UserId
 import lib.model.guild.GuildMember
 
 data class User(
-        override val id: Snowflake,
+        override val id: UserId,
         val username: String,
         val discriminator: String,
         val avatar: String?,
@@ -19,7 +20,7 @@ data class User(
         @SerializedName("flags") private val _flags: Int?,
         @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
-) : Storable<User> {
+) : Storable<User>, IntoId<UserId> {
     @Suppress("USELESS_ELVIS")
     override fun updateDataFrom(new: User?): User {
         val u = new ?: return this
@@ -45,6 +46,8 @@ data class User(
     override fun equals(other: Any?): Boolean = (other as? User)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
+
+    override fun intoId(): UserId = id
 
     val userFlags: List<UserFlag>
         get() = UserFlag.get(flags = _flags)

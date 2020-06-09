@@ -8,7 +8,7 @@ object Percival : Character() {
 
     override val loyalty: Loyalty = Good
 
-    override val abilitiesDesc: String = "Can see Merlin, but may think that Morgana is Merlin"
+    override val abilitiesDesc: String = "Can see Merlin and Morgana but doesn't know which is which"
 
     override val sees: Set<Character> = S[Merlin, Morgana]
 }

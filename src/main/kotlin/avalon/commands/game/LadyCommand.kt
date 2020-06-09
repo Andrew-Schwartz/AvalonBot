@@ -22,7 +22,7 @@ object LadyCommand : Command(State.Avalon.Lady) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
-        val state = (Game[message.channel, GameType.Avalon] as Avalon).state
+        val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
 
         with(message) {
             if (author != state.ladyOfTheLake?.user) return@with

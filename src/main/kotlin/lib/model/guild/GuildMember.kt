@@ -1,7 +1,8 @@
 package lib.model.guild
 
 import com.google.gson.annotations.SerializedName
-import lib.model.Snowflake
+import lib.model.GuildId
+import lib.model.RoleId
 import lib.model.Timestamp
 import lib.model.user.User
 
@@ -14,9 +15,9 @@ data class GuildMember(
         @SerializedName("premium_since") val premiumSince: Timestamp?,
         val deaf: Boolean,
         val mute: Boolean,
-        @SerializedName("guild_id") val guildId: Snowflake? // for GuildMemberAdd
+        @SerializedName("guild_id") val guildId: GuildId? // for GuildMemberAdd
 ) {
     val username: String = user.username
 
-//    val roles by lazy { _roles.map { Snowflake(it) }.also(::println) }
+    val roles by lazy { _roles.map(::RoleId).also(::println) }
 }

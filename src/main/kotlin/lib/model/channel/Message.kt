@@ -1,18 +1,18 @@
 package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
-import lib.model.Snowflake
-import lib.model.Storable
-import lib.model.Timestamp
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.model.*
+import lib.model.guild.Guild
 import lib.model.guild.GuildMember
-import lib.model.timestamp
 import lib.model.user.User
 
 @Suppress("ArrayInDataClass")
 data class Message(
-        override val id: Snowflake,
-        @SerializedName("channel_id") val channelId: Snowflake,
-        @SerializedName("guild_id") val guildId: Snowflake?,
+        override val id: MessageId,
+        @SerializedName("channel_id") val channelId: ChannelId,
+        @SerializedName("guild_id") val guildId: GuildId?,
         val author: User,
         val member: GuildMember,
         val content: String,
@@ -25,19 +25,29 @@ data class Message(
         val attachments: Array<Attachment>,
         val embeds: Array<Embed>,
         val reactions: Array<Reaction>?,
-        val nonce: Snowflake?,
+        val nonce: String?,
         val pinned: Boolean,
-        @SerializedName("webhook_id") val webhookId: Snowflake?,
+        @SerializedName("webhook_id") val webhookId: WebhookId?,
         val type: MessageType,
         val activity: MessageActivity,
         val application: MessageApplication
-) : Storable<Message> {
+) : Storable<Message>, IntoId<MessageId> {
     override val prevVersions: MutableList<Message> = mutableListOf()
 
     override val mostRecent: Message?
         get() = prevVersions.lastOrNull()
 
-    val mentionRoles: List<Snowflake> by lazy { _mentionRoles.map(::Snowflake) }
+    override fun intoId(): MessageId = id
+
+    val mentionRoles: List<RoleId> by lazy { _mentionRoles.map(::RoleId) }
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun channel(): Channel = channelId.channel()
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun guild(): Guild? = guildId?.guild()
 
     override fun equals(other: Any?): Boolean = (other as? Message)?.id == id
 

@@ -5,6 +5,7 @@ package lib.util
 import lib.model.Snowflake
 import lib.model.Storable
 
+// TODO delete this whole thing??
 class Store<T : Storable<T>> {
     val map: MutableMap<Snowflake, T> = mutableMapOf()
     val size: Int
@@ -40,7 +41,6 @@ class Store<T : Storable<T>> {
 }
 
 inline fun <T : Storable<T>> Store<T>.forEach(action: (T) -> Unit) = map.forEach { action(it.value) }
-
 inline fun <T : Storable<T>> Store<T>.all(predicate: (T) -> Boolean) = map.all { predicate(it.value) }
 inline fun <T : Storable<T>> Store<T>.any(predicate: (T) -> Boolean) = map.any { predicate(it.value) }
 inline fun <T : Storable<T>> Store<T>.none(predicate: (T) -> Boolean) = map.none { predicate(it.value) }

@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package lib.rest.http.httpRequests
 
 import io.ktor.client.statement.HttpResponse
@@ -6,7 +8,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.model.Snowflake
+import lib.model.*
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.guild.Guild
@@ -30,7 +32,8 @@ private suspend fun Bot.getRequest(url: String, routeKey: String): HttpResponse 
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getChannel(id: Snowflake): Channel {
+suspend fun Bot.getChannel(id: IntoId<ChannelId>): Channel {
+    val id = id.intoId()
     return channels.computeIfAbsent(id) { getRequest("/channels/$id", "GET-getChannel-$id").fromJson() }
 }
 
@@ -58,7 +61,9 @@ suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Messa
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake, forceRequest: Boolean = false): Message {
+suspend fun Bot.getMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, forceRequest: Boolean = false): Message {
+    val channelId = channelId.intoId()
+    val messageId = messageId.intoId()
     val url = "/channels/$channelId/messages/$messageId"
     val routeKey = "GET-getMessage-$channelId"
     return if (forceRequest) {
@@ -74,7 +79,9 @@ suspend fun Bot.getMessage(channelId: Snowflake, messageId: Snowflake, forceRequ
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getReactions(channelId: Snowflake, messageId: Snowflake, emoji: Char): Array<User> {
+suspend fun Bot.getReactions(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char): Array<User> {
+    val channelId = channelId.intoId()
+    val messageId = messageId.intoId()
     return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji", "GET-getReactions-$channelId").fromJson()
 }
 
@@ -85,7 +92,8 @@ suspend fun Bot.getReactions(channelId: Snowflake, messageId: Snowflake, emoji: 
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getPins(channelId: Snowflake): Array<Message> {
+suspend fun Bot.getPins(channelId: IntoId<ChannelId>): Array<Message> {
+    val channelId = channelId.intoId()
     return getRequest("/channels/$channelId/pins", "GET-getPins-$channelId").fromJson<Array<Message>>().also {
         for (message in it) {
             messages.add(message)
@@ -99,7 +107,8 @@ suspend fun Bot.getPins(channelId: Snowflake): Array<Message> {
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getUser(id: Snowflake): User {
+suspend fun Bot.getUser(id: IntoId<UserId>): User {
+    val id = id.intoId()
     return users.computeIfAbsent(id) { getRequest("/users/$id", "GET-getUser").fromJson() }
 }
 
@@ -125,12 +134,18 @@ suspend fun Bot.getUserConnection(): Array<Connection> = getRequest("/users/@me/
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getGuild(id: Snowflake): Guild = guilds.computeIfAbsent(id) { getRequest("/guilds/$id", "GET-getGuild-$id").fromJson() }
+suspend fun Bot.getGuild(id: IntoId<GuildId>): Guild {
+    val id = id.intoId()
+    return guilds.computeIfAbsent(id) { getRequest("/guilds/$id", "GET-getGuild-$id").fromJson() }
+}
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getGuildMember(guildId: Snowflake, userId: Snowflake): GuildMember =
-        getRequest("/guilds/$guildId/members/$userId", "GET-getGuildMember-$guildId").fromJson()
+suspend fun Bot.getGuildMember(guildId: IntoId<GuildId>, userId: IntoId<UserId>): GuildMember {
+    val guildId = guildId.intoId()
+    val userId = userId.intoId()
+    return getRequest("/guilds/$guildId/members/$userId", "GET-getGuildMember-$guildId").fromJson()
+}
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

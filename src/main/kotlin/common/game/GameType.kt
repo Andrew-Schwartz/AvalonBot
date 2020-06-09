@@ -28,7 +28,7 @@ enum class GameType {
 
         override suspend fun startGame(message: Message) {
             bot.run {
-                val setup = Setup[message.channel, Avalon]
+                val setup = Setup[message.channel(), Avalon]
                 val roles = (setup.config as AvalonConfig).roles
                 val maxEvil = when (setup.players.size) {
                     in 5..6 -> 2
@@ -43,7 +43,7 @@ enum class GameType {
                     evil > maxEvil -> message.reply("You have too many evil roles: ${roles.filter { it.loyalty == Evil }.listGrammatically()}")
                     evil <= maxEvil -> {
                         GlobalScope.launch {
-                            val avalon = Game[message.channel, Avalon] as avalon.game.Avalon
+                            val avalon = Game[message.channel(), Avalon] as avalon.game.Avalon
                             avalon.state.numEvil = maxEvil
                             Game.startGame(avalon)
                         }

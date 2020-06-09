@@ -20,7 +20,7 @@ object ToggleImplodingCommand : Command(State.Setup) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
-        val config = Setup[message.channel, GameType.ExplodingKittens].config as KittensConfig
+        val config = Setup[message.channel(), GameType.ExplodingKittens].config as KittensConfig
         config.implodingKittens = !config.implodingKittens
         message.reply("Imploding Kittens is now ${if (config.implodingKittens) "en" else "dis"}abled")
     }

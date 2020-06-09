@@ -29,7 +29,7 @@ object HelpCommand : Command(State.All) {
             embed {
                 title = "List of commands".underline()
                 color = Color.gold
-                commandSet.filter { debug || it.state in message.channel.states }
+                commandSet.filter { debug || it.state in message.channel().states }
                         .filter { debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand] }
                         .sortedWith(StateComparator)
                         .forEach {

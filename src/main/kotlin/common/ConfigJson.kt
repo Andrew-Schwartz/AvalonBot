@@ -1,10 +1,11 @@
 package common
 
-import lib.model.Snowflake
+import lib.model.ChannelId
+import lib.model.UserId
 
 data class ConfigJson(
         val token: String,
         val prefix: String,
-        val steadfastId: Snowflake,
-        val ktsId: Snowflake
+        val steadfastId: UserId,
+        val ktsId: ChannelId
 )

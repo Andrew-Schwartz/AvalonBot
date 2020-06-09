@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
@@ -13,7 +15,9 @@ import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.model.Snowflake
+import lib.model.ChannelId
+import lib.model.IntoId
+import lib.model.UserId
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.rest.http.CreateMessage
@@ -25,7 +29,7 @@ import lib.util.toJson
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = "", typingChannel: Channel? = null): HttpResponse =
-        request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json))
+        request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -81,9 +85,10 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.bulkDeleteMessages(channelId: Snowflake, messages: Set<Message>) {
+suspend fun Bot.bulkDeleteMessages(channelId: IntoId<ChannelId>, messages: Set<Message>) {
     if (messages.size < 2) throw IllegalArgumentException("At least 2 messages are needed for bulk deletion")
 
+    val channelId = channelId.intoId()
     val array: Array<Message> = messages.take(100).toTypedArray()
     postRequest("/channels/$channelId/messages/bulk-delete", "POST-bulkDeleteMessages-$channelId", j { "messages" to array })
 }
@@ -98,7 +103,8 @@ suspend fun Bot.bulkDeleteMessages(channelId: Snowflake, messages: Set<Message>)
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.triggerTypingIndicator(channelId: Snowflake) {
+suspend fun Bot.triggerTypingIndicator(channelId: IntoId<ChannelId>) {
+    val channelId = channelId.intoId()
     postRequest("/channels/$channelId/typing", "POST-triggerTypingIndicator-$channelId")
 }
 
@@ -110,7 +116,8 @@ suspend fun Bot.triggerTypingIndicator(channelId: Snowflake) {
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.createDM(userId: Snowflake): Channel {
+suspend fun Bot.createDM(userId: IntoId<UserId>): Channel {
+    val userId = userId.intoId()
     return channels.computeIfAbsent(userId) {
         postRequest("/users/@me/channels", "POST-createDM", j { "recipient_id" to "$userId" }).fromJson()
     }

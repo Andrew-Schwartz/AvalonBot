@@ -33,7 +33,7 @@ object StartCommand : Command(State.All) {
         // exists for the return below to work
         with(message) {
             val gameFromSetups = GameType.values()
-                    .map { it to Setup[message.channel, it] }
+                    .map { it to Setup[message.channel(), it] }
                     .singleOrNull { it.second.players.isNotEmpty() }
                     ?.first
             val gameFromArgs = GameType.getType(args.getOrDefault(0, ""))
@@ -42,14 +42,14 @@ object StartCommand : Command(State.All) {
                     ?: gameFromSetups
                     ?: message.reply(" Specify which game to start", ping = true).let { return@with }
 
-            val setup = Setup[message.channel, gameType]
+            val setup = Setup[message.channel(), gameType]
             when (args.lastOrNull()) {
                 START_OVER -> {
-                    Game.endAndRemove(message.channel, gameType, "Manually restarted")
-                    message.channel.states += State.Setup
-                    Setup.remove(message.channel, gameType)
+                    Game.endAndRemove(message.channel(), gameType, "Manually restarted")
+                    message.channel().states += State.Setup
+                    Setup.remove(message.channel(), gameType)
                     for (pin in pinnedMessages) {
-                        runCatching { deletePin(pin.channelId, pin.id) }
+                        runCatching { deletePin(pin.channelId, pin) }
                                 .onFailure { println(it.message) }
                     }
                 }

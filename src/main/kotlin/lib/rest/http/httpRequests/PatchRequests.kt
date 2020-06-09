@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
@@ -10,7 +12,9 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.exceptions.RequestException
-import lib.model.Snowflake
+import lib.model.ChannelId
+import lib.model.IntoId
+import lib.model.MessageId
 import lib.model.channel.Channel
 import lib.model.channel.Embed
 import lib.model.channel.Message
@@ -39,7 +43,8 @@ private suspend inline fun Bot.patchRequest(url: String, routeKey: String, json:
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.modifyChannel(channelId: Snowflake, modifyInfo: ModifyChannelOptions): Result<Channel> {
+suspend fun Bot.modifyChannel(channelId: IntoId<ChannelId>, modifyInfo: ModifyChannelOptions): Result<Channel> {
+    val channelId = channelId.intoId()
     val response = patchRequest("/channels/$channelId", "PATCH-modifyChannel-$channelId", (modifyInfo forChannel getChannel(channelId)).toJson())
     return when (response.status) {
         HttpStatusCode.BadRequest -> Result.failure(RequestException("400 Bad Request, Invalid parameters"))
@@ -56,7 +61,9 @@ suspend fun Bot.modifyChannel(channelId: Snowflake, modifyInfo: ModifyChannelOpt
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.editMessage(channelId: Snowflake, messageId: Snowflake, content: String? = null, embed: Embed? = null): Message {
+suspend fun Bot.editMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, content: String? = null, embed: Embed? = null): Message {
+    val channelId = channelId.intoId()
+    val messageId = messageId.intoId()
     return patchRequest("/channels/$channelId/messages/$messageId", "PATCH-editMessage-$channelId", j {
         if (content != null)
             "content" to content.take(2000)

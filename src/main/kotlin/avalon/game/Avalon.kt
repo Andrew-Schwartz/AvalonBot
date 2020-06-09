@@ -9,7 +9,10 @@ import common.commands.State.Avalon.Voting
 import common.commands.debug
 import common.commands.states
 import common.commands.subStates
-import common.game.*
+import common.game.Game
+import common.game.GameType
+import common.game.Player
+import common.game.Setup
 import common.util.A
 import common.util.listGrammatically
 import common.util.map
@@ -182,7 +185,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                 for (msg in reacts.keys) {
 //                                for (msg in messages) {
                                     val reactors = msg.reactions(approveChar)
-                                    addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
+                                    addField(userPlayerMap[msg.channel().recipients?.first()]?.name ?: "Lol it's null",
                                             if (reactors.size == 2) "Approved" else "Rejected",
                                             inline = true)
                                 }
@@ -200,7 +203,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 //                        for (msg in messages) {
                         for (msg in reacts.keys) {
                             val reactors = msg.reactions(approveChar)
-                            addField(userPlayerMap[msg.channel.recipients?.first()]?.name ?: "Lol it's null",
+                            addField(userPlayerMap[msg.channel().recipients?.first()]?.name ?: "Lol it's null",
                                     if (reactors.size == 2) "Approved" else "Rejected",
                                     inline = true)
                         }
@@ -366,7 +369,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
         channel.states += State.Setup
         this@Avalon.pinnedMessages.forEach { pin ->
             this@run.pinnedMessages -= pin
-            runCatching { deletePin(pin.channelId, pin.id) }
+            runCatching { deletePin(pin.channelId, pin) }
                     .onFailure { println(it.message) }
         }
     }

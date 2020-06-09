@@ -1,12 +1,11 @@
 package lib.model.user
 
 import com.google.gson.annotations.SerializedName
-import lib.model.Snowflake
 import lib.model.guild.Integration
 
 @Suppress("ArrayInDataClass")
 data class Connection(
-        val id: Snowflake, // TODO maybe should be just string
+        val id: String, // TODO maybe should be just snowflake idk probs not
         val name: String,
         val type: String,
         val revoked: Boolean,

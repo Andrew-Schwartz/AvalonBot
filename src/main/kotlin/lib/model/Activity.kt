@@ -11,7 +11,7 @@ data class Activity(
         val url: String? = null,
         @SerializedName("created_at") val createdAt: Int? = null,
         val timestamps: Timestamps? = null,
-        @SerializedName("application_id") val applicationId: Snowflake? = null,
+        @SerializedName("application_id") val applicationId: ApplicationId? = null,
         val details: String? = null,
         val state: String? = null,
         val party: Party? = null,

@@ -1,9 +1,7 @@
 package lib.model.guild
 
 import com.google.gson.annotations.SerializedName
-import lib.model.Snowflake
-import lib.model.Storable
-import lib.model.Timestamp
+import lib.model.*
 import lib.model.channel.Channel
 import lib.model.emoji.Emoji
 import lib.model.permissions.Role
@@ -11,18 +9,18 @@ import lib.rest.model.events.receiveEvents.PresenceUpdatePayload
 
 @Suppress("ArrayInDataClass")
 data class Guild(
-        override val id: Snowflake,
+        override val id: GuildId,
         val name: String?,
         val icon: String?,
         val splash: String?,
         val owner: Boolean?,
-        @SerializedName("owner_id") val ownerId: Snowflake,
+        @SerializedName("owner_id") val ownerId: UserId,
         val permissions: Int?,
         val region: String,
-        @SerializedName("afk_channel_id") val afkChannelId: Snowflake?,
+        @SerializedName("afk_channel_id") val afkChannelId: ChannelId?,
         @SerializedName("afk_timeout") val afkTimeout: Int,
         @SerializedName("embed_enabled") val embedEnabled: Boolean?,
-        @SerializedName("embed_channel_id") val embedChannelId: Snowflake?,
+        @SerializedName("embed_channel_id") val embedChannelId: ChannelId?,
         @SerializedName("verification_level") val verificationLevel: Int,
         @SerializedName("default_message_notifications") val defaultMessageNotifications: Int,
         @SerializedName("explicit_content_filter") val explicitContentFilter: Int,
@@ -30,10 +28,10 @@ data class Guild(
         val emojis: Array<Emoji>,
         val features: Array<String>,
         @SerializedName("mfa_level") val mfaLevel: Int,
-        @SerializedName("application_id") val applicationId: Snowflake?,
+        @SerializedName("application_id") val applicationId: ApplicationId?,
         @SerializedName("widget_enabled") val widgetEnabled: Boolean?,
-        @SerializedName("widget_channel_id") val widgetChannelId: Snowflake?,
-        @SerializedName("system_channel_id") val systemChannelId: Snowflake?,
+        @SerializedName("widget_channel_id") val widgetChannelId: ChannelId?,
+        @SerializedName("system_channel_id") val systemChannelId: ChannelId?,
         @SerializedName("joined_at") val joinedAt: Timestamp?,
         val large: Boolean?,
         val unavailable: Boolean?,
@@ -49,7 +47,7 @@ data class Guild(
         val banner: String?,
         @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
-) : Storable<Guild> {
+) : Storable<Guild>, IntoId<GuildId> {
     @Suppress("USELESS_ELVIS")
     override fun updateDataFrom(new: Guild?): Guild {
         val g = new ?: return this
@@ -101,4 +99,5 @@ data class Guild(
     override fun equals(other: Any?): Boolean = (other as? Guild)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
+    override fun intoId(): GuildId = this.id
 }

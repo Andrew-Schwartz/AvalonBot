@@ -15,9 +15,9 @@ open class Player(user: User, guild: Guild?) {
         if (user.member != null || guild == null) user
         else runBlocking { user.copy(member = getGuildMember(guild.id, user.id)) }
     }
-}
 
-@KtorExperimentalAPI
-@ExperimentalCoroutinesApi
-val Player.name: String
-    get() = user.member?.nick ?: user.username
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    val name: String
+        get() = user.member?.nick ?: user.username
+}

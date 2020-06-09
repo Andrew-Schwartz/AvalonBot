@@ -3,7 +3,6 @@ package common.commands
 import common.commands.State.All
 import common.game.GameType
 import common.game.Setup
-import common.game.name
 import common.util.replaceCamelCase
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,7 +21,7 @@ object PlayersCommand : Command(All) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         val players = GameType.values()
-                .associate { it to Setup[message.channel, it] }
+                .associate { it to Setup[message.channel(), it] }
                 .mapValues { it.value.players }
                 .filterValues { it.isNotEmpty() }
 

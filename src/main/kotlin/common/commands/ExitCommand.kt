@@ -23,7 +23,7 @@ object ExitCommand : Command(All) {
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         if (message.author == steadfast) {
             for (pin in pinnedMessages) {
-                runCatching { deletePin(pin.channelId, pin.id) }
+                runCatching { deletePin(pin.channelId, pin) }
                         .onFailure { println(it.message) }
             }
             val logOff = "Logging off!"

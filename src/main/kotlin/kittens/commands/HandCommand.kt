@@ -22,7 +22,7 @@ object HandCommand : Command(State.Kittens.Game) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
-        val state = (Game[message.channel, GameType.ExplodingKittens] as ExplodingKittens).state
+        val state = (Game[message.channel(), GameType.ExplodingKittens] as ExplodingKittens).state
         with(state) {
             message.author.sendDM(
                     userPlayerMap[message.author]?.hand

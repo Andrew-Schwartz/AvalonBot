@@ -20,7 +20,7 @@ object QuestCommand : Command(State.Avalon.Quest) {
     override val usage: String = "quest <@player1> <@player2>..."
 
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
-        val state = (Game[message.channel, GameType.Avalon] as Avalon).state
+        val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
 
         with(message) {
             if (author != state.leader.user) return@with

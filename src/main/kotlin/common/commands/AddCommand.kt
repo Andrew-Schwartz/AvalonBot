@@ -27,7 +27,7 @@ object AddCommand : Command(State.Setup) {
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
         val gameType = GameType.getType(args.getOrDefault(0, "")) ?: GameType.Avalon
 
-        val setup = Setup[message.channel, gameType]
+        val setup = Setup[message.channel(), gameType]
 
         if (debug || message.author !in setup)
             setup.addPlayer(message.author)

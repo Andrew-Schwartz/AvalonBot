@@ -35,7 +35,7 @@ abstract class Command(val state: State) {
             val commandName = message.content.removePrefix(prefix).takeWhile { it != ' ' }
             for (command in commandSet.toList()) { // hopefully this fixes the ConcurrentModificationException
                 if (command.name.equals(commandName, ignoreCase = true) &&
-                        (with(bot) { command.state in message.channel.states })
+                        (with(bot) { command.state in message.channel().states })
                 ) {
                     bot.run {
                         if (message.args.getOrNull(0) == "help")

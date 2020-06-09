@@ -20,7 +20,7 @@ object LadyToggleCommand : Command(State.Setup) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        val config = Setup[message.channel, GameType.Avalon].config as AvalonConfig
+        val config = Setup[message.channel(), GameType.Avalon].config as AvalonConfig
 
         when {
             args.isEmpty() -> config.ladyEnabled = !config.ladyEnabled

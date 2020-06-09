@@ -34,7 +34,7 @@ object RolesCommand : Command(State.Setup) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        val setup = Setup[message.channel, GameType.Avalon]
+        val setup = Setup[message.channel(), GameType.Avalon]
         val roles = (setup.config as AvalonConfig).roles
 
         if (CLEAR_ROLES in args) roles.clear()

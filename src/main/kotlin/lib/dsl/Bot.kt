@@ -4,9 +4,7 @@ import common.util.A
 import common.util.M
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import lib.exceptions.PermissionException
-import lib.model.Snowflake
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.guild.Guild
@@ -40,7 +38,7 @@ class Bot internal constructor(val token: String) {
             embed: RichEmbed = RichEmbed(),
             ping: Boolean = false,
             builder: suspend RichEmbed.() -> Unit = {}
-    ): Message = channel.send(
+    ): Message = channel().send(
             content = content,
             embed = embed,
             pingTargets = if (ping) A[author] else emptyArray(),
@@ -73,7 +71,7 @@ class Bot internal constructor(val token: String) {
     }
 
     suspend fun Message.react(emoji: Char) {
-        createReaction(channel.id, id, emoji)
+        createReaction(channel(), id, emoji)
     }
 
     suspend fun Message.reactions(emoji: Char) = getReactions(channelId, id, emoji)
@@ -137,31 +135,12 @@ class Bot internal constructor(val token: String) {
         websocket.run()
     }
 
-    val Snowflake.user: User
-        get() = runBlocking { getUser(this@user) }
-
-    val Message.channel: Channel
-        get() = runBlocking { getChannel(channelId) }
-
-    val Message.guild: Guild?
-        get() = runBlocking {
-            guildId ?: return@runBlocking null
-            getGuild(guildId)
-        }
-
     suspend fun Message.pin() {
         pinnedMessages += this
         addPin(channelId, id)
     }
 
-    val Channel.lastMessage: Message
-        get() = runBlocking { getMessage(id, lastMessageId ?: throw IllegalStateException("Last message was null")) }
-
-    val Channel.guild: Guild?
-        get() = runBlocking { getGuild(guildId ?: return@runBlocking null) }
-
-    val MessageReactionUpdatePayload.user: User
-        get() = runBlocking { getUser(userId) }
+    suspend fun MessageReactionUpdatePayload.user(): User = userId.user()
 }
 
 @Suppress("NonAsciiCharacters")

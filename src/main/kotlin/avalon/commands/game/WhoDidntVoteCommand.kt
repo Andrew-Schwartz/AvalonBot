@@ -5,7 +5,6 @@ import common.commands.Command
 import common.commands.State
 import common.game.Game
 import common.game.GameType
-import common.game.name
 import common.util.listGrammatically
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,11 +21,11 @@ object WhoDidntVoteCommand : Command(State.Avalon.Voting) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
-        val avalon = Game[message.channel, GameType.Avalon] as Avalon
+        val avalon = Game[message.channel(), GameType.Avalon] as Avalon
         val notVoted = avalon.state.players.filter {
             it.user in avalon.state.reacts
                     .filterValues { it == 0 }
-                    .map { (msg, _) -> msg.channel.recipients?.singleOrNull() }
+                    .map { (msg, _) -> msg.channel().recipients?.singleOrNull() }
         }.map { it.name }
         message.reply("${notVoted.listGrammatically()} have not voted")
     }

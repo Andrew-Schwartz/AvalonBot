@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
@@ -7,7 +9,10 @@ import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.model.Snowflake
+import lib.model.ChannelId
+import lib.model.IntoId
+import lib.model.MessageId
+import lib.model.UserRoleId
 import lib.rest.http.EditChannelPermissions
 import lib.util.toJson
 
@@ -30,7 +35,9 @@ private suspend inline fun Bot.putRequest(url: String, routeKey: String, json: J
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.createReaction(channelId: Snowflake, messageId: Snowflake, emoji: Char) {
+suspend fun Bot.createReaction(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char) {
+    val channelId = channelId.intoId()
+    val messageId = messageId.intoId()
     putRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/@me", "PUT-createReaction-$channelId")
 }
 
@@ -41,7 +48,9 @@ suspend fun Bot.createReaction(channelId: Snowflake, messageId: Snowflake, emoji
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.editChannelPermissions(channelId: Snowflake, overwriteId: Snowflake, editChannelPermissions: EditChannelPermissions) {
+suspend fun Bot.editChannelPermissions(channelId: IntoId<ChannelId>, overwriteId: IntoId<UserRoleId>, editChannelPermissions: EditChannelPermissions) {
+    val channelId = channelId.intoId()
+    val overwriteId = overwriteId.intoId()
     getChannel(channelId).guildId ?: throw IllegalArgumentException("Only usable for guild channels")
 
     putRequest("/channels/$channelId/permissions/$overwriteId",
@@ -51,6 +60,8 @@ suspend fun Bot.editChannelPermissions(channelId: Snowflake, overwriteId: Snowfl
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.addPin(channelId: Snowflake, messageId: Snowflake) {
+suspend fun Bot.addPin(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
+    val channelId = channelId.intoId()
+    val messageId = messageId.intoId()
     putRequest("/channels/$channelId/pins/$messageId", "PUT-addPin-$channelId")
 }
