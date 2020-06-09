@@ -3,6 +3,7 @@ package avalon.game
 import common.game.Setup
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.model.channel.Message
 import lib.model.user.User
 
 @KtorExperimentalAPI
@@ -23,6 +24,7 @@ class AvalonState(val game: Avalon, setup: Setup) {
     lateinit var rounds: Rounds; internal set
     var numEvil = 0
     var ladyEnabled = (setup.config as AvalonConfig).ladyEnabled
+    var reacts = mutableMapOf<Message, Int>() // -1 = reject, +1 = approve
 
     internal var party: Set<AvalonPlayer>? = null
     internal var ladyTarget: AvalonPlayer? = null

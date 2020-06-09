@@ -5,6 +5,7 @@ import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
 import common.bot
 import common.commands.State
+import common.commands.State.Avalon.Voting
 import common.commands.debug
 import common.commands.states
 import common.commands.subStates
@@ -124,7 +125,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     val approveChar = '✔'
                     val rejectChar = '❌'
 //                    val messages = arrayListOf<Message>()
-                    val reacts = mutableMapOf<Message, Int>() // -1 = reject, +1 = approve
+//                    val reacts = mutableMapOf<Message, Int>() // -1 = reject, +1 = approve
                     for (player in players) {
                         val msg = player.user.sendDM("React ✔ to vote to approve the quest, or ❌ to reject it\n" +
                                 "The proposed party is ${party?.listGrammatically { it.name }}")
@@ -150,6 +151,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         }
                     }
                     on(MessageReactionUpdate, λ = reactListener)
+                    channel.states += Voting
+                    println("Now Voting")
                     println("All players can now vote on the party")
 
                     suspendUntil(25) {
@@ -157,6 +160,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         reacts.values.all { it.absoluteValue == 1 }
                     }
                     off(MessageReactionUpdate, λ = reactListener)
+                    channel.states -= Voting
+                    println("Now Not Voting")
 //                    val (approve, reject) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
                     val (approve, reject) = reacts.values.partition { it == 1 }.map { it.size }
                     if (reject >= approve) {
@@ -214,6 +219,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         }
                     }
                     on(MessageReactionUpdate, λ = reactListener)
+                    channel.states += Voting
+                    println("Now Voting")
                     println("Everyone can now succeed/fail the quest")
 
                     suspendUntil(25) {
@@ -223,6 +230,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         reacts.values.all { it.absoluteValue == 1 }
                     }
                     off(MessageReactionUpdate, λ = reactListener)
+                    channel.states -= Voting
+                    println("Now Not Voting")
                     val (successes, fails) = reacts.values.partition { it == 1 }.map { it.size }
 //                    val (successes, fails) = messages.partition { it.reactions(approveChar).size == 2 }.map { it.size }
 
@@ -247,6 +256,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                             this@Avalon.pinnedMessages += this
                         }
                     }
+                    reacts.clear()
 
                     when (3) {
                         goodWins -> {
@@ -306,7 +316,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         channel.states += State.Avalon.Lady
                         channel.send {
                             title = "Now ${ladyOfTheLake!!.name} will use the Lady of the Lake on someone to find their alignment"
-                            description = "use ${"!lady".inlineCode()} and a player's name/username"
+                            description = "use ${"!lotl".inlineCode()} and a player's name/username"
                         }
                         suspendUntil { ladyTarget != null }
                         channel.states -= State.Avalon.Lady

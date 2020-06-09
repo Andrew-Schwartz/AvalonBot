@@ -14,13 +14,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.model.channel.Message
+import lib.model.guild.Guild
 import lib.model.user.User
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 enum class GameType {
     Avalon {
-        override fun player(user: User): Player = AvalonPlayer(user)
+        override fun player(user: User, guild: Guild?): Player = AvalonPlayer(user, guild)
         override fun game(setup: Setup): Game = avalon.game.Avalon(setup)
         override val config: GameConfig get() = AvalonConfig()
         override val commandState: State = State.Avalon.Game
@@ -53,7 +54,7 @@ enum class GameType {
         }
     },
     ExplodingKittens {
-        override fun player(user: User): Player = KittenPlayer(user)
+        override fun player(user: User, guild: Guild?): Player = KittenPlayer(user, guild)
         override fun game(setup: Setup): Game = ExplodingKittens(setup)
         override val config: GameConfig get() = KittensConfig()
         override val commandState: State = State.Kittens.Game
@@ -63,7 +64,7 @@ enum class GameType {
         }
     };
 
-    abstract fun player(user: User): Player
+    abstract fun player(user: User, guild: Guild?): Player
     abstract fun game(setup: Setup): Game
     abstract val config: GameConfig
     abstract val commandState: State

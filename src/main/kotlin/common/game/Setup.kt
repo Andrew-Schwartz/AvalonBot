@@ -1,5 +1,6 @@
 package common.game
 
+import common.bot
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
@@ -11,7 +12,7 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
     val players: ArrayList<Player> = arrayListOf()
 
     fun addPlayer(user: User) {
-        players += gameType.player(user)
+        players += gameType.player(user, bot.run { channel.guild })
     }
 
     fun removePlayer(user: User) {

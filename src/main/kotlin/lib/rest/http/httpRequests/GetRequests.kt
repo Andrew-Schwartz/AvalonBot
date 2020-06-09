@@ -10,6 +10,7 @@ import lib.model.Snowflake
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.guild.Guild
+import lib.model.guild.GuildMember
 import lib.model.user.Connection
 import lib.model.user.User
 import lib.rest.http.GetChannelMessages
@@ -125,6 +126,11 @@ suspend fun Bot.getUserConnection(): Array<Connection> = getRequest("/users/@me/
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Bot.getGuild(id: Snowflake): Guild = guilds.computeIfAbsent(id) { getRequest("/guilds/$id", "GET-getGuild-$id").fromJson() }
+
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+suspend fun Bot.getGuildMember(guildId: Snowflake, userId: Snowflake): GuildMember =
+        getRequest("/guilds/$guildId/members/$userId", "GET-getGuildMember-$guildId").fromJson()
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

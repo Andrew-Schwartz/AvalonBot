@@ -24,17 +24,17 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = ""): HttpResponse =
+private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = "", typingChannel: Channel? = null): HttpResponse =
         request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json))
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.postRequest(url: String, routeKey: String, json: JsonElement) = postRequest(url, routeKey, json.toJson())
+private suspend inline fun Bot.postRequest(url: String, routeKey: String, json: JsonElement, typingChannel: Channel? = null) = postRequest(url, routeKey, json.toJson(), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, formData: FormBuilder.() -> Unit): HttpResponse =
-        request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }))
+private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, typingChannel: Channel? = null, formData: FormBuilder.() -> Unit): HttpResponse =
+        request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }), typingChannel)
 
 /**
  * Post a message to a guild text or DM channel.
@@ -51,9 +51,9 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
     val url = "/channels/${channel.id}/messages"
 
     val response = if (files == null) {
-        postRequest(url, "POST-createMessage-${channel.id}", createMessage.toJson())
+        postRequest(url, "POST-createMessage-${channel.id}", createMessage.toJson(), channel)
     } else {
-        postFormDataRequest(url, "POST-createMessage-${channel.id}") {
+        postFormDataRequest(url, "POST-createMessage-${channel.id}", channel) {
             if (content.isNotEmpty() || embed != null) {
                 val payload = createMessage.copy(file = null).toJson()
                 append("payload_json", payload)
