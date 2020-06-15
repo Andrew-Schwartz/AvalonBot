@@ -40,4 +40,8 @@ class AvalonState(val game: Avalon, setup: Setup) {
     var evilWins = 0; internal set
     internal var rejectedQuests = 0
     internal var ladyOfTheLake: AvalonPlayer? = null
+
+    override fun toString(): String {
+        return "AvalonState(players=$players, roles=$roles, numEvil=$numEvil, ladyEnabled=$ladyEnabled, party=$party, ladyTarget=$ladyTarget, pastLadies=${pastLadies.map { it.name }}, roundNum=$roundNum, leaderNum=$leaderNum, goodWins=$goodWins, evilWins=$evilWins, rejectedQuests=$rejectedQuests, ladyOfTheLake=$ladyOfTheLake)"
+    }
 }

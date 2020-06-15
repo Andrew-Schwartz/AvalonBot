@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 sealed class State {
     object All : State()
     object Setup : State()
+    object Game : State()
 
     sealed class Avalon : State() {
         object Game : Avalon()
@@ -23,6 +24,7 @@ sealed class State {
     fun name(): String = when (this) {
         All -> "All"
         Setup -> "Setup"
+        Game -> "Game"
         Avalon.Game -> "Avalon Game"
         Avalon.Quest -> "Avalon Quest"
         Avalon.Lady -> "Avalon Lady"
@@ -40,6 +42,8 @@ sealed class State {
  *
  * [Setup]
  *
+ * [Game]
+ *
  * [Avalon] (and sub-states)
  *
  * [Kittens] (and sub-states)
@@ -56,8 +60,12 @@ object StateComparator : Comparator<Command> {
                 State.All -> 1
                 else -> -1
             }
-            is State.Avalon -> when (s2) {
+            State.Game -> when (s2) {
                 State.All, State.Setup -> 1
+                else -> -1
+            }
+            is State.Avalon -> when (s2) {
+                State.All, State.Setup, State.Game -> 1
                 else -> -1
             }
             is State.Kittens -> 1

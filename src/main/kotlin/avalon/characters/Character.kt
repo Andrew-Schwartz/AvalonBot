@@ -39,6 +39,8 @@ abstract class Character {
 
         abstract val image: File
     }
+
+    override fun toString(): String = name
 }
 
 val Loyalty.color: Color

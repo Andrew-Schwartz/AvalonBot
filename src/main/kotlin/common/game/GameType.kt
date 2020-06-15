@@ -11,8 +11,6 @@ import kittens.game.ExplodingKittens
 import kittens.game.KittenPlayer
 import kittens.game.KittensConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
@@ -42,11 +40,11 @@ enum class GameType {
                     roles.size > setup.players.size -> message.reply("You have chosen more roles than there are players")
                     evil > maxEvil -> message.reply("You have too many evil roles: ${roles.filter { it.loyalty == Evil }.listGrammatically()}")
                     evil <= maxEvil -> {
-                        GlobalScope.launch {
-                            val avalon = Game[message.channel(), Avalon] as avalon.game.Avalon
-                            avalon.state.numEvil = maxEvil
-                            Game.startGame(avalon)
-                        }
+//                        GlobalScope.launch {
+                        val avalon = Game[message.channel(), Avalon] as avalon.game.Avalon
+                        avalon.state.numEvil = maxEvil
+                        Game.startGame(avalon)
+//                        }
                     }
                     else -> message.reply("Error starting Avalon game")
                 }

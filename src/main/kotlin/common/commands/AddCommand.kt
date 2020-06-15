@@ -12,6 +12,7 @@ import lib.util.inlineCode
 import lib.util.pingReal
 import lib.util.underline
 
+// TODO add someone else by ping
 object AddCommand : Command(State.Setup) {
     override val name: String = "addme"
 
@@ -32,7 +33,7 @@ object AddCommand : Command(State.Setup) {
         if (debug || message.author !in setup)
             setup.addPlayer(message.author)
         else
-            setup.removePlayer(message.author) // todo validate size ??? why did I write this what does it mean
+            setup.removePlayer(message.author)
 
         message.reply {
             color = Color.gold

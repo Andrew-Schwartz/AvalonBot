@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
+// TODO fix
 object WhoDidntVoteCommand : Command(State.Avalon.Voting) {
     override val name: String = "whodidntvote"
 

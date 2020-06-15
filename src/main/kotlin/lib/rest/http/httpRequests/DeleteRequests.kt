@@ -50,7 +50,7 @@ suspend fun Bot.closeChannel(channelId: IntoId<ChannelId>): Channel {
 suspend fun Bot.deleteReaction(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char, userId: IntoId<UserId>? = null) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
-    val user = userId?.intoId()?.value ?: "@me" //TODO
+    val user = userId?.intoId()?.value ?: "@me"
     deleteRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/$user", "DELETE-deleteReaction-$channelId")
 }
 

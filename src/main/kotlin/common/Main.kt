@@ -3,6 +3,7 @@ package common
 import common.commands.Command
 import common.util.A
 import common.util.now
+import common.util.onNull
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -10,6 +11,7 @@ import lib.dsl.Bot
 import lib.dsl.bot
 import lib.dsl.command
 import lib.dsl.on
+import lib.model.ChannelId
 import lib.model.Color.Companion.gold
 import lib.model.channel.Channel
 import lib.model.user.User
@@ -47,6 +49,21 @@ fun main() = runBlocking {
                 timestamp()
                 url = "https://github.com/Andrew-Schwartz/AvalonBot"
             }
+
+            val avChannel = getChannel(ChannelId("720860398282080267"))
+            val lastMessage = avChannel.lastMessage()
+                    ?.onNull { println("no last message") } ?: return@on
+
+//            var unpins = 0
+//            while (unpins < 4) {
+//                val messages = getMessages(GetChannelMessages.before(avChannel, lastMessage))
+//                for (message in messages) {
+//                    if (message.pinned) {
+//                        message.unpin()
+//                        unpins += 1
+//                    }
+//                }
+//            }
         }
 
         on(Resumed) {

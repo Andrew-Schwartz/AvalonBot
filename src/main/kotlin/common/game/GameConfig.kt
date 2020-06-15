@@ -1,3 +1,3 @@
 package common.game
 
-interface GameConfig {}
+interface GameConfig

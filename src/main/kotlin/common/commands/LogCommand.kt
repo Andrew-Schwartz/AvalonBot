@@ -1,7 +1,6 @@
 package common.commands
 
 import common.game.Game
-import common.game.GameType
 import common.game.Setup
 import common.steadfast
 import io.ktor.util.KtorExperimentalAPI
@@ -20,15 +19,25 @@ object LogCommand : Command(State.All) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
         if (message.author == steadfast) {
-            println("\ndebug = $debug")
+            println("debug = $debug")
             println("Games: ")
-            for (gameType in GameType.values()) {
-                println("$gameType = ${Game.games}")
+            Game.games.flatMap { (channel, map) ->
+                map.map { (type, game) -> Triple(type, channel, game) }
+            }.forEach { (type, channel, game) ->
+                println("$type in ${channel.name} = $game")
             }
+//            for (gameType in GameType.values()) {
+//                Game.games.println("$gameType = ${Game.games}")
+//            }
             println("Setups: ")
-            for (gameType in GameType.values()) {
-                println("$gameType = ${Setup.setups}")
+            Setup.setups.flatMap { (channel, map) ->
+                map.map { (type, setup) -> Triple(type, channel, setup) }
+            }.forEach { (type, channel, setup) ->
+                println("$type in ${channel.name} = $setup")
             }
+//            for (gameType in GameType.values()) {
+//                println("$gameType = ${Setup.setups}")
+//            }
             message.reply("logged to stdout")
         } else {
             message.reply("Only Andrew is that cool")

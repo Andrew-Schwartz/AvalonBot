@@ -2,6 +2,7 @@ package kittens.game
 
 import common.bot
 import common.game.Game
+import common.game.GameFinish
 import common.game.GameType
 import common.game.Setup
 import io.ktor.util.KtorExperimentalAPI
@@ -12,13 +13,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class ExplodingKittens(setup: Setup) : Game(GameType.ExplodingKittens, setup) {
     val state: KittenState = KittenState(this, setup)
 
-    override suspend fun startGame(): Unit = bot.run {
+    override suspend fun startGame(): GameFinish = bot.run {
         with(state) {
-
+            TODO()
         }
     }
 
-    override suspend fun stopGame(message: String) {
+    override suspend fun stopGame(info: GameFinish) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

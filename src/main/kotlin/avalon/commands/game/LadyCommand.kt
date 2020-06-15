@@ -17,7 +17,7 @@ object LadyCommand : Command(State.Avalon.Lady) {
 
     override val description: String = "Use to see someone's true loyalty (lotl is short for Lady of the Lake)"
 
-    override val usage: String = "lotl <player>"
+    override val usage: String = "lotl <@player>"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

@@ -20,7 +20,7 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
 
     operator fun contains(user: User) = players.any { it.user == user }
 
-    override fun toString(): String = "Setup(channel.name=${channel.name},gameType=$gameType,config=$config,players=$players)"
+    override fun toString(): String = "Setup(channel=${channel.name},gameType=$gameType,config=$config,players=$players)"
 
     companion object {
         internal val setups: MutableMap<Channel, MutableMap<GameType, Setup>> = mutableMapOf()
@@ -33,8 +33,6 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
 
         operator fun get(channel: Channel, gameType: GameType): Setup =
                 setups.getOrPut(channel) { mutableMapOf() }
-                        .getOrPut(gameType) {
-                            Setup(channel, gameType, gameType.config)
-                        }
+                        .getOrPut(gameType) { Setup(channel, gameType, gameType.config) }
     }
 }

@@ -294,7 +294,7 @@ class DiscordWebsocket(val bot: Bot) {
         val delayTime = payload.eventData!!.asJsonObject["heartbeat_interval"].asLong
 
         heartbeatJob?.cancel()
-        heartbeatJob = CoroutineScope(Dispatchers.Default).launch {
+        heartbeatJob = GlobalScope.launch {
             while (isActive) {
                 sequenceNumber?.let {
                     if (lastHeartbeat != null && lastAck != null && lastHeartbeat!!.isAfter(lastAck!!)) {

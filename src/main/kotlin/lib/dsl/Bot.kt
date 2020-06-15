@@ -140,6 +140,11 @@ class Bot internal constructor(val token: String) {
         addPin(channelId, id)
     }
 
+    suspend fun Message.unpin() {
+        pinnedMessages -= this
+        deletePin(channelId, this)
+    }
+
     suspend fun MessageReactionUpdatePayload.user(): User = userId.user()
 }
 
