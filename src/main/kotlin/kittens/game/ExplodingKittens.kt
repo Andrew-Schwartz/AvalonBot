@@ -10,7 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class ExplodingKittens(setup: Setup) : Game(GameType.ExplodingKittens, setup) {
+class ExplodingKittens(setup: Setup) : Game(GameType.Kittens, setup) {
     val state: KittenState = KittenState(this, setup)
 
     override suspend fun startGame(): GameFinish = bot.run {

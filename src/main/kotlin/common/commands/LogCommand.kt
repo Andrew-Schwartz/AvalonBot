@@ -8,7 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-object LogCommand : Command(State.All) {
+object LogCommand : MessageCommand(State.All) {
     override val name: String = "log"
 
     override val description: String = "logs some variables"
@@ -17,7 +17,7 @@ object LogCommand : Command(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         if (message.author == steadfast) {
             println("debug = $debug")
             println("Games: ")
@@ -26,18 +26,12 @@ object LogCommand : Command(State.All) {
             }.forEach { (type, channel, game) ->
                 println("$type in ${channel.name} = $game")
             }
-//            for (gameType in GameType.values()) {
-//                Game.games.println("$gameType = ${Game.games}")
-//            }
             println("Setups: ")
             Setup.setups.flatMap { (channel, map) ->
                 map.map { (type, setup) -> Triple(type, channel, setup) }
             }.forEach { (type, channel, setup) ->
                 println("$type in ${channel.name} = $setup")
             }
-//            for (gameType in GameType.values()) {
-//                println("$gameType = ${Setup.setups}")
-//            }
             message.reply("logged to stdout")
         } else {
             message.reply("Only Andrew is that cool")

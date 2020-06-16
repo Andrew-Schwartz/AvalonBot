@@ -9,7 +9,7 @@ import lib.model.channel.Message
 // TODO map by channel
 var debug = false
 
-object DebugCommand : Command(State.All) {
+object DebugCommand : MessageCommand(State.All) {
     override val name: String = "debug"
 
     override val description: String = "Enables debug mode for games. Only Andrew can do this"
@@ -18,9 +18,9 @@ object DebugCommand : Command(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         if (message.author == steadfast) {
-            when (args.firstOrNull()?.toLowerCase()) {
+            when (message.args.firstOrNull()?.toLowerCase()) {
                 null -> debug = !debug
                 "true", "on" -> debug = true
                 "false", "off" -> debug = false

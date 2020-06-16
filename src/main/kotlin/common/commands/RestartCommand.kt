@@ -13,7 +13,7 @@ import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 
-object RestartCommand : Command(State.Game) {
+object RestartCommand : MessageCommand(State.Game) {
     override val name: String = "restart"
 
     override val description: String = "Restart a game if all players agree. You must specify which game to start (Avalon or Exploding Kittens)"
@@ -22,7 +22,7 @@ object RestartCommand : Command(State.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         with(message) {
             val gameFromGames = GameType.values()
                     .map { it to Game[message.channel(), it] }
@@ -43,7 +43,7 @@ object RestartCommand : Command(State.Game) {
                         title = "Manually restarted"
                         color = gold
                     })
-                    message.channel().states += State.Setup
+                    message.channel().states += State.Setup.Setup
                     Setup.remove(message.channel(), gameType)
                     for (pin in pinnedMessages) {
                         runCatching { deletePin(pin.channelId, pin) }
@@ -56,6 +56,7 @@ object RestartCommand : Command(State.Game) {
                 val botMsg = message.reply("React ✔ if you are ready to start the game, if you're not ready react ❌")
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
+                // TODO all of this
 //                GlobalScope.launch {
 //                suspendUntil {
 //                    val (approves, rejects) = botMsg.

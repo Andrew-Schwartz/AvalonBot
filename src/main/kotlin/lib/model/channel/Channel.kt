@@ -84,4 +84,10 @@ data class Channel(
 
     val isVoice: Boolean
         get() = type.isVoice
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun MessageId.message(): Message {
+        return bot.getMessage(this@Channel, this)
+    }
 }

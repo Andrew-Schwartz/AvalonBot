@@ -1,7 +1,7 @@
 package avalon.commands.game
 
 import avalon.game.Avalon
-import common.commands.Command
+import common.commands.MessageCommand
 import common.commands.State
 import common.game.Game
 import common.game.GameType
@@ -15,7 +15,7 @@ import lib.util.underline
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-object InfoCommand : Command(State.Avalon.Game) {
+object InfoCommand : MessageCommand(State.Avalon.Game) {
     override val name: String = "info"
 
     override val description: String = """
@@ -25,7 +25,7 @@ object InfoCommand : Command(State.Avalon.Game) {
 
     override val usage: String = "info (only works while a game of Avalon is in progress)"
 
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
         message.reply {
             title = "Avalon Info".underline()

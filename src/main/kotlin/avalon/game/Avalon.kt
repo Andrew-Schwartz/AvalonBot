@@ -3,12 +3,12 @@ package avalon.game
 import avalon.characters.*
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
+import avalon.commands.game.VoteCommand
 import common.bot
 import common.commands.State
 import common.commands.State.Avalon.Voting
 import common.commands.debug
 import common.commands.states
-import common.commands.subStates
 import common.game.*
 import common.util.A
 import common.util.listGrammatically
@@ -24,12 +24,7 @@ import lib.model.Color
 import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
-import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.events.receiveEvents.MessageCreate
-import lib.rest.model.events.receiveEvents.MessageReactionUpdate
-import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
-import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
-import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Remove
 import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.inlineCode
 import lib.util.ping
@@ -43,7 +38,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 
     override suspend fun startGame(): GameFinish = bot.run game@{
         with(state) {
-            channel.states -= State.Setup
+            channel.states -= State.Setup.Setup
             rounds = Rounds(players.size)
             val numGood = players.size - state.numEvil
             val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
@@ -124,8 +119,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     description = "react to my DM to Approve or Reject this party"
                 }
                 players.forEach { it.user.getDM().startTyping() }
-                val approveChar = '✔'
-                val rejectChar = '❌'
+                val approveChar = VoteCommand.approveChar
+                val rejectChar = VoteCommand.rejectChar
                 reacts.clear()
                 for (player in players) {
                     val msg = player.user.sendDM("React ✔ to vote to approve the quest, or ❌ to reject it\n" +
@@ -136,28 +131,28 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         msg.react(rejectChar)
                     }
                 }
-                val reactListener: suspend MessageReactionUpdatePayload.() -> Unit = {
-                    val msg = getMessage(channelId, messageId)
-                    if (user().isBot != true && msg in reacts.keys) {
-                        val delta = when (emoji.name[0]) {
-                            approveChar -> 1
-                            rejectChar -> -1
-                            else -> 0
-                        } * when (type) {
-                            Add -> 1
-                            Remove -> -1
-                        }
-                        reacts[msg] = reacts[msg]!! + delta
-                    }
-                }
-                on(MessageReactionUpdate, λ = reactListener)
+//                val reactListener: suspend MessageReactionUpdatePayload.() -> Unit = {
+//                    val msg = getMessage(channelId, messageId)
+//                    if (user().isBot != true && msg in reacts.keys) {
+//                        val delta = when (emoji.name[0]) {
+//                            approveChar -> 1
+//                            rejectChar -> -1
+//                            else -> 0
+//                        } * when (type) {
+//                            Add -> 1
+//                            Remove -> -1
+//                        }
+//                        reacts[msg] = reacts[msg]!! + delta
+//                    }
+//                }
+//                on(MessageReactionUpdate, λ = reactListener)
                 channel.states += Voting
                 println("All players can now vote on the party")
 
                 suspendUntil(50) {
                     reacts.values.all { it.absoluteValue == 1 }
                 }
-                off(MessageReactionUpdate, λ = reactListener)
+//                off(MessageReactionUpdate, λ = reactListener)
                 channel.states -= Voting
                 val (approve, reject) = reacts.values.partition { it == 1 }.map { it.size }
                 if (reject >= approve) {
@@ -210,13 +205,13 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
                 }
                 channel.states += Voting
-                on(MessageReactionUpdate, λ = reactListener)
+//                on(MessageReactionUpdate, λ = reactListener)
                 println("Everyone can now succeed/fail the quest")
 
                 suspendUntil(25) {
                     reacts.values.all { it.absoluteValue == 1 }
                 }
-                off(MessageReactionUpdate, λ = reactListener)
+//                off(MessageReactionUpdate, λ = reactListener)
                 channel.states -= Voting
                 val (successes, fails) = reacts.values.partition { it == 1 }.map { it.size }
 
@@ -251,7 +246,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                         .forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
                             }
                             var merlinGuess: Player? = null
-                            val assassinateListener: suspend Message.() -> Unit = {
+                            val assassinateListener: suspend Message.() -> Unit = { // TODO make this a command
                                 if (userPlayerMap[author]?.role == Assassin && content.startsWith("!ass") && mentions.size == 1) {
                                     userPlayerMap[mentions.first()]?.let { target ->
                                         if (target.role?.loyalty == Good) {
@@ -327,8 +322,9 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 //                description = message
 //                color = Color.red
 //            }
-            channel.states.removeAll(subStates<State.Avalon>())
-            channel.states += State.Setup
+            // TODO check that theses are done in endandremove
+//            channel.states.removeAll(subStates<State.Avalon>())
+//            channel.states += State.Setup.Setup
             this@Avalon.pinnedMessages.forEach { pin ->
                 pinnedMessages -= pin
                 runCatching { deletePin(pin.channelId, pin) }

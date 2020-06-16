@@ -1,6 +1,6 @@
 package kittens.commands
 
-import common.commands.Command
+import common.commands.MessageCommand
 import common.commands.State
 import common.game.Game
 import common.game.GameType
@@ -12,7 +12,7 @@ import lib.model.channel.Message
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-object HandCommand : Command(State.Kittens.Game) {
+object HandCommand : MessageCommand(State.Kittens.Game) {
     override val name = "hand"
 
     override val description = "Lists the cards in your hand"
@@ -21,8 +21,8 @@ object HandCommand : Command(State.Kittens.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
-        val state = (Game[message.channel(), GameType.ExplodingKittens] as ExplodingKittens).state
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
+        val state = (Game[message.channel(), GameType.Kittens] as ExplodingKittens).state
         with(state) {
             message.author.sendDM(
                     userPlayerMap[message.author]?.hand

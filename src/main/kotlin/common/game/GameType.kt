@@ -14,6 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
+import kotlin.reflect.KClass
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -22,7 +23,7 @@ enum class GameType {
         override fun player(user: User, guild: Guild?): Player = AvalonPlayer(user, guild)
         override fun game(setup: Setup): Game = avalon.game.Avalon(setup)
         override val config: GameConfig get() = AvalonConfig()
-        override val commandState: State = State.Avalon.Game
+        override val states: StateInfo = StateInfo(State.Avalon.Game, State.Setup.AvalonStart, State.Avalon::class)
 
         override suspend fun startGame(message: Message) {
             bot.run {
@@ -51,11 +52,11 @@ enum class GameType {
             }
         }
     },
-    ExplodingKittens {
+    Kittens {
         override fun player(user: User, guild: Guild?): Player = KittenPlayer(user, guild)
         override fun game(setup: Setup): Game = ExplodingKittens(setup)
         override val config: GameConfig get() = KittensConfig()
-        override val commandState: State = State.Kittens.Game
+        override val states: StateInfo = StateInfo(State.Kittens.Game, State.Setup.KittensStart, State.Kittens::class)
 
         override suspend fun startGame(message: Message) {
             TODO("not implemented")
@@ -65,14 +66,16 @@ enum class GameType {
     abstract fun player(user: User, guild: Guild?): Player
     abstract fun game(setup: Setup): Game
     abstract val config: GameConfig
-    abstract val commandState: State
+    abstract val states: StateInfo
 
     abstract suspend fun startGame(message: Message)
+
+    data class StateInfo(val commandState: State, val startVotingState: State, val parentClass: KClass<out State>)
 
     companion object {
         fun getType(string: String): GameType? = when {
             string.equals("avalon", true) -> Avalon
-            "kittens" in string.toLowerCase() -> ExplodingKittens
+            "kittens" in string.toLowerCase() -> Kittens
             else -> null
         }
     }

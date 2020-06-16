@@ -1,7 +1,7 @@
 package avalon.commands.game
 
 import avalon.game.Avalon
-import common.commands.Command
+import common.commands.MessageCommand
 import common.commands.State
 import common.game.Game
 import common.game.GameType
@@ -12,7 +12,7 @@ import lib.model.channel.Message
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-object LadyCommand : Command(State.Avalon.Lady) {
+object LadyCommand : MessageCommand(State.Avalon.Lady) {
     override val name: String = "lotl"
 
     override val description: String = "Use to see someone's true loyalty (lotl is short for Lady of the Lake)"
@@ -21,7 +21,7 @@ object LadyCommand : Command(State.Avalon.Lady) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
 
         with(message) {

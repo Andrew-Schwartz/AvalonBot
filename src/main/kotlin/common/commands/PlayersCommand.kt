@@ -10,7 +10,7 @@ import lib.dsl.Bot
 import lib.model.Color
 import lib.model.channel.Message
 
-object PlayersCommand : Command(All) {
+object PlayersCommand : MessageCommand(All) {
     override val name: String = "players"
 
     override val description: String = "displays a list of all players currently in the game"
@@ -19,7 +19,7 @@ object PlayersCommand : Command(All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val players = GameType.values()
                 .associate { it to Setup[message.channel(), it] }
                 .mapValues { it.value.players }

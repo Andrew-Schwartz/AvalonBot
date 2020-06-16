@@ -1,7 +1,7 @@
 package common
 
-import common.commands.Command
-import common.util.A
+import common.commands.MessageCommand
+import common.commands.ReactCommand
 import common.util.now
 import common.util.onNull
 import io.ktor.util.KtorExperimentalAPI
@@ -9,7 +9,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import lib.dsl.Bot
 import lib.dsl.bot
-import lib.dsl.command
 import lib.dsl.on
 import lib.model.ChannelId
 import lib.model.Color.Companion.gold
@@ -75,8 +74,14 @@ fun main() = runBlocking {
             }
         }
 
-        command(prefix, events = *A[MessageCreate, MessageUpdate]) {
-            Command.run(this, prefix)
+        on(MessageCreate, MessageUpdate) {
+            if (content.startsWith(prefix) && author.isBot != true) {
+                MessageCommand.run(this, prefix)
+            }
+        }
+
+        on(MessageReactionUpdate) {
+            ReactCommand.run(this)
         }
 
         // Adds necessary intent

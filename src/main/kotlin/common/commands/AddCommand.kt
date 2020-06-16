@@ -13,7 +13,7 @@ import lib.util.pingReal
 import lib.util.underline
 
 // TODO add someone else by ping
-object AddCommand : Command(State.Setup) {
+object AddCommand : MessageCommand(State.Setup.Setup) {
     override val name: String = "addme"
 
     override val description: String = """
@@ -25,8 +25,8 @@ object AddCommand : Command(State.Setup) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
-        val gameType = GameType.getType(args.getOrDefault(0, "")) ?: GameType.Avalon
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
+        val gameType = GameType.getType(message.args.getOrDefault(0, "")) ?: GameType.Avalon
 
         val setup = Setup[message.channel(), gameType]
 

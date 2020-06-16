@@ -1,7 +1,7 @@
 package avalon.commands.game
 
 import avalon.game.Avalon
-import common.commands.Command
+import common.commands.MessageCommand
 import common.commands.State
 import common.game.Game
 import common.game.GameType
@@ -12,7 +12,7 @@ import lib.dsl.Bot
 import lib.model.channel.Message
 
 // TODO fix
-object WhoDidntVoteCommand : Command(State.Avalon.Voting) {
+object WhoDidntVoteCommand : MessageCommand(State.Avalon.Voting) {
     override val name: String = "whodidntvote"
 
     override val description: String = "find out who didn't vote"
@@ -21,7 +21,7 @@ object WhoDidntVoteCommand : Command(State.Avalon.Voting) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val avalon = Game[message.channel(), GameType.Avalon] as Avalon
         val notVoted = avalon.state.players.filter {
             it.user in avalon.state.reacts

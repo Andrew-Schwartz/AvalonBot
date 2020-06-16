@@ -4,7 +4,7 @@ import avalon.characters.LoyalServant
 import avalon.characters.MinionOfMordred
 import avalon.characters.characters
 import avalon.game.AvalonConfig
-import common.commands.Command
+import common.commands.MessageCommand
 import common.commands.State
 import common.game.GameType
 import common.game.Setup
@@ -17,7 +17,7 @@ import lib.dsl.Bot
 import lib.model.Color
 import lib.model.channel.Message
 
-object RolesCommand : Command(State.Setup) {
+object RolesCommand : MessageCommand(State.Setup.Setup) {
     private const val CLEAR_ROLES = "reset"
     private const val LIST_ROLES = "list"
 
@@ -33,9 +33,10 @@ object RolesCommand : Command(State.Setup) {
     @Suppress("UNCHECKED_CAST")
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val setup = Setup[message.channel(), GameType.Avalon]
         val roles = (setup.config as AvalonConfig).roles
+        val args = message.args
 
         if (CLEAR_ROLES in args) roles.clear()
 

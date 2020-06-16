@@ -13,7 +13,7 @@ import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline
 
-object HelpCommand : Command(State.All) {
+object HelpCommand : MessageCommand(State.All) {
     override val name: String = "help"
 
     override val description: String = "sends setup help text, or specific help text if given a command name, such" +
@@ -24,12 +24,12 @@ object HelpCommand : Command(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, args ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val allCommandsEmbed: suspend () -> RichEmbed = {
             embed {
                 title = "List of commands".underline()
                 color = Color.gold
-                commandSet.filter { debug || it.state in message.channel().states }
+                messageCommands.filter { debug || it.state in message.channel().states }
                         .filter { debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand] }
                         .sortedWith(StateComparator)
                         .forEach {
@@ -38,11 +38,12 @@ object HelpCommand : Command(State.All) {
                         }
             }
         }
+        val args = message.args
         if (args.isEmpty()) {
             message.author.sendDM(embed = allCommandsEmbed()) // DM cuz its long
         } else {
             val name = args[0].toLowerCase()
-            val command = commandSet.firstOrNull { it.name == name }
+            val command = messageCommands.firstOrNull { it.name == name }
 
             when {
                 name == "here" -> message.reply(embed = allCommandsEmbed())
@@ -53,7 +54,7 @@ object HelpCommand : Command(State.All) {
     }
 }
 
-suspend fun Command.helpEmbed(): RichEmbed = embed {
+suspend fun MessageCommand.helpEmbed(): RichEmbed = embed {
     title = "About $name".underline()
     color = Color.gold
     addField("Description", this@helpEmbed.description, false)

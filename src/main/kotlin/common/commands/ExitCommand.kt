@@ -11,7 +11,7 @@ import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 import kotlin.system.exitProcess
 
-object ExitCommand : Command(All) {
+object ExitCommand : MessageCommand(All) {
     override val name: String = "logoff"
 
     override val description: String = "logs this bot off"
@@ -20,7 +20,7 @@ object ExitCommand : Command(All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         if (message.author == steadfast) {
             for (pin in pinnedMessages) {
                 runCatching { deletePin(pin.channelId, pin) }

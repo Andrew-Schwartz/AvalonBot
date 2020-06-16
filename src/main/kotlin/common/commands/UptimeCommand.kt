@@ -8,7 +8,7 @@ import lib.dsl.Bot
 import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 
-object UptimeCommand : Command(State.All) {
+object UptimeCommand : MessageCommand(State.All) {
     override val name: String = "uptime"
 
     override val description: String = "How long has this bot been continuously online for?"
@@ -17,7 +17,7 @@ object UptimeCommand : Command(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         message.reply {
             title = buildString {
                 var dur = bot.logInTime!!.toInstant().elapsed()

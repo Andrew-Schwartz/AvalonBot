@@ -9,7 +9,7 @@ import lib.model.Color
 import lib.model.channel.Message
 import kotlin.system.measureTimeMillis
 
-object PingCommand : Command(All) {
+object PingCommand : MessageCommand(All) {
     override val name: String = "ping"
 
     override val description: String = "pongs, and says how long it took"
@@ -18,7 +18,7 @@ object PingCommand : Command(All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val embed = embed {
             title = "Pong!"
             color = Color.gold

@@ -2,6 +2,7 @@ package common.game
 
 import common.commands.State
 import common.commands.states
+import common.commands.subStates
 import common.util.now
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,8 +28,8 @@ abstract class Game(val type: GameType, setup: Setup) {
             GlobalScope.launch {
                 runCatching {
                     game.started = true
-                    game.channel.states += game.type.commandState
-                    game.channel.states -= State.Setup
+                    game.channel.states += game.type.states.commandState
+                    game.channel.states -= State.Setup.Setup
                     game.startGame()
                 }.onFailure { e ->
                     println("[${now()}] Error in game ${game.type.name} in channel ${game.channel.name}")
@@ -50,9 +51,9 @@ abstract class Game(val type: GameType, setup: Setup) {
         suspend fun endAndRemove(channel: Channel, gameType: GameType, info: GameFinish) {
             games[channel]?.get(gameType)?.stopGame(info)
             games[channel]?.remove(gameType)
-            channel.states -= gameType.commandState
-//            channel.states.removeAll(subStates(gameType.))
-            channel.states += State.Setup
+            channel.states -= gameType.states.commandState
+            channel.states.removeAll(subStates(gameType.states.parentClass)) // TODO does this work
+            channel.states += State.Setup.Setup
         }
 
         operator fun get(channel: Channel, gameType: GameType): Game =

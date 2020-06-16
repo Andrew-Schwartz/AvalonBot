@@ -348,6 +348,22 @@ data class MessageReactionUpdatePayload(
         val type: Type
 ) {
     enum class Type { Add, Remove }
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun user(): User = userId.user()
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun channel(): Channel = channelId.channel()
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun message(): Message = with(channel()) { messageId.message() }
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun guild(): Guild? = guildId?.guild()
 }
 
 data class MessageReactionAddPayload(

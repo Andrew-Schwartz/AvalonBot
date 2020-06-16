@@ -1,7 +1,7 @@
 package avalon.commands.game
 
 import avalon.game.Avalon
-import common.commands.Command
+import common.commands.MessageCommand
 import common.commands.State
 import common.game.Game
 import common.game.GameType
@@ -12,14 +12,14 @@ import lib.model.channel.Message
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-object QuestCommand : Command(State.Avalon.Quest) {
+object QuestCommand : MessageCommand(State.Avalon.Quest) {
     override val name: String = "quest"
 
     override val description: String = "Choose which people will go on the quest! Only usable by the current leader"
 
     override val usage: String = "quest <@player1> <@player2>..."
 
-    override val execute: suspend Bot.(Message, args: List<String>) -> Unit = { message, _ ->
+    override val execute: suspend Bot.(Message) -> Unit = { message ->
         val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
 
         with(message) {
