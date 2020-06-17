@@ -11,6 +11,10 @@ object L {
     inline operator fun <T> get(vararg vals: T): List<T> = vals.asList()
 }
 
+object ML {
+    inline operator fun <T> get(vararg vals: T): MutableList<T> = vals.toMutableList()
+}
+
 object AL {
     inline operator fun <T> get(vararg vals: T): ArrayList<T> = arrayListOf(*vals)
 }

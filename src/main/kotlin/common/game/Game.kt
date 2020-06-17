@@ -1,5 +1,6 @@
 package common.game
 
+import common.bot
 import common.commands.State
 import common.commands.states
 import common.commands.subStates
@@ -49,6 +50,9 @@ abstract class Game(val type: GameType, setup: Setup) {
         internal val games: MutableMap<Channel, MutableMap<GameType, Game>> = mutableMapOf()
 
         suspend fun endAndRemove(channel: Channel, gameType: GameType, info: GameFinish) {
+            with(bot) {
+                channel.send(embed = info.message)
+            }
             games[channel]?.get(gameType)?.stopGame(info)
             games[channel]?.remove(gameType)
             channel.states -= gameType.states.commandState

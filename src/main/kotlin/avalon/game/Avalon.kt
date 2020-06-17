@@ -11,6 +11,7 @@ import common.commands.debug
 import common.commands.states
 import common.game.*
 import common.util.A
+import common.util.ML
 import common.util.listGrammatically
 import common.util.map
 import io.ktor.util.KtorExperimentalAPI
@@ -22,6 +23,7 @@ import lib.dsl.on
 import lib.dsl.suspendUntil
 import lib.model.Color
 import lib.model.Color.Companion.gold
+import lib.model.Color.Companion.red
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 import lib.rest.model.events.receiveEvents.MessageCreate
@@ -41,10 +43,34 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             channel.states -= State.Setup.Setup
             rounds = Rounds(players.size)
             val numGood = players.size - state.numEvil
-            val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
 
-            for (i in good until numGood) roles.add(LoyalServant)
-            for (i in evil until numEvil) roles.add(MinionOfMordred)
+            if (randomRoles) {
+                if (roles.isNotEmpty()) {
+                    // TODO auto re-add the roles?
+                    return@game GameFinish {
+                        title = "Random roles were on but these roles were also selected manually"
+                        description = roles.joinToString(separator = "\n") { it.name }
+                        color = red
+                    }
+                }
+                // TODO these numbers
+                val good = ML[Merlin, Percival]
+                repeat(4) { good.add(LoyalServant) }
+                val evil = ML[Assassin, Mordred, Morgana, Oberon]
+                repeat(6) { evil.add(MinionOfMordred) }
+                good.shuffle()
+                evil.shuffle()
+                while (good.size > numGood) good.removeAt(0)
+                while (evil.size > numEvil) evil.removeAt(0)
+                roles.addAll(good)
+                roles.addAll(evil)
+            } else {
+                val (good, evil) = roles.partition { it.loyalty == Good }.map { it.size }
+//                val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
+//                repeat(numGood - good) { roles.add(LoyalServant) }
+                for (i in good until numGood) roles.add(LoyalServant)
+                for (i in evil until numEvil) roles.add(MinionOfMordred)
+            }
 
             for (player in players) {
                 roles.random().let {
@@ -52,17 +78,17 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     roles -= it
                 }
             }
-            players.shuffle()
-            if (ladyEnabled) {
-                ladyOfTheLake = players.last()
-            }
-
             if (roles.isNotEmpty()) {
                 println("roles = $roles")
                 println("players = $players")
                 throw RuntimeException("ROLES WERE NOT EMPTY")
             }
             roles += players.map { it.role!! }
+
+            players.shuffle()
+            if (ladyEnabled) {
+                ladyOfTheLake = players.last()
+            }
 
             channel.startTyping()
             for (player in players) {
