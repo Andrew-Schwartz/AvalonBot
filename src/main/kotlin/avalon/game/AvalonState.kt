@@ -13,17 +13,20 @@ class AvalonState(val game: Avalon, setup: Setup) {
         Setup.remove(setup)
     }
 
+    private val config = setup.config as AvalonConfig
+
     val players: ArrayList<AvalonPlayer> = setup.players.map { it as AvalonPlayer } as ArrayList<AvalonPlayer>
     val userPlayerMap: Map<User, AvalonPlayer> = players.associateBy { it.user }
 
     @Suppress("UNCHECKED_CAST")
-    val roles = (setup.config as AvalonConfig).roles
+    val roles = config.roles
+    val randomRoles = config.randomRoles
 
     val leader get() = players[leaderNum % players.size]
 
     lateinit var rounds: Rounds; internal set
     var numEvil = 0
-    var ladyEnabled = (setup.config as AvalonConfig).ladyEnabled
+    var ladyEnabled = config.ladyEnabled
     var reacts = mutableMapOf<Message, Int>() // -1 = reject, +1 = approve
 
     internal var party: Set<AvalonPlayer>? = null

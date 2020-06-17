@@ -5,6 +5,7 @@ import common.game.GameConfig
 
 class AvalonConfig : GameConfig {
     val roles: ArrayList<Character> = arrayListOf()
+    var randomRoles: Boolean = false
 
     var ladyEnabled: Boolean = false
 

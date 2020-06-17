@@ -15,11 +15,13 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.Color
+import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 
 object RolesCommand : Command(State.Setup) {
     private const val CLEAR_ROLES = "reset"
     private const val LIST_ROLES = "list"
+    private const val RANDOM_ROLES = "random"
 
     override val name: String = "roles"
 
@@ -28,7 +30,7 @@ object RolesCommand : Command(State.Setup) {
         |Roles are Assassin, Merlin, Mordred, Morgana, Oberon, and Percival
         """.trimMargin()
 
-    override val usage: String = "roles [$CLEAR_ROLES] [$LIST_ROLES] [role1] [role2] [role3] etc..."
+    override val usage: String = "roles [$CLEAR_ROLES] [$LIST_ROLES] [$RANDOM_ROLES [role1] [role2] [role3] etc..."
 
     @Suppress("UNCHECKED_CAST")
     @KtorExperimentalAPI
@@ -39,7 +41,7 @@ object RolesCommand : Command(State.Setup) {
 
         if (CLEAR_ROLES in args) roles.clear()
 
-        args.filter { it !in A[CLEAR_ROLES, LIST_ROLES] }
+        args.filter { it !in A[CLEAR_ROLES, LIST_ROLES, RANDOM_ROLES] }
                 .mapNotNull { name ->
                     characters.firstOrNull { name.equals(it.name, ignoreCase = true) }
                             .onNull { message.reply("No role by the name $name") }
@@ -56,6 +58,12 @@ object RolesCommand : Command(State.Setup) {
             message.reply {
                 title = "Remaining roles"
                 description = (characters - roles - S[LoyalServant, MinionOfMordred]).joinToString(separator = "\n") { it.name }
+            }
+        } else if (RANDOM_ROLES in args && roles.isEmpty()) {
+            setup.config.randomRoles = true
+            message.reply {
+                title = "Random mode engage"
+                color = gold
             }
         } else {
             message.reply {
