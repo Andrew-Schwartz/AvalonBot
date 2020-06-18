@@ -1,6 +1,7 @@
 package avalon.game
 
 import common.game.Setup
+import common.game.State
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
@@ -8,14 +9,14 @@ import lib.model.user.User
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class AvalonState(val game: Avalon, setup: Setup) {
+class AvalonState(setup: Setup) : State<AvalonPlayer>() {
     init {
         Setup.remove(setup)
     }
 
     private val config = setup.config as AvalonConfig
 
-    val players: ArrayList<AvalonPlayer> = setup.players.map { it as AvalonPlayer } as ArrayList<AvalonPlayer>
+    override val players: ArrayList<AvalonPlayer> = setup.players.map { it as AvalonPlayer } as ArrayList<AvalonPlayer>
     val userPlayerMap: Map<User, AvalonPlayer> = players.associateBy { it.user }
 
     @Suppress("UNCHECKED_CAST")

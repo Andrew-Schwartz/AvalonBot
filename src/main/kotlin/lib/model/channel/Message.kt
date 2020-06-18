@@ -91,4 +91,6 @@ data class Message(
         }
 */
     }
+    // TODO delete function (maybe in Bot)
+//    fun delete()
 }

@@ -1,9 +1,9 @@
 package common.game
 
+import common.util.Vote
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
-import lib.model.channel.Message
 import lib.model.user.User
 
 @KtorExperimentalAPI
@@ -11,7 +11,7 @@ import lib.model.user.User
 class Setup private constructor(val channel: Channel, private val gameType: GameType, val config: GameConfig) {
     val players: ArrayList<Player> = arrayListOf()
 
-    var startVote: Pair<Message, Int>? = null
+    var startVote: Vote? = null
 
     suspend fun addPlayer(user: User) {
         players += gameType.player(user, channel.guild())

@@ -17,7 +17,7 @@ object VoteCommand : ReactCommand(State.Avalon.Voting) {
     const val approveChar = '✔'
     const val rejectChar = '❌'
 
-    override val emojis: Array<String> = A[approveChar.toString(), rejectChar.toString()]
+    override val emojis: List<String> = A[approveChar, rejectChar].map(Char::toString)
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

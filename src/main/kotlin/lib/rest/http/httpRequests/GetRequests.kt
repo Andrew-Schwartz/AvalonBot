@@ -38,10 +38,10 @@ suspend fun Bot.getChannel(id: IntoId<ChannelId>): Channel {
 }
 
 /**
- * see [https://discordapp.com/developers/docs/resources/channel#get-channel-messages]
  * If operating on a guild channel, this endpoint requires the `VIEW_CHANNEL` permission to be present on the current user.
  * If the current user is missing the `READ_MESSAGE_HISTORY` permission in the channel then this will return no messages (since they cannot read the message history).
  * @return [Array]<[Message]> on success.
+ * @see [https://discordapp.com/developers/docs/resources/channel#get-channel-messages]
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

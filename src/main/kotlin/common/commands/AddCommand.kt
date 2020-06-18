@@ -2,6 +2,7 @@ package common.commands
 
 import common.game.GameType
 import common.game.Setup
+import common.steadfast
 import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,7 +13,6 @@ import lib.util.inlineCode
 import lib.util.pingReal
 import lib.util.underline
 
-// TODO add someone else by ping
 object AddCommand : MessageCommand(State.Setup.Setup) {
     override val name: String = "addme"
 
@@ -30,10 +30,14 @@ object AddCommand : MessageCommand(State.Setup.Setup) {
 
         val setup = Setup[message.channel(), gameType]
 
-        if (debug || message.author !in setup)
-            setup.addPlayer(message.author)
-        else
-            setup.removePlayer(message.author)
+        when {
+            message.author == steadfast && message.mentions.isNotEmpty() -> message.mentions.forEach {
+                if (it in setup.players.map { it.user }) setup.removePlayer(it)
+                else setup.addPlayer(it)
+            }
+            debug || message.author !in setup -> setup.addPlayer(message.author)
+            else -> setup.removePlayer(message.author)
+        }
 
         message.reply {
             color = Color.gold

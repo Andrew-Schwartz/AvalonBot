@@ -11,7 +11,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.channel.Message
 
-// TODO fix
 object WhoDidntVoteCommand : MessageCommand(State.Avalon.Voting) {
     override val name: String = "whodidntvote"
 
@@ -22,9 +21,9 @@ object WhoDidntVoteCommand : MessageCommand(State.Avalon.Voting) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message) -> Unit = { message ->
-        val avalon = Game[message.channel(), GameType.Avalon] as Avalon
-        val notVoted = avalon.state.players.filter {
-            it.user in avalon.state.reacts
+        val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
+        val notVoted = state.players.filter {
+            it.user in state.reacts
                     .filterValues { it == 0 }
                     .map { (msg, _) -> msg.channel().recipients?.singleOrNull() }
         }.map { it.name }

@@ -9,16 +9,20 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import lib.model.Color.Companion.red
 import lib.model.channel.Channel
 import lib.model.channel.Message
+import lib.rest.http.httpRequests.deletePin
+import java.time.Duration
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 abstract class Game(val type: GameType, setup: Setup) {
+    abstract val state: common.game.State<*>
     val channel = setup.channel
     val pinnedMessages: ArrayList<Message> = arrayListOf()
-    var started = false
+    var running = false
 
     protected abstract suspend fun startGame(): GameFinish
 
@@ -28,9 +32,16 @@ abstract class Game(val type: GameType, setup: Setup) {
         suspend fun startGame(game: Game) {
             GlobalScope.launch {
                 runCatching {
-                    game.started = true
+                    game.running = true
                     game.channel.states += game.type.states.commandState
+                    game.channel.states += State.Game
                     game.channel.states -= State.Setup.Setup
+                    launch {
+                        while (game.running) {
+                            delay(Duration.ofMinutes(1))
+                            // TODO update player names
+                        }
+                    }
                     game.startGame()
                 }.onFailure { e ->
                     println("[${now()}] Error in game ${game.type.name} in channel ${game.channel.name}")
@@ -52,10 +63,19 @@ abstract class Game(val type: GameType, setup: Setup) {
         suspend fun endAndRemove(channel: Channel, gameType: GameType, info: GameFinish) {
             with(bot) {
                 channel.send(embed = info.message)
+                games[channel]?.get(gameType)?.run {
+                    stopGame(info)
+                    running = false
+                    pinnedMessages.forEach { pin ->
+                        pinnedMessages -= pin
+                        runCatching { deletePin(pin.channelId, pin) }
+                                .onFailure { println(it.message) }
+                    }
+                }
             }
-            games[channel]?.get(gameType)?.stopGame(info)
             games[channel]?.remove(gameType)
             channel.states -= gameType.states.commandState
+            channel.states -= State.Game
             channel.states.removeAll(subStates(gameType.states.parentClass)) // TODO does this work
             channel.states += State.Setup.Setup
         }

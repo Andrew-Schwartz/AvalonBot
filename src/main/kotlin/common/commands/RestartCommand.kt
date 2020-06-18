@@ -1,19 +1,30 @@
 package common.commands
 
+import common.commands.RestartCommand.approveChar
+import common.commands.RestartCommand.rejectChar
 import common.game.Game
 import common.game.GameFinish
 import common.game.GameType
 import common.game.Setup
 import common.steadfast
+import common.util.A
+import common.util.Vote
 import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import lib.dsl.Bot
+import lib.dsl.suspendUntil
 import lib.model.Color.Companion.gold
+import lib.model.channel.Channel
 import lib.model.channel.Message
-import lib.rest.http.httpRequests.deletePin
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 
 object RestartCommand : MessageCommand(State.Game) {
+    const val approveChar = '✔'
+    const val rejectChar = '❌'
+
     override val name: String = "restart"
 
     override val description: String = "Restart a game if all players agree. You must specify which game to start (Avalon or Exploding Kittens)"
@@ -26,7 +37,7 @@ object RestartCommand : MessageCommand(State.Game) {
         with(message) {
             val gameFromGames = GameType.values()
                     .map { it to Game[message.channel(), it] }
-                    .singleOrNull { it.second.started }
+                    .singleOrNull { it.second.running }
                     ?.first
             val gameFromArgs = GameType.getType(args.getOrDefault(0, ""))
 
@@ -43,26 +54,46 @@ object RestartCommand : MessageCommand(State.Game) {
                         title = "Manually restarted"
                         color = gold
                     })
-                    message.channel().states += State.Setup.Setup
                     Setup.remove(message.channel(), gameType)
-                    for (pin in pinnedMessages) {
-                        runCatching { deletePin(pin.channelId, pin) }
-                                .onFailure { println(it.message) }
-                    }
                 }
             } else {
-                val approveChar = '✔'
-                val rejectChar = '❌'
                 val botMsg = message.reply("React ✔ if you are ready to start the game, if you're not ready react ❌")
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
-                // TODO all of this
-//                GlobalScope.launch {
-//                suspendUntil {
-//                    val (approves, rejects) = botMsg.
-//                }
-//                }
+                RestartVoteCommand.restarts[message.channel()] = Vote(botMsg)
+                GlobalScope.launch {
+                    suspendUntil(500) {
+                        val score = RestartVoteCommand.restarts[message.channel()]?.score ?: return@suspendUntil false
+                        if (!debug && score != game.state.players.size) return@suspendUntil false
+                        val (approves, rejects) = botMsg.reactions(approveChar, rejectChar)
+                        game.state.players.none { it.user in rejects } &&
+                                game.state.players.count { it.user in approves } >= 4
+                    }
+                }
             }
+        }
+    }
+}
+
+object RestartVoteCommand : ReactCommand(State.Game) {
+    internal val restarts = mutableMapOf<Channel, Vote>()
+
+    override val emojis: List<String> = A[approveChar, rejectChar].map(Char::toString)
+
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
+        val vote = restarts[reaction.channel()]
+        if (reaction.message() == vote?.message) {
+            val delta = when (reaction.emoji.name[0]) {
+                StartCommand.approveChar -> 1
+                StartCommand.rejectChar -> -1
+                else -> 0
+            } * when (reaction.type) {
+                MessageReactionUpdatePayload.Type.Add -> 1
+                MessageReactionUpdatePayload.Type.Remove -> -1
+            }
+            vote.score++
         }
     }
 }

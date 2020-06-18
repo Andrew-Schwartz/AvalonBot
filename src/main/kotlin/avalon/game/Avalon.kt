@@ -25,7 +25,6 @@ import lib.model.Color
 import lib.model.Color.Companion.gold
 import lib.model.Color.Companion.red
 import lib.model.channel.Message
-import lib.rest.http.httpRequests.deletePin
 import lib.rest.model.events.receiveEvents.MessageCreate
 import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.inlineCode
@@ -33,10 +32,22 @@ import lib.util.ping
 import lib.util.underline
 import kotlin.math.absoluteValue
 
+/*
+
+players     good       #Loyal       %loyal          evil        #Minions        %minion
+5           3          5                            2           5               55
+6           4          7                            2           5               55
+7           4          7                            3           7               64
+8           5                                       3           7               64
+9           6                                       3           7               64
+10          6                                       4           9               70
+
+ */
+
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
-    internal val state = AvalonState(this, setup)
+    override val state: AvalonState = AvalonState(setup)
 
     override suspend fun startGame(): GameFinish = bot.run game@{
         with(state) {
@@ -55,9 +66,9 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 }
                 // TODO these numbers
                 val good = ML[Merlin, Percival]
-                repeat(4) { good.add(LoyalServant) }
+                repeat(if (players.size == 5) 4 else 7) { good.add(LoyalServant) }
                 val evil = ML[Assassin, Mordred, Morgana, Oberon]
-                repeat(6) { evil.add(MinionOfMordred) }
+                repeat(numEvil * 2 + 1) { evil.add(MinionOfMordred) }
                 good.shuffle()
                 evil.shuffle()
                 while (good.size > numGood) good.removeAt(0)
@@ -341,22 +352,8 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
         }
     }
 
+    // TODO remove this???
     override suspend fun stopGame(info: GameFinish) {
-        bot.run {
-//            channel.send {
-//                title = "Ending game"
-//                description = message
-//                color = Color.red
-//            }
-            // TODO check that theses are done in endandremove
-//            channel.states.removeAll(subStates<State.Avalon>())
-//            channel.states += State.Setup.Setup
-            this@Avalon.pinnedMessages.forEach { pin ->
-                pinnedMessages -= pin
-                runCatching { deletePin(pin.channelId, pin) }
-                        .onFailure { println(it.message) }
-            }
-        }
     }
 
     override fun toString(): String {

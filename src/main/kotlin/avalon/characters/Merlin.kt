@@ -10,5 +10,6 @@ object Merlin : Character() {
 
     override val abilitiesDesc: String = "Sees agents of Evil"
 
+    // TODO should he see Oberon?
     override val sees: Set<Character> = S[Assassin, MinionOfMordred, Morgana]
 }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class ExplodingKittens(setup: Setup) : Game(GameType.Kittens, setup) {
-    val state: KittenState = KittenState(this, setup)
+    override val state = KittenState(setup)
 
     override suspend fun startGame(): GameFinish = bot.run {
         with(state) {
@@ -31,16 +31,7 @@ class ExplodingKittens(setup: Setup) : Game(GameType.Kittens, setup) {
     fun endTurn() {
         // todo add chat display saying whose turn it is
         if (--state.currentPlayer.numTurns == 0) {
-            state.currentPlayerIndex = next(state.currentPlayerIndex)
+            state.currentPlayerIndex = state.next(state.currentPlayerIndex)
         }
-    }
-
-    fun next(index: Int): Int {
-        var index = index
-        index += state.turnOrder
-        index %= state.players.size
-        if (index < 0)
-            index += 5
-        return index
     }
 }

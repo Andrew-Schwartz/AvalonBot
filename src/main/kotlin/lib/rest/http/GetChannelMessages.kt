@@ -21,15 +21,15 @@ class GetChannelMessages private constructor(
 
     companion object {
         fun around(channel: IntoId<ChannelId>, messageId: IntoId<MessageId>, limit: Int = 50): GetChannelMessages {
-            return GetChannelMessages(channel.intoId(), limit, around = messageId.intoId())
+            return GetChannelMessages(channel.intoId(), limit.coerceIn(1..100), around = messageId.intoId())
         }
 
         fun before(channel: IntoId<ChannelId>, messageId: IntoId<MessageId>, limit: Int = 50): GetChannelMessages {
-            return GetChannelMessages(channel.intoId(), limit, before = messageId.intoId())
+            return GetChannelMessages(channel.intoId(), limit.coerceIn(1..100), before = messageId.intoId())
         }
 
         fun after(channel: IntoId<ChannelId>, messageId: IntoId<MessageId>, limit: Int = 50): GetChannelMessages {
-            return GetChannelMessages(channel.intoId(), limit, after = messageId.intoId())
+            return GetChannelMessages(channel.intoId(), limit.coerceIn(1..100), after = messageId.intoId())
         }
     }
 }

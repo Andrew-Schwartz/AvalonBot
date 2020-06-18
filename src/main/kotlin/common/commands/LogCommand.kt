@@ -20,6 +20,7 @@ object LogCommand : MessageCommand(State.All) {
     override val execute: suspend Bot.(Message) -> Unit = { message ->
         if (message.author == steadfast) {
             println("debug = $debug")
+            println("states = ${Command._currentStates.mapKeys { it.key.name }}")
             println("Games: ")
             Game.games.flatMap { (channel, map) ->
                 map.map { (type, game) -> Triple(type, channel, game) }

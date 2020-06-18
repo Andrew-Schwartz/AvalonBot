@@ -61,9 +61,9 @@ object RolesCommand : MessageCommand(State.Setup.Setup) {
                 description = (characters - roles - S[LoyalServant, MinionOfMordred]).joinToString(separator = "\n") { it.name }
             }
         } else if (RANDOM_ROLES in args && roles.isEmpty()) {
-            setup.config.randomRoles = true
+            setup.config.randomRoles = !setup.config.randomRoles
             message.reply {
-                title = "Random mode engage"
+                title = "Random mode ${if (setup.config.randomRoles) "engaged!" else "disengaged"}"
                 color = gold
             }
         } else {
