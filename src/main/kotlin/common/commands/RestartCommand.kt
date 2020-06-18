@@ -43,7 +43,7 @@ object RestartCommand : MessageCommand(State.Game) {
 
             val gameType = gameFromArgs
                     ?: gameFromGames
-                    ?: message.reply(" Specify which game to start", ping = true).let { return@with }
+                    ?: message.reply(" Specify which game to restart", ping = true).let { return@with }
 
             val game = Game[message.channel(), gameType]
             if (args.lastOrNull()?.equals("now", true) == true) {
@@ -57,7 +57,7 @@ object RestartCommand : MessageCommand(State.Game) {
                     Setup.remove(message.channel(), gameType)
                 }
             } else {
-                val botMsg = message.reply("React ✔ if you are ready to start the game, if you're not ready react ❌")
+                val botMsg = message.reply("React ✔ if you agree to restart the game, if not react ❌")
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
                 RestartVoteCommand.restarts[message.channel()] = Vote(botMsg)
@@ -69,6 +69,11 @@ object RestartCommand : MessageCommand(State.Game) {
                         game.state.players.none { it.user in rejects } &&
                                 game.state.players.count { it.user in approves } >= 4
                     }
+                    Game.endAndRemove(message.channel(), gameType, GameFinish {
+                        title = "Manually restarted"
+                        color = gold
+                    })
+                    Setup.remove(message.channel(), gameType)
                 }
             }
         }
