@@ -31,13 +31,11 @@ data class Message(
         val type: MessageType,
         val activity: MessageActivity,
         val application: MessageApplication
-) : Storable<Message>, IntoId<MessageId> {
+) : Storable<Message>, IntoId<MessageId> by id {
     override val prevVersions: MutableList<Message> = mutableListOf()
 
     override val mostRecent: Message?
         get() = prevVersions.lastOrNull()
-
-    override fun intoId(): MessageId = id
 
     val mentionRoles: List<RoleId> by lazy { _mentionRoles.map(::RoleId) }
 
@@ -91,6 +89,4 @@ data class Message(
         }
 */
     }
-    // TODO delete function (maybe in Bot)
-//    fun delete()
 }

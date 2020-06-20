@@ -14,7 +14,6 @@ interface Snowflake {
     val value: String
 }
 
-// TODO maybe just Into?
 interface IntoId<T : Snowflake?> {
     fun intoId(): T
 }

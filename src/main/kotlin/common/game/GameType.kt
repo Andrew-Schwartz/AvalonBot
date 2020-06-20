@@ -44,7 +44,7 @@ enum class GameType {
 //                        GlobalScope.launch {
                         val avalon = Game[message.channel(), Avalon] as avalon.game.Avalon
                         avalon.state.numEvil = maxEvil
-                        Game.startGame(avalon)
+                        Game.runGame(avalon)
 //                        }
                     }
                     else -> message.reply("Error starting Avalon game")

@@ -78,6 +78,10 @@ class Bot internal constructor(val token: String) {
 
     suspend fun Message.reactions(vararg emojis: Char): List<Array<User>> = emojis.map { reactions(it) }
 
+    suspend fun Message.delete() {
+        deleteMessage(channelId, id)
+    }
+
     suspend fun User.getDM(): Channel = createDM(id)
 
     suspend fun User.sendDM(

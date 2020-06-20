@@ -13,14 +13,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class ExplodingKittens(setup: Setup) : Game(GameType.Kittens, setup) {
     override val state = KittenState(setup)
 
-    override suspend fun startGame(): GameFinish = bot.run {
+    override suspend fun runGame(): GameFinish = bot.run {
         with(state) {
             TODO()
         }
-    }
-
-    override suspend fun stopGame(info: GameFinish) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     suspend fun drawCard() {

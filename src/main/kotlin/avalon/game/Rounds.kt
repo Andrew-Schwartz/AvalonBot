@@ -4,8 +4,7 @@ import common.util.L
 import common.util.M
 
 class Rounds(private val numPlayers: Int) {
-    @Suppress("MapGetWithNotNullAssertionOperator")
-    operator fun get(roundNum: Int): Round = map[numPlayers]!![roundNum - 1]
+    operator fun get(roundNum: Int): Round = map.getValue(numPlayers)[roundNum - 1]
 }
 
 // @formatter:off

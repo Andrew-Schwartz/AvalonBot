@@ -7,13 +7,9 @@ import avalon.commands.game.VoteCommand
 import common.bot
 import common.commands.State
 import common.commands.State.Avalon.Voting
-import common.commands.debug
 import common.commands.states
 import common.game.*
-import common.util.A
-import common.util.ML
-import common.util.listGrammatically
-import common.util.map
+import common.util.*
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -32,24 +28,12 @@ import lib.util.ping
 import lib.util.underline
 import kotlin.math.absoluteValue
 
-/*
-
-players     good       #Loyal       %loyal          evil        #Minions        %minion
-5           3          5                            2           5               55
-6           4          7                            2           5               55
-7           4          7                            3           7               64
-8           5                                       3           7               64
-9           6                                       3           7               64
-10          6                                       4           9               70
-
- */
-
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
     override val state: AvalonState = AvalonState(setup)
 
-    override suspend fun startGame(): GameFinish = bot.run game@{
+    override suspend fun runGame(): GameFinish = bot.run game@{
         with(state) {
             channel.states -= State.Setup.Setup
             rounds = Rounds(players.size)
@@ -57,7 +41,6 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 
             if (randomRoles) {
                 if (roles.isNotEmpty()) {
-                    // TODO auto re-add the roles?
                     return@game GameFinish {
                         title = "Random roles were on but these roles were also selected manually"
                         description = roles.joinToString(separator = "\n") { it.name }
@@ -68,7 +51,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 val good = ML[Merlin, Percival]
                 repeat(if (players.size == 5) 4 else 7) { good.add(LoyalServant) }
                 val evil = ML[Assassin, Mordred, Morgana, Oberon]
-                repeat(numEvil * 2 + 1) { evil.add(MinionOfMordred) }
+                repeat(numEvil * 2) { evil.add(MinionOfMordred) }
                 good.shuffle()
                 evil.shuffle()
                 while (good.size > numGood) good.removeAt(0)
@@ -117,7 +100,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         if (seenPeople.isNotEmpty()) {
                             addField("You see",
                                     seenPeople
-                                            .filter { debug || it.name != player.name }
+                                            .filter { channel.debug || it.name != player.name }
                                             .joinToString(separator = "\n") {
                                                 val ping = it.user.ping()
                                                 if (ping.isEmpty()) it.name else ping
@@ -131,6 +114,16 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
                 }
             } // notify all players of their role
+
+            channel.send {
+                title = "Avalon game with ${players.size} players"
+                color = gold
+                addField("The roles are",
+                        if (randomRoles) "random" else roles.sortedBy { it.loyalty }.joinToString(separator = "\n") { it.name },
+                        inline = true)
+                addField("Lady of the Lake", if (ladyEnabled) "is enabled" else "is disabled", inline = true)
+                // TODO more info?
+            }
 
             gameLoop@ while (goodWins < 3 && evilWins < 3) {
                 val round = rounds[roundNum]
@@ -197,7 +190,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     rejectedQuests++
                     if (rejectedQuests == 5) {
                         return@game GameFinish {
-                            color = Color.red
+                            color = red
                             title = "There have been 5 rejected parties in a row so the bad guys win"
                         }
                     } else {
@@ -350,10 +343,6 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 color = gold
             }
         }
-    }
-
-    // TODO remove this???
-    override suspend fun stopGame(info: GameFinish) {
     }
 
     override fun toString(): String {

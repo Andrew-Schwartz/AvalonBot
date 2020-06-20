@@ -4,9 +4,11 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
-inline class Timestamp(val time: String) {
+inline class Timestamp(val time: String) : Comparable<Timestamp> {
     val dateTime: OffsetDateTime
         get() = OffsetDateTime.parse(time)
+
+    override fun compareTo(other: Timestamp): Int = time.compareTo(other.time)
 }
 
 @Suppress("NOTHING_TO_INLINE")

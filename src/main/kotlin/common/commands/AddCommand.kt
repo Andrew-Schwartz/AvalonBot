@@ -3,6 +3,7 @@ package common.commands
 import common.game.GameType
 import common.game.Setup
 import common.steadfast
+import common.util.debug
 import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,7 +36,7 @@ object AddCommand : MessageCommand(State.Setup.Setup) {
                 if (it in setup.players.map { it.user }) setup.removePlayer(it)
                 else setup.addPlayer(it)
             }
-            debug || message.author !in setup -> setup.addPlayer(message.author)
+            message.channelId.debug || message.author !in setup -> setup.addPlayer(message.author)
             else -> setup.removePlayer(message.author)
         }
 

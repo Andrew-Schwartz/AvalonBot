@@ -19,7 +19,6 @@ class AvalonState(setup: Setup) : State<AvalonPlayer>() {
     override val players: ArrayList<AvalonPlayer> = setup.players.map { it as AvalonPlayer } as ArrayList<AvalonPlayer>
     val userPlayerMap: Map<User, AvalonPlayer> = players.associateBy { it.user }
 
-    @Suppress("UNCHECKED_CAST")
     val roles = config.roles
     val randomRoles = config.randomRoles
 
@@ -46,6 +45,6 @@ class AvalonState(setup: Setup) : State<AvalonPlayer>() {
     internal var ladyOfTheLake: AvalonPlayer? = null
 
     override fun toString(): String {
-        return "AvalonState(players=$players, roles=$roles, numEvil=$numEvil, ladyEnabled=$ladyEnabled, party=$party, ladyTarget=$ladyTarget, pastLadies=${pastLadies.map { it.name }}, roundNum=$roundNum, leaderNum=$leaderNum, goodWins=$goodWins, evilWins=$evilWins, rejectedQuests=$rejectedQuests, ladyOfTheLake=$ladyOfTheLake)"
+        return "AvalonState(players=$players, roles=$roles, randomRoles=$randomRoles, numEvil=$numEvil, ladyEnabled=$ladyEnabled, party=$party, ladyTarget=$ladyTarget, pastLadies=${pastLadies.map { it.name }}, roundNum=$roundNum, leaderNum=$leaderNum, goodWins=$goodWins, evilWins=$evilWins, rejectedQuests=$rejectedQuests, ladyOfTheLake=$ladyOfTheLake)"
     }
 }

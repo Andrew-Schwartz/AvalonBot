@@ -2,6 +2,7 @@ package common.commands
 
 import common.steadfast
 import common.util.A
+import common.util.debug
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -29,8 +30,8 @@ object HelpCommand : MessageCommand(State.All) {
             embed {
                 title = "List of commands".underline()
                 color = Color.gold
-                messageCommands.filter { debug || it.state in message.channel().states }
-                        .filter { debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand] }
+                messageCommands.filter { message.channelId.debug || it.state in message.channel().states }
+                        .filter { message.channelId.debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand] }
                         .sortedWith(StateComparator)
                         .forEach {
                             val name = "▶ ${it.state.typeName().toLowerCase()} - ${it.name}".bold()

@@ -1,14 +1,19 @@
 package common.util
 
+import common.commands.DebugCommand
 import io.ktor.util.KtorExperimentalAPI
 import kittens.cards.Card
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.model.ChannelId
+import lib.model.IntoId
 import java.time.Duration
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.pow
 import kotlin.reflect.KClass
+
+// General Java/Kotlin extensions
 
 operator fun String.get(range: IntRange): String = substring(range)
 
@@ -40,6 +45,27 @@ suspend fun <T> T?.onNull(λ: suspend () -> Unit): T? {
 
 fun <T> not(predicate: (T) -> Boolean): (T) -> Boolean = { !predicate(it) }
 
+fun <T> List<T>.getOrDefault(index: Int, default: T): T =
+        if (index in 0..lastIndex) get(index) else default
+
+fun now(): String = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("dd HH:mm:ss"))
+
+fun Instant.durationSince(start: Instant): Duration = Duration.between(start, this)
+
+fun Instant.elapsed(): Duration = Instant.now().durationSince(this)
+
+fun Int.pow(n: Int): Int = toDouble().pow(n).toInt()
+
+// Extensions for common/lib packages
+
+var IntoId<ChannelId>.debug: Boolean
+    get() = DebugCommand.debug.getOrDefault(this.intoId(), false)
+    set(value) {
+        DebugCommand.debug[this.intoId()] = value
+    }
+
+// Extensions for Exploding Kittens
+
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 fun List<String>.cards(): List<KClass<out Card>> {
@@ -58,14 +84,3 @@ fun List<String>.cards(): List<KClass<out Card>> {
 @ExperimentalCoroutinesApi
 operator fun <T : Card> List<T>.contains(cardClass: KClass<out T>): Boolean =
         any { it::class == cardClass }
-
-fun <T> List<T>.getOrDefault(index: Int, default: T): T =
-        if (index in 0..lastIndex) get(index) else default
-
-fun now(): String = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("dd HH:mm:ss"))
-
-fun Instant.durationSince(start: Instant): Duration = Duration.between(start, this)
-
-fun Instant.elapsed(): Duration = Instant.now().durationSince(this)
-
-fun Int.pow(n: Int): Int = toDouble().pow(n).toInt()

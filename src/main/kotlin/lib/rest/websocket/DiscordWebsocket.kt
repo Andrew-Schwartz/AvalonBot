@@ -34,7 +34,7 @@ class DiscordWebsocket(val bot: Bot) {
     private var heartbeatJob: Job? = null
     private var sequenceNumber: Int? = null
     private var sessionId: String? = null
-    private var authed = false
+    internal var authed = false
 
     private var lastAck: Instant? = null
     private var lastHeartbeat: Instant? = null
@@ -285,7 +285,7 @@ class DiscordWebsocket(val bot: Bot) {
                             Status.Online,
                             false
                     ),
-                    intents = DispatchEvent.intents.bits
+                    intents = Intent.sendBits()
             )
             println("[${now()}] send: $identify")
             sendGatewayEvent(identify)

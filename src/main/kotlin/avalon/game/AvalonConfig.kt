@@ -10,6 +10,6 @@ class AvalonConfig : GameConfig {
     var ladyEnabled: Boolean = false
 
     override fun toString(): String {
-        return "AvalonConfig(roles=$roles, ladyEnabled=$ladyEnabled)"
+        return "AvalonConfig(roles=$roles, randomRoles=$randomRoles, ladyEnabled=$ladyEnabled)"
     }
 }

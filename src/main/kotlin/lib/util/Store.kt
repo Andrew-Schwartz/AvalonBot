@@ -5,7 +5,6 @@ package lib.util
 import lib.model.Snowflake
 import lib.model.Storable
 
-// TODO delete this whole thing??
 class Store<T : Storable<T>> {
     val map: MutableMap<Snowflake, T> = mutableMapOf()
     val size: Int

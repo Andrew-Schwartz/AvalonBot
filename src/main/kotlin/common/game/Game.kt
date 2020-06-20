@@ -18,18 +18,16 @@ import java.time.Duration
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-abstract class Game(val type: GameType, setup: Setup) {
+abstract class Game(val type: GameType, val setup: Setup) {
     abstract val state: common.game.State<*>
     val channel = setup.channel
     val pinnedMessages: ArrayList<Message> = arrayListOf()
     var running = false
 
-    protected abstract suspend fun startGame(): GameFinish
-
-    abstract suspend fun stopGame(info: GameFinish)
+    protected abstract suspend fun runGame(): GameFinish
 
     companion object {
-        suspend fun startGame(game: Game) {
+        suspend fun runGame(game: Game) {
             GlobalScope.launch {
                 runCatching {
                     game.running = true
@@ -42,12 +40,12 @@ abstract class Game(val type: GameType, setup: Setup) {
                             // TODO update player names
                         }
                     }
-                    game.startGame()
+                    game.runGame()
                 }.onFailure { e ->
                     println("[${now()}] Error in game ${game.type.name} in channel ${game.channel.name}")
                     e.printStackTrace()
                     endAndRemove(game.channel, game.type, GameFinish {
-                        title = "Error in Error in game ${game.type.name}"
+                        title = "ERROR in game ${game.type.name}"
                         description = e.message
                         color = red
                     })
@@ -64,19 +62,20 @@ abstract class Game(val type: GameType, setup: Setup) {
             with(bot) {
                 channel.send(embed = info.message)
                 games[channel]?.get(gameType)?.run {
-                    stopGame(info)
                     running = false
-                    pinnedMessages.forEach { pin ->
+                    // toList to prevent concurrentModificationException
+                    pinnedMessages.toList().forEach { pin ->
                         pinnedMessages -= pin
                         runCatching { deletePin(pin.channelId, pin) }
                                 .onFailure { println(it.message) }
                     }
+                    setup.restart()
                 }
             }
             games[channel]?.remove(gameType)
             channel.states -= gameType.states.commandState
             channel.states -= State.Game
-            channel.states.removeAll(subStates(gameType.states.parentClass)) // TODO does this work
+            channel.states.removeAll(subStates(gameType.states.parentClass))
             channel.states += State.Setup.Setup
         }
 

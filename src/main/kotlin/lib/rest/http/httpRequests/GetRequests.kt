@@ -32,9 +32,15 @@ private suspend fun Bot.getRequest(url: String, routeKey: String): HttpResponse 
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getChannel(id: IntoId<ChannelId>): Channel {
+suspend fun Bot.getChannel(id: IntoId<ChannelId>, forceRequest: Boolean = false): Channel {
     val id = id.intoId()
-    return channels.computeIfAbsent(id) { getRequest("/channels/$id", "GET-getChannel-$id").fromJson() }
+    val url = "/channels/$id"
+    val routeKey = "GET-getChannel-$id"
+    return if (forceRequest) {
+        getRequest(url, routeKey).fromJson<Channel>().let { channels.add(it) }
+    } else {
+        channels.computeIfAbsent(id) { getRequest(url, routeKey).fromJson() }
+    }
 }
 
 /**
@@ -83,6 +89,18 @@ suspend fun Bot.getReactions(channelId: IntoId<ChannelId>, messageId: IntoId<Mes
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji", "GET-getReactions-$channelId").fromJson()
+}
+
+
+/**
+ * @return [Array]<[Message]> that are pinned
+ * see also [https://discord.com/developers/docs/resources/channel#get-pinned-messages]
+ */
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+suspend fun Bot.getPinnedMessages(channelId: IntoId<ChannelId>): Array<Message> {
+    val channelId = channelId.intoId()
+    return getRequest("/channels/$channelId/pins", "GET-getPinnedReactions-$channelId").fromJson()
 }
 
 /**

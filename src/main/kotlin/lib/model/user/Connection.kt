@@ -5,7 +5,7 @@ import lib.model.guild.Integration
 
 @Suppress("ArrayInDataClass")
 data class Connection(
-        val id: String, // TODO maybe should be just snowflake idk probs not
+        val id: String,
         val name: String,
         val type: String,
         val revoked: Boolean,

@@ -7,6 +7,7 @@ import common.game.Setup
 import common.steadfast
 import common.util.A
 import common.util.Vote
+import common.util.debug
 import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -78,10 +79,14 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
                 channel().states += votingState
 
                 GlobalScope.launch {
+                    var cancelled = false
                     suspendUntil(500) {
-                        if (votingState !in channel().states) return@suspendUntil false
+                        if (votingState !in channel().states) {
+                            cancelled = true
+                            return@suspendUntil true
+                        }
                         val score = setup.startVote?.score ?: return@suspendUntil false
-                        if (!debug && score != setup.players.size) return@suspendUntil false
+                        if (!channelId.debug && score != setup.players.size) return@suspendUntil false
                         val (approves, rejects) = botMsg.reactions(approveChar, rejectChar)
                         when {
                             setup.players.all { it.user in approves } -> true
@@ -90,8 +95,10 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
                             else -> false
                         }
                     }
-                    channel().states -= votingState
-                    gameType.startGame(message)
+                    if (!cancelled) {
+                        channel().states -= votingState
+                        gameType.startGame(message)
+                    }
                 }
             }
         }

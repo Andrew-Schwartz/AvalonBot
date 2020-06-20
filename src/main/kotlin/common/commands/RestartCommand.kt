@@ -5,10 +5,10 @@ import common.commands.RestartCommand.rejectChar
 import common.game.Game
 import common.game.GameFinish
 import common.game.GameType
-import common.game.Setup
 import common.steadfast
 import common.util.A
 import common.util.Vote
+import common.util.debug
 import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,7 +54,6 @@ object RestartCommand : MessageCommand(State.Game) {
                         title = "Manually restarted"
                         color = gold
                     })
-                    Setup.remove(message.channel(), gameType)
                 }
             } else {
                 val botMsg = message.reply("React ✔ if you agree to restart the game, if not react ❌")
@@ -62,18 +61,24 @@ object RestartCommand : MessageCommand(State.Game) {
                 botMsg.react(rejectChar)
                 RestartVoteCommand.restarts[message.channel()] = Vote(botMsg)
                 GlobalScope.launch {
+                    var cancelled = false
                     suspendUntil(500) {
+                        if (State.Game !in channel().states) {
+                            cancelled = true
+                            return@suspendUntil true
+                        }
                         val score = RestartVoteCommand.restarts[message.channel()]?.score ?: return@suspendUntil false
-                        if (!debug && score != game.state.players.size) return@suspendUntil false
+                        if (!channelId.debug && score != game.state.players.size) return@suspendUntil false
                         val (approves, rejects) = botMsg.reactions(approveChar, rejectChar)
                         game.state.players.none { it.user in rejects } &&
                                 game.state.players.count { it.user in approves } >= 4
                     }
-                    Game.endAndRemove(message.channel(), gameType, GameFinish {
-                        title = "Manually restarted"
-                        color = gold
-                    })
-                    Setup.remove(message.channel(), gameType)
+                    if (!cancelled) {
+                        Game.endAndRemove(message.channel(), gameType, GameFinish {
+                            title = "Manually restarted"
+                            color = gold
+                        })
+                    }
                 }
             }
         }

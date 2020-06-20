@@ -1,16 +1,21 @@
 package common.game
 
+import common.bot
 import common.util.Vote
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
 import lib.model.user.User
+import lib.rest.http.httpRequests.getChannel
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class Setup private constructor(val channel: Channel, private val gameType: GameType, val config: GameConfig) {
-    val players: ArrayList<Player> = arrayListOf()
-
+class Setup private constructor(
+        val channel: Channel,
+        private val gameType: GameType,
+        val config: GameConfig,
+        val players: ArrayList<Player> = arrayListOf()
+) {
     var startVote: Vote? = null
 
     suspend fun addPlayer(user: User) {
@@ -24,6 +29,11 @@ class Setup private constructor(val channel: Channel, private val gameType: Game
     operator fun contains(user: User) = players.any { it.user == user }
 
     override fun toString(): String = "Setup(channel=${channel.name},gameType=$gameType,config=$config,players=$players)"
+
+    suspend fun restart() {
+        val new = Setup(bot.getChannel(channel, forceRequest = true), gameType, config, players)
+        setups.getOrPut(channel) { mutableMapOf() }[gameType] = new
+    }
 
     companion object {
         internal val setups: MutableMap<Channel, MutableMap<GameType, Setup>> = mutableMapOf()

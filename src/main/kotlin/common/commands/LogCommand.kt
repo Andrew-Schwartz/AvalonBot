@@ -19,7 +19,7 @@ object LogCommand : MessageCommand(State.All) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message) -> Unit = { message ->
         if (message.author == steadfast) {
-            println("debug = $debug")
+            println("debug = ${DebugCommand.debug.mapKeys { it.key.channel().fullName() }}")
             println("states = ${Command._currentStates.mapKeys { it.key.name }}")
             println("Games: ")
             Game.games.flatMap { (channel, map) ->

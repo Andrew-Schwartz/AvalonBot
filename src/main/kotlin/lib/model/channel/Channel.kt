@@ -2,6 +2,7 @@ package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
 import common.bot
+import common.util.listGrammatically
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.*
@@ -46,10 +47,22 @@ data class Channel(
     @ExperimentalCoroutinesApi
     suspend fun guild(): Guild? = guildId?.guild()
 
-//    val nameOrUser: String?
-//        get() {
-//            return name ?: recipients?.asIterable()?.formatIterable { it.username }
-//        }
+    /**
+     * In a guild, gets the channel name:
+     *
+     * ex: "AwesomeGuild/BotChannel"
+     *
+     * In a DM, gets the target user(s)
+     *
+     * ex: "DM: Bob the Builder(, Sally, and George Washington)"
+     */
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun fullName(): String {
+        return guild()?.let {
+            "${it.name}/$name"
+        } ?: "DM: ${recipients?.listGrammatically { it.username }}"
+    }
 
     @Suppress("USELESS_ELVIS")
     override fun updateDataFrom(new: Channel?): Channel {

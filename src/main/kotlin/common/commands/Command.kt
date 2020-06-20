@@ -80,7 +80,7 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
         suspend fun run(reaction: MessageReactionUpdatePayload) {
             val channelStates = reaction.channel().states
             reactCommands.asSequence()
-                    .filter { it.state in channelStates }
+//                    .filter { it.state in channelStates }
                     .filter { reaction.emoji.name in it.emojis }
                     .forEach { it.execute(bot, reaction) }
         }

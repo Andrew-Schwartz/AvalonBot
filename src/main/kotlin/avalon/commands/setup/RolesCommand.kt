@@ -32,7 +32,6 @@ object RolesCommand : MessageCommand(State.Setup.Setup) {
 
     override val usage: String = "roles [$CLEAR_ROLES] [$LIST_ROLES] [$RANDOM_ROLES [role1] [role2] [role3] etc..."
 
-    @Suppress("UNCHECKED_CAST")
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message) -> Unit = { message ->

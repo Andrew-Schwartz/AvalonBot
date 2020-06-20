@@ -22,5 +22,5 @@ enum class ChannelType {
         get() = this == GuildText || this == DM || this == GroupDM
 
     val isVoice: Boolean
-        get() = this == GuildVoice // todo maybe more
+        get() = this == GuildVoice
 }
