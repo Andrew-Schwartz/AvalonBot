@@ -6,6 +6,7 @@ import lib.dsl.Bot
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.getPinnedMessages
 
+// TODO react with ✅ or smth when completed
 object UnpinCommand : MessageCommand(State.All) {
     override val name: String = "unpin"
 
@@ -37,7 +38,7 @@ object UnpinCommand : MessageCommand(State.All) {
                             listOf()
                         }
                     }.forEach { it.unpin() }
-                }
+                } ?: message.reply("How many pins to remove?")
                 else -> message.reply("Unknown args. Use `!help unpin` to find out more")
             }
         }

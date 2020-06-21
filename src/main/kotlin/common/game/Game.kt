@@ -11,6 +11,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import lib.model.Color.Companion.red
+import lib.model.IntoId
+import lib.model.UserId
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
@@ -34,6 +36,10 @@ abstract class Game(val type: GameType, val setup: Setup) {
                     game.channel.states += game.type.states.commandState
                     game.channel.states += State.Game
                     game.channel.states -= State.Setup.Setup
+                    game.state.players.map { it.user }.forEach {
+                        userGames.putIfAbsent(it.id, mutableListOf())
+                        userGames[it.id]?.add(game)
+                    }
                     launch {
                         while (game.running) {
                             delay(Duration.ofMinutes(1))
@@ -57,12 +63,16 @@ abstract class Game(val type: GameType, val setup: Setup) {
         }
 
         internal val games: MutableMap<Channel, MutableMap<GameType, Game>> = mutableMapOf()
+        private val userGames: MutableMap<UserId, MutableList<Game>> = mutableMapOf()
 
         suspend fun endAndRemove(channel: Channel, gameType: GameType, info: GameFinish) {
             with(bot) {
                 channel.send(embed = info.message)
                 games[channel]?.get(gameType)?.run {
                     running = false
+                    state.players.map { it.user }.forEach {
+                        userGames[it.id]?.remove(this)
+                    }
                     // toList to prevent concurrentModificationException
                     pinnedMessages.toList().forEach { pin ->
                         pinnedMessages -= pin
@@ -77,6 +87,10 @@ abstract class Game(val type: GameType, val setup: Setup) {
             channel.states -= State.Game
             channel.states.removeAll(subStates(gameType.states.parentClass))
             channel.states += State.Setup.Setup
+        }
+
+        fun forUser(user: IntoId<UserId>): List<Game> {
+            return userGames.getOrDefault(user.intoId(), listOf<Game>()).distinct()
         }
 
         operator fun get(channel: Channel, gameType: GameType): Game =

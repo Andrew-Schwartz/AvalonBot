@@ -46,7 +46,7 @@ class DiscordWebsocket(val bot: Bot) {
             println("[${now()}] Starting websocket")
             runCatching {
                 client.wss(host = bot.gateway(), port = 443) {
-                    // set up 'callback's to interact with ws from other functions
+                    // set up callbacks to interact with ws from other functions
                     sendWebsocket = { send(it) }
                     close = { code, message -> close(CloseReason(code, message)) }
 

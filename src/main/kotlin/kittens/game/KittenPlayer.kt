@@ -13,4 +13,9 @@ class KittenPlayer(user: User, guild: Guild?) : Player(user, guild) {
     val hand = arrayListOf<Card>()
 
     var numTurns = 1
+
+    override fun reset() {
+        hand.clear()
+        numTurns = 1
+    }
 }

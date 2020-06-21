@@ -22,19 +22,21 @@ object VoteCommand : ReactCommand(State.Avalon.Voting) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
-        val state = (Game[reaction.channel(), GameType.Avalon] as Avalon).state
-        val message = reaction.message()
+        Game.forUser(reaction.userId).forEach { game ->
+            val state = (Game[game.channel, GameType.Avalon] as Avalon).state
+            val message = reaction.message()
 
-        if (reaction.user().isBot != true && message in state.reacts.keys) {
-            val delta = when (reaction.emoji.name[0]) {
-                approveChar -> 1
-                rejectChar -> -1
-                else -> 0
-            } * when (reaction.type) {
-                Add -> 1
-                Remove -> -1
+            if (reaction.user().isBot != true && message in state.reacts.keys) {
+                val delta = when (reaction.emoji.name[0]) {
+                    approveChar -> 1
+                    rejectChar -> -1
+                    else -> 0
+                } * when (reaction.type) {
+                    Add -> 1
+                    Remove -> -1
+                }
+                state.reacts[message] = state.reacts[message]!! + delta
             }
-            state.reacts[message] = state.reacts[message]!! + delta
         }
     }
 }

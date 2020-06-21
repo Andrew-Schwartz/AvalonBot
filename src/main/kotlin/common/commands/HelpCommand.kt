@@ -60,4 +60,5 @@ suspend fun MessageCommand.helpEmbed(): RichEmbed = embed {
     color = Color.gold
     addField("Description", this@helpEmbed.description, false)
     addField("Usage", "!${usage}".inlineCode())
+    addField("Usable for", state.name())
 }

@@ -14,7 +14,7 @@ class Setup private constructor(
         val channel: Channel,
         private val gameType: GameType,
         val config: GameConfig,
-        val players: ArrayList<Player> = arrayListOf()
+        val players: MutableList<Player> = mutableListOf()
 ) {
     var startVote: Vote? = null
 
@@ -31,7 +31,12 @@ class Setup private constructor(
     override fun toString(): String = "Setup(channel=${channel.name},gameType=$gameType,config=$config,players=$players)"
 
     suspend fun restart() {
-        val new = Setup(bot.getChannel(channel, forceRequest = true), gameType, config, players)
+        val new = Setup(
+                bot.getChannel(channel, forceRequest = true),
+                gameType,
+                config.apply { reset() },
+                players.map { it.apply { reset() } }.toMutableList()
+        )
         setups.getOrPut(channel) { mutableMapOf() }[gameType] = new
     }
 

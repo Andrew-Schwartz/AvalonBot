@@ -19,18 +19,22 @@ operator fun String.get(range: IntRange): String = substring(range)
 
 inline fun <A, R> Pair<A, A>.map(transform: (A) -> R): Pair<R, R> = transform(first) to transform(second)
 
-fun <T> Iterable<T>.listGrammatically(stringify: (T) -> String = { it.toString() }): String {
-    return map(stringify)
-            .reduceIndexed { index, acc, name ->
-                "$acc${
-                if (index == count() - 1) "${if (index != 1) "," else ""} and"
-                else ","
-                } $name"
-            }
+fun <T> Iterable<T>.listGrammatically(default: String = "", stringify: (T) -> String = { it.toString() }): String {
+    val strings = map(stringify)
+    return if (strings.isEmpty()) {
+        default
+    } else {
+        strings.reduceIndexed { index, acc, name ->
+            "$acc${
+            if (index == count() - 1) "${if (index != 1) "," else ""} and"
+            else ","
+            } $name"
+        }
+    }
 }
 
-fun <T> Array<T>.listGrammatically(stringify: (T) -> String = { it.toString() }): String {
-    return asIterable().listGrammatically(stringify)
+fun <T> Array<T>.listGrammatically(default: String = "", stringify: (T) -> String = { it.toString() }): String {
+    return asIterable().listGrammatically(default, stringify)
 }
 
 fun String.replaceCamelCase(with: String, makeLowerCase: Boolean = false): String = map {

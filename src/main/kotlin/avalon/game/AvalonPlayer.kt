@@ -10,6 +10,10 @@ import lib.model.user.User
 class AvalonPlayer(user: User, guild: Guild?) : Player(user, guild) {
     var role: Character? = null
 
+    override fun reset() {
+        role = null
+    }
+
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override fun toString() = "Player(name=$name, role=${role?.name})"

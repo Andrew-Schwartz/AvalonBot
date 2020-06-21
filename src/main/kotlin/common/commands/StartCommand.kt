@@ -110,16 +110,18 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
 fun voteExecute(gameType: GameType): suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
     val setup = Setup[reaction.channel(), gameType]
 
-    if (reaction.message() == setup.startVote?.message) {
-        val delta = when (reaction.emoji.name[0]) {
-            approveChar -> 1
-            rejectChar -> -1
-            else -> 0
-        } * when (reaction.type) {
-            Add -> 1
-            Remove -> -1
+    setup.startVote?.let { startVote ->
+        if (reaction.message() == startVote.message) {
+            val delta = when (reaction.emoji.name[0]) {
+                approveChar -> 1
+                rejectChar -> -1
+                else -> 0
+            } * when (reaction.type) {
+                Add -> 1
+                Remove -> -1
+            }
+            startVote.score += delta
         }
-        setup.startVote?.score?.inc()
     }
 }
 

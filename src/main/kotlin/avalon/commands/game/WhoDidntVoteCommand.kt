@@ -27,6 +27,6 @@ object WhoDidntVoteCommand : MessageCommand(State.Avalon.Voting) {
                     .filterValues { it == 0 }
                     .map { (msg, _) -> msg.channel().recipients?.singleOrNull() }
         }.map { it.name }
-        message.reply("${notVoted.listGrammatically()} ${if (notVoted.size == 1) "has" else "have"} not voted")
+        message.reply("${notVoted.listGrammatically("no one")} ${if (notVoted.size < 2) "has" else "have"} not voted")
     }
 }

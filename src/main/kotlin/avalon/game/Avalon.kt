@@ -49,7 +49,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 }
                 // TODO these numbers
                 val good = ML[Merlin, Percival]
-                repeat(if (players.size == 5) 4 else 7) { good.add(LoyalServant) }
+                repeat(if (players.size == 5) 4 else 6) { good.add(LoyalServant) }
                 val evil = ML[Assassin, Mordred, Morgana, Oberon]
                 repeat(numEvil * 2) { evil.add(MinionOfMordred) }
                 good.shuffle()
