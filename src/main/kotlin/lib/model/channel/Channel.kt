@@ -30,10 +30,8 @@ data class Channel(
         @SerializedName("application_id") val applicationId: ApplicationId?,
         @SerializedName("parent_id") val parentId: ChannelId?,
         @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?
-) : Storable<Channel>, IntoId<ChannelId> {
+) : Storable<Channel>, IntoId<ChannelId> by id {
     override fun equals(other: Any?): Boolean = (other as? Channel)?.id == id
-
-    override fun intoId(): ChannelId = id
 
     override fun hashCode(): Int = id.hashCode()
 

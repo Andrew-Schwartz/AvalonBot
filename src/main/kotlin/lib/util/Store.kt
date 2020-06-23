@@ -10,7 +10,7 @@ class Store<T : Storable<T>> {
     val size: Int
         get() = map.size
 
-    fun add(value: T): T {
+    fun addOrUpdate(value: T): T {
         val id = value.id
         return when (id) {
             in map -> map[id]!!.updateDataFrom(value)
@@ -22,9 +22,9 @@ class Store<T : Storable<T>> {
         map -= id
     }
 
-    inline operator fun minusAssign(id: Snowflake) = remove(id)
-
-    inline operator fun minusAssign(value: T) = remove(value.id)
+//    inline operator fun minusAssign(id: Snowflake) = remove(id)
+//
+//    inline operator fun minusAssign(value: T) = remove(value.id)
 
     operator fun get(snowflake: Snowflake): T? = map[snowflake]
 

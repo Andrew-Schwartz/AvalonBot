@@ -47,7 +47,7 @@ data class Guild(
         val banner: String?,
         @SerializedName("premium_tier") val premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") val premiumSubscriptionCount: Int?
-) : Storable<Guild>, IntoId<GuildId> {
+) : Storable<Guild>, IntoId<GuildId> by id {
     @Suppress("USELESS_ELVIS")
     override fun updateDataFrom(new: Guild?): Guild {
         val g = new ?: return this
@@ -99,5 +99,4 @@ data class Guild(
     override fun equals(other: Any?): Boolean = (other as? Guild)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
-    override fun intoId(): GuildId = this.id
 }

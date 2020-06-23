@@ -72,7 +72,7 @@ suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): M
         }
     }
 
-    return response.fromJson<Message>().let(messages::add)
+    return response.fromJson<Message>().let(messages::addOrUpdate)
 }
 
 /**

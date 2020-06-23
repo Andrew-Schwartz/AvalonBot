@@ -37,7 +37,7 @@ suspend fun Bot.getChannel(id: IntoId<ChannelId>, forceRequest: Boolean = false)
     val url = "/channels/$id"
     val routeKey = "GET-getChannel-$id"
     return if (forceRequest) {
-        getRequest(url, routeKey).fromJson<Channel>().let { channels.add(it) }
+        getRequest(url, routeKey).fromJson<Channel>().let { channels.addOrUpdate(it) }
     } else {
         channels.computeIfAbsent(id) { getRequest(url, routeKey).fromJson() }
     }
@@ -57,7 +57,7 @@ suspend fun Bot.getMessages(getChannelMessages: GetChannelMessages): Array<Messa
             "GET-getMessages-${getChannelMessages.channel}"
     )
             .fromJson<Array<Message>>()
-            .also { it.asSequence().forEach { messages.add(it) } }
+            .also { it.asSequence().forEach { messages.addOrUpdate(it) } }
 }
 
 /**
@@ -73,7 +73,7 @@ suspend fun Bot.getMessage(channelId: IntoId<ChannelId>, messageId: IntoId<Messa
     val url = "/channels/$channelId/messages/$messageId"
     val routeKey = "GET-getMessage-$channelId"
     return if (forceRequest) {
-        getRequest(url, routeKey).fromJson<Message>().let { messages.add(it) }
+        getRequest(url, routeKey).fromJson<Message>().let { messages.addOrUpdate(it) }
     } else {
         messages.computeIfAbsent(messageId) { getRequest(url, routeKey).fromJson() }
     }
@@ -114,7 +114,7 @@ suspend fun Bot.getPins(channelId: IntoId<ChannelId>): Array<Message> {
     val channelId = channelId.intoId()
     return getRequest("/channels/$channelId/pins", "GET-getPins-$channelId").fromJson<Array<Message>>().also {
         for (message in it) {
-            messages.add(message)
+            messages.addOrUpdate(message)
         }
     }
 }

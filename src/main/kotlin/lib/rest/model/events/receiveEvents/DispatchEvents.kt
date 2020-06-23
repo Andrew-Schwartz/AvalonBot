@@ -34,173 +34,170 @@ import lib.rest.model.events.receiveEvents.Intent.Intents.GUILD_MESSAGE_TYPING
 import lib.rest.model.events.receiveEvents.Intent.Intents.GUILD_PRESENCES
 import lib.rest.model.events.receiveEvents.Intent.Intents.GUILD_VOICE_STATES
 import lib.rest.model.events.receiveEvents.Intent.Intents.GUILD_WEBHOOKS
+import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type
 import lib.util.fromJson
+import kotlin.reflect.KClass
 
 /**
  * @param P type of the payload attached with this event
  */
-sealed class DispatchEvent<P> {
+sealed class DispatchEvent<P : Any>(private val payloadClass: KClass<out P>) {
     val actions: ArrayList<suspend P.() -> Unit> = ArrayList()
 
-    //    fun fromJson(payload: JsonElement): P = gson.fromJson(payload, object : TypeToken<P>() {}.type)
+    @Suppress("UNCHECKED_CAST")
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    suspend fun runActions(payloadData: JsonElement) {
+        val payload = when (val payload = payloadData.fromJson(payloadClass)) {
+            is Guild -> bot.guilds.addOrUpdate(payload) as P
+            is Channel -> bot.channels.addOrUpdate(payload) as P
+            is Message -> bot.messages.addOrUpdate(payload) as P
+            is User -> bot.users.addOrUpdate(payload) as P
+            else -> payload
+        }
+        actions.forEach { payload.it() }
+    }
 }
 
-/**
- * inline extension, not member function, because `P` needs to be reified for `fromJson`
- */
-@Suppress("NonAsciiCharacters")
-inline fun <reified P : Any> DispatchEvent<P>.withJson(payload: JsonElement, λ: P.() -> Unit) = with(payload.fromJson(), λ)
+object Ready : DispatchEvent<ReadyPayload>(ReadyPayload::class) // Always sent
 
-//fun <P : Any> DispatchEvent<P>.fromJson(payload: JsonElement): P = gson.fromJson(payload, object : TypeToken<P>() {}.type)
+object Resumed : DispatchEvent<ResumePayload>(ResumePayload::class) // Always sent
 
-//suspend inline fun <reified P : Any> DispatchEvent<P>.runAllActions(payload: JsonElement) {
-//    val p = payload.fromJson(P::class)
-//    for (action in actions) {
-//        payload.fromJson(this::class)
-//    }
-//}
-
-object Ready : DispatchEvent<ReadyPayload>() // Always sent
-
-object Resumed : DispatchEvent<ResumePayload>() // Always sent
-
-//object InvalidSession : DispatchEvent<InvalidSessionPayload>()
-
-object ChannelCreate : DispatchEvent<Channel>() {
+object ChannelCreate : DispatchEvent<Channel>(Channel::class) {
     init {
         Intent += GUILDS + DIRECT_MESSAGES
     }
 }
 
-object ChannelUpdate : DispatchEvent<Channel>() {
+object ChannelUpdate : DispatchEvent<Channel>(Channel::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object ChannelDelete : DispatchEvent<Channel>() {
+object ChannelDelete : DispatchEvent<Channel>(Channel::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object ChannelPinsUpdate : DispatchEvent<ChannelPinsPayload>() {
+object ChannelPinsUpdate : DispatchEvent<ChannelPinsPayload>(ChannelPinsPayload::class) {
     init {
         Intent += GUILDS + DIRECT_MESSAGES
     }
 }
 
-object GuildCreate : DispatchEvent<Guild>() {
+object GuildCreate : DispatchEvent<Guild>(Guild::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object GuildUpdate : DispatchEvent<Guild>() {
+object GuildUpdate : DispatchEvent<Guild>(Guild::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object GuildDelete : DispatchEvent<Guild>() {
+object GuildDelete : DispatchEvent<Guild>(Guild::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object GuildBanAdd : DispatchEvent<GuildBanUpdatePayload>() {
+object GuildBanAdd : DispatchEvent<GuildBanUpdatePayload>(GuildBanUpdatePayload::class) {
     init {
         Intent += GUILD_BANS
     }
 }
 
-object GuildBanRemove : DispatchEvent<GuildBanUpdatePayload>() {
+object GuildBanRemove : DispatchEvent<GuildBanUpdatePayload>(GuildBanUpdatePayload::class) {
     init {
         Intent += GUILD_BANS
     }
 }
 
-object GuildEmojisUpdate : DispatchEvent<GuildEmojisPayload>() {
+object GuildEmojisUpdate : DispatchEvent<GuildEmojisPayload>(GuildEmojisPayload::class) {
     init {
         Intent += GUILD_EMOJIS
     }
 }
 
-object GuildIntegrationsUpdate : DispatchEvent<IntegrationsUpdatePayload>() {
+object GuildIntegrationsUpdate : DispatchEvent<IntegrationsUpdatePayload>(IntegrationsUpdatePayload::class) {
     init {
         Intent += GUILD_INTEGRATIONS
     }
 }
 
-object GuildMemberAdd : DispatchEvent<GuildMember>() {
+object GuildMemberAdd : DispatchEvent<GuildMember>(GuildMember::class) {
     init {
         Intent += GUILD_MEMBERS
     }
 }
 
-object GuildMemberRemove : DispatchEvent<GuildMemberRemovePayload>() {
+object GuildMemberRemove : DispatchEvent<GuildMemberRemovePayload>(GuildMemberRemovePayload::class) {
     init {
         Intent += GUILD_MEMBERS
     }
 }
 
-object GuildMemberUpdate : DispatchEvent<GuildMemberUpdatePayload>() {
+object GuildMemberUpdate : DispatchEvent<GuildMemberUpdatePayload>(GuildMemberUpdatePayload::class) {
     init {
         Intent += GUILD_MEMBERS
     }
 }
 
-object GuildMembersChunk : DispatchEvent<GuildMembersChunkPayload>() // always sent
+object GuildMembersChunk : DispatchEvent<GuildMembersChunkPayload>(GuildMembersChunkPayload::class) // always sent
 
-object GuildRoleCreate : DispatchEvent<GuildRoleUpdatePayload>() {
+object GuildRoleCreate : DispatchEvent<GuildRoleUpdatePayload>(GuildRoleUpdatePayload::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object GuildRoleUpdate : DispatchEvent<GuildRoleUpdatePayload>() {
+object GuildRoleUpdate : DispatchEvent<GuildRoleUpdatePayload>(GuildRoleUpdatePayload::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object GuildRoleDelete : DispatchEvent<GuildRoleDeletePayload>() {
+object GuildRoleDelete : DispatchEvent<GuildRoleDeletePayload>(GuildRoleDeletePayload::class) {
     init {
         Intent += GUILDS
     }
 }
 
-object InviteCreate : DispatchEvent<InviteCreatePayload>() {
+object InviteCreate : DispatchEvent<InviteCreatePayload>(InviteCreatePayload::class) {
     init {
         Intent += GUILD_INVITES
     }
 }
 
-object InviteDelete : DispatchEvent<InviteDeletePayload>() {
+object InviteDelete : DispatchEvent<InviteDeletePayload>(InviteDeletePayload::class) {
     init {
         Intent += GUILD_INVITES
     }
 }
 
-object MessageCreate : DispatchEvent<Message>() {
+object MessageCreate : DispatchEvent<Message>(Message::class) {
     init {
         Intent += GUILD_MESSAGES + DIRECT_MESSAGES
     }
 }
 
-object MessageUpdate : DispatchEvent<Message>() {
+object MessageUpdate : DispatchEvent<Message>(Message::class) {
     init {
         Intent += GUILD_MESSAGES + DIRECT_MESSAGES
     }
 }
 
-object MessageDelete : DispatchEvent<MessageDeletePayload>() {
+object MessageDelete : DispatchEvent<MessageDeletePayload>(MessageDeletePayload::class) {
     init {
         Intent += GUILD_MESSAGES + DIRECT_MESSAGES
     }
 }
 
-object MessageDeleteBulk : DispatchEvent<MessageDeleteBulkPayload>() {
+object MessageDeleteBulk : DispatchEvent<MessageDeleteBulkPayload>(MessageDeleteBulkPayload::class) {
     init {
         Intent += GUILD_MESSAGES + DIRECT_MESSAGES
     }
@@ -211,37 +208,37 @@ object MessageDeleteBulk : DispatchEvent<MessageDeleteBulkPayload>() {
  *
  * Not actually sent by Discord
  */
-object MessageReactionUpdate : DispatchEvent<MessageReactionUpdatePayload>() {
+object MessageReactionUpdate : DispatchEvent<MessageReactionUpdatePayload>(MessageReactionUpdatePayload::class) {
     init {
         Intent += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
     }
 }
 
-object MessageReactionAdd : DispatchEvent<MessageReactionAddPayload>() {
+object MessageReactionAdd : DispatchEvent<MessageReactionAddPayload>(MessageReactionAddPayload::class) {
     init {
         Intent += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
     }
 }
 
-object MessageReactionRemove : DispatchEvent<MessageReactionRemovePayload>() {
+object MessageReactionRemove : DispatchEvent<MessageReactionRemovePayload>(MessageReactionRemovePayload::class) {
     init {
         Intent += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
     }
 }
 
-object MessageReactionRemoveAll : DispatchEvent<MessageReactionRemoveAllPayload>() {
+object MessageReactionRemoveAll : DispatchEvent<MessageReactionRemoveAllPayload>(MessageReactionRemoveAllPayload::class) {
     init {
         Intent += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
     }
 }
 
-object MessageReactionRemoveEmoji : DispatchEvent<MessageReactionRemoveEmojiPayload>() {
+object MessageReactionRemoveEmoji : DispatchEvent<MessageReactionRemoveEmojiPayload>(MessageReactionRemoveEmojiPayload::class) {
     init {
         Intent += GUILD_MESSAGE_REACTIONS + DIRECT_MESSAGE_REACTIONS
     }
 }
 
-object PresenceUpdate : DispatchEvent<PresenceUpdatePayload>() {
+object PresenceUpdate : DispatchEvent<PresenceUpdatePayload>(PresenceUpdatePayload::class) {
     init {
         Intent += GUILD_PRESENCES
     }
@@ -249,23 +246,23 @@ object PresenceUpdate : DispatchEvent<PresenceUpdatePayload>() {
 
 //object PresencesReplace : DispatchEvent<Array<JsonElement>>()
 
-object TypingStart : DispatchEvent<TypingStartPayload>() {
+object TypingStart : DispatchEvent<TypingStartPayload>(TypingStartPayload::class) {
     init {
         Intent += GUILD_MESSAGE_TYPING + DIRECT_MESSAGE_TYPING
     }
 }
 
-object UserUpdate : DispatchEvent<User>() // Always sent
+object UserUpdate : DispatchEvent<User>(User::class) // Always sent
 
-object VoiceStateUpdate : DispatchEvent<VoiceState>() {
+object VoiceStateUpdate : DispatchEvent<VoiceState>(VoiceState::class) {
     init {
         Intent += GUILD_VOICE_STATES
     }
 }
 
-object VoiceServerUpdate : DispatchEvent<VoiceServerUpdatePayload>()
+object VoiceServerUpdate : DispatchEvent<VoiceServerUpdatePayload>(VoiceServerUpdatePayload::class)
 
-object WebhookUpdate : DispatchEvent<WebhookUpdatePayload>() {
+object WebhookUpdate : DispatchEvent<WebhookUpdatePayload>(WebhookUpdatePayload::class) {
     init {
         Intent += GUILD_WEBHOOKS
     }
@@ -331,6 +328,7 @@ data class GuildEmojisPayload(
 /**
  * Never (de)serialized
  */
+// TODO should probably be an interface or smth that'd be way cleaner
 data class MessageReactionUpdatePayload(
         val userId: UserId,
         val messageId: MessageId,
@@ -365,7 +363,10 @@ data class MessageReactionAddPayload(
         @SerializedName("guild_id") val guildId: GuildId?,
         val member: GuildMember?,
         val emoji: Emoji
-)
+) {
+    fun toUpdate(): MessageReactionUpdatePayload =
+            MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Type.Add)
+}
 
 data class MessageReactionRemovePayload(
         @SerializedName("user_id") val userId: UserId,
@@ -373,7 +374,10 @@ data class MessageReactionRemovePayload(
         @SerializedName("channel_id") val channelId: ChannelId,
         @SerializedName("guild_id") val guildId: GuildId?,
         val emoji: Emoji
-)
+) {
+    fun toUpdate(): MessageReactionUpdatePayload =
+            MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Type.Remove)
+}
 
 data class MessageReactionRemoveAllPayload(
         @SerializedName("message_id") val messageId: UserId,

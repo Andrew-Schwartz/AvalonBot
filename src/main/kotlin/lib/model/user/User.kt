@@ -20,7 +20,7 @@ data class User(
         @SerializedName("flags") private val _flags: Int?,
         @SerializedName("premium_type") val premiumType: PremiumType?,
         val member: GuildMember? // from Message.mentions, maybe
-) : Storable<User>, IntoId<UserId> {
+) : Storable<User>, IntoId<UserId> by id {
     @Suppress("USELESS_ELVIS")
     override fun updateDataFrom(new: User?): User {
         val u = new ?: return this
@@ -46,8 +46,6 @@ data class User(
     override fun equals(other: Any?): Boolean = (other as? User)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
-
-    override fun intoId(): UserId = id
 
     val userFlags: List<UserFlag>
         get() = UserFlag.get(flags = _flags)

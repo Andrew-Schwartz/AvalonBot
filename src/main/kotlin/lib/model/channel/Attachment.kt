@@ -13,7 +13,7 @@ data class Attachment(
         @SerializedName("proxy_url") val proxyUrl: String,
         val height: Int?,
         val width: Int?
-) : Storable<Attachment>, IntoId<AttachmentId> {
+) : Storable<Attachment>, IntoId<AttachmentId> by id {
     override val prevVersions: MutableList<Attachment> = mutableListOf()
 
     @Suppress("USELESS_ELVIS")
@@ -34,6 +34,4 @@ data class Attachment(
     override fun equals(other: Any?): Boolean = (other as? Attachment)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
-
-    override fun intoId(): AttachmentId = id
 }

@@ -14,7 +14,7 @@ data class Role(
         val permissions: Int, // bit set
         val managed: Boolean,
         val mentionable: Boolean
-) : Storable<Role>, IntoId<RoleId> {
+) : Storable<Role>, IntoId<RoleId> by id {
     @Suppress("USELESS_ELVIS")
     override fun updateDataFrom(new: Role?): Role {
         val r = new ?: return this
@@ -36,6 +36,4 @@ data class Role(
     override fun equals(other: Any?): Boolean = (other as? Role)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
-
-    override fun intoId(): RoleId = id
 }
