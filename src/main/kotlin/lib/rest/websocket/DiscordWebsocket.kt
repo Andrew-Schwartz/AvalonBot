@@ -7,6 +7,7 @@ import io.ktor.http.cio.websocket.*
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import lib.dsl.Bot
+import lib.dsl.on
 import lib.exceptions.InvalidSessionException
 import lib.model.Activity
 import lib.model.ActivityType
@@ -15,9 +16,6 @@ import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
 import lib.rest.model.GatewayPayload
 import lib.rest.model.events.receiveEvents.*
-import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
-import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Remove
-import lib.rest.model.events.receiveEvents.PresenceUpdate
 import lib.rest.model.events.sendEvents.*
 import lib.util.fromJson
 import lib.util.toJson
@@ -130,150 +128,7 @@ class DiscordWebsocket(val bot: Bot) {
                 ?: return
 
         val event: DispatchEvent<*> = kClass.objectInstance!!
-
-//        val payloadType = kClass
-//                .supertypes
-//                .first()
-//                .arguments
-//                .first()
-//                .type!!
-
-//        gson.fromJson(payload, payloadType.javaType)
-
-        when (event) {
-            Ready -> Ready.withJson(payload) {
-                Ready.actions.forEach { it() }
-            }
-            Resumed -> Resumed.withJson(payload) {
-                Resumed.actions.forEach { it() }
-            }
-            ChannelCreate -> ChannelCreate.withJson(payload) {
-                bot.channels.add(this).run {
-                    ChannelCreate.actions.forEach { it() }
-                }
-            }
-            ChannelUpdate -> ChannelUpdate.withJson(payload) {
-                bot.channels.add(this).run {
-                    ChannelUpdate.actions.forEach { it() }
-                }
-            }
-            ChannelDelete -> ChannelDelete.withJson(payload) {
-                ChannelDelete.actions.forEach { it() }
-//                bot.channels -= this
-            }
-            ChannelPinsUpdate -> ChannelPinsUpdate.withJson(payload) {
-                ChannelPinsUpdate.actions.forEach { it() }
-            }
-            GuildCreate -> GuildCreate.withJson(payload) {
-                bot.guilds.add(this).run {
-                    GuildCreate.actions.forEach { it() }
-                }
-            }
-            GuildUpdate -> GuildUpdate.withJson(payload) {
-                bot.guilds.add(this).run {
-                    GuildUpdate.actions.forEach { it() }
-                }
-            }
-            GuildDelete -> GuildDelete.withJson(payload) {
-                GuildDelete.actions.forEach { it() }
-            }
-            GuildBanAdd -> GuildBanAdd.withJson(payload) {
-                GuildBanAdd.actions.forEach { it() }
-            }
-            GuildBanRemove -> GuildBanRemove.withJson(payload) {
-                GuildBanRemove.actions.forEach { it() }
-            }
-            GuildEmojisUpdate -> GuildEmojisUpdate.withJson(payload) {
-                GuildEmojisUpdate.actions.forEach { it() }
-            }
-            GuildIntegrationsUpdate -> GuildIntegrationsUpdate.withJson(payload) {
-                GuildIntegrationsUpdate.actions.forEach { it() }
-            }
-            GuildMemberAdd -> GuildMemberAdd.withJson(payload) {
-                GuildMemberAdd.actions.forEach { it() }
-            }
-            GuildMemberRemove -> GuildMemberRemove.withJson(payload) {
-                GuildMemberRemove.actions.forEach { it() }
-            }
-            GuildMemberUpdate -> GuildMemberUpdate.withJson(payload) {
-                GuildMemberUpdate.actions.forEach { it() }
-            }
-            GuildMembersChunk -> GuildMembersChunk.withJson(payload) {
-                GuildMembersChunk.actions.forEach { it() }
-            }
-            GuildRoleCreate -> GuildRoleCreate.withJson(payload) {
-                GuildRoleCreate.actions.forEach { it() }
-            }
-            GuildRoleUpdate -> GuildRoleUpdate.withJson(payload) {
-                GuildRoleUpdate.actions.forEach { it() }
-            }
-            GuildRoleDelete -> GuildRoleDelete.withJson(payload) {
-                GuildRoleDelete.actions.forEach { it() }
-            }
-            InviteCreate -> InviteCreate.withJson(payload) {
-                InviteCreate.actions.forEach { it() }
-            }
-            InviteDelete -> InviteDelete.withJson(payload) {
-                InviteDelete.actions.forEach { it() }
-            }
-            MessageCreate -> MessageCreate.withJson(payload) {
-                bot.messages.add(this).run {
-                    MessageCreate.actions.forEach { it() }
-                }
-            }
-            MessageUpdate -> MessageUpdate.withJson(payload) {
-                bot.messages.add(this).run {
-                    MessageUpdate.actions.forEach { it() }
-                }
-            }
-            MessageDelete -> MessageDelete.withJson(payload) {
-                MessageDelete.actions.forEach { it() }
-            }
-            MessageDeleteBulk -> MessageDeleteBulk.withJson(payload) {
-                MessageDeleteBulk.actions.forEach { it() }
-            }
-            MessageReactionAdd -> MessageReactionAdd.withJson(payload) {
-                MessageReactionAdd.actions.forEach { it() }
-                MessageReactionUpdate.actions.forEach {
-                    with(MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Add)) {
-                        it()
-                    }
-                }
-            }
-            MessageReactionRemove -> MessageReactionRemove.withJson(payload) {
-                MessageReactionRemove.actions.forEach { it() }
-                MessageReactionUpdate.actions.forEach {
-                    with(MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Remove)) {
-                        it()
-                    }
-                }
-            }
-            MessageReactionRemoveAll -> MessageReactionRemoveAll.withJson(payload) {
-                MessageReactionRemoveAll.actions.forEach { it() }
-            }
-            MessageReactionRemoveEmoji -> MessageReactionRemoveEmoji.withJson(payload) {
-                MessageReactionRemoveEmoji.actions.forEach { it() }
-            }
-            PresenceUpdate -> PresenceUpdate.withJson(payload) {
-                PresenceUpdate.actions.forEach { it() }
-            }
-            TypingStart -> TypingStart.withJson(payload) {
-                TypingStart.actions.forEach { it() }
-            }
-            UserUpdate -> UserUpdate.withJson(payload) {
-                UserUpdate.actions.forEach { it() }
-            }
-            VoiceStateUpdate -> VoiceStateUpdate.withJson(payload) {
-                VoiceStateUpdate.actions.forEach { it() }
-            }
-            VoiceServerUpdate -> VoiceServerUpdate.withJson(payload) {
-                VoiceServerUpdate.actions.forEach { it() }
-            }
-            WebhookUpdate -> WebhookUpdate.withJson(payload) {
-                WebhookUpdate.actions.forEach { it() }
-            }
-            MessageReactionUpdate -> throw IllegalStateException("Message Reaction Update isn't real")
-        }
+        event.runActions(payload)
     }
 
     private suspend fun initializeConnection(payload: GatewayPayload) {
@@ -323,6 +178,16 @@ class DiscordWebsocket(val bot: Bot) {
             bot.user = this.user
             this@DiscordWebsocket.sessionId = sessionId
             bot.logInTime = OffsetDateTime.now()
+        }
+        on(MessageReactionAdd) {
+            MessageReactionUpdate.actions.forEach {
+                toUpdate().it()
+            }
+        }
+        on(MessageReactionRemove) {
+            MessageReactionUpdate.actions.forEach {
+                toUpdate().it()
+            }
         }
     }
 }

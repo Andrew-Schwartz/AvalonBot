@@ -59,7 +59,7 @@ fun main() = runBlocking {
         }
 
         on(MessageCreate, MessageUpdate) {
-            if (content.startsWith(prefix) && author.isBot != true) {
+            if (author.isBot != true && content.startsWith(prefix)) {
                 MessageCommand.run(this, prefix)
             }
         }
