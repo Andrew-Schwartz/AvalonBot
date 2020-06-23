@@ -122,7 +122,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         if (randomRoles) "random" else roles.sortedBy { it.loyalty }.joinToString(separator = "\n") { it.name },
                         inline = true)
                 addField("Lady of the Lake", if (ladyEnabled) "is enabled" else "is disabled", inline = true)
-                // TODO more info?
+                addField("Round Breakdown", rounds.toString())
             }
 
             gameLoop@ while (goodWins < 3 && evilWins < 3) {
@@ -161,28 +161,12 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                         msg.react(rejectChar)
                     }
                 }
-//                val reactListener: suspend MessageReactionUpdatePayload.() -> Unit = {
-//                    val msg = getMessage(channelId, messageId)
-//                    if (user().isBot != true && msg in reacts.keys) {
-//                        val delta = when (emoji.name[0]) {
-//                            approveChar -> 1
-//                            rejectChar -> -1
-//                            else -> 0
-//                        } * when (type) {
-//                            Add -> 1
-//                            Remove -> -1
-//                        }
-//                        reacts[msg] = reacts[msg]!! + delta
-//                    }
-//                }
-//                on(MessageReactionUpdate, λ = reactListener)
                 channel.states += Voting
                 println("All players can now vote on the party")
 
                 suspendUntil(50) {
                     reacts.values.all { it.absoluteValue == 1 }
                 }
-//                off(MessageReactionUpdate, λ = reactListener)
                 channel.states -= Voting
                 val (approve, reject) = reacts.values.partition { it == 1 }.map { it.size }
                 if (reject >= approve) {
@@ -235,13 +219,11 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     }
                 }
                 channel.states += Voting
-//                on(MessageReactionUpdate, λ = reactListener)
                 println("Everyone can now succeed/fail the quest")
 
                 suspendUntil(25) {
                     reacts.values.all { it.absoluteValue == 1 }
                 }
-//                off(MessageReactionUpdate, λ = reactListener)
                 channel.states -= Voting
                 val (successes, fails) = reacts.values.partition { it == 1 }.map { it.size }
 

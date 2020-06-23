@@ -16,22 +16,18 @@ inline class Intent(val bits: Int = 0) {
 
     companion object Intents {
         private var value = Intent()
-        private var sentValue: Intent? = null
+        private var sentValue = false
 
-        override fun toString(): String = "$value"
+        override fun toString(): String = "$value, sent=$sentValue"
 
         operator fun plusAssign(other: Intent) {
-            value += other
-            // TODO fix that the when in DiscordWebsocket adds like all of them whoops
-//            sentValue?.let { sentValue ->
-//                val index = (0..14).first { other.bits and (1 shl it) == 1 shl it }
-//                if (Intent(1 shl index) !in sentValue)
-//                    println("[${now()}] WARNING: Intent ${intents[index]} was added after the bot connected")
-//            }
+            if (!sentValue) {
+                value += other
+            }
         }
 
         fun sendBits(): Int {
-            sentValue = value
+            sentValue = true
             return value.bits
         }
 
@@ -51,7 +47,7 @@ inline class Intent(val bits: Int = 0) {
         val DIRECT_MESSAGE_REACTIONS = Intent(1 shl 13)
         val DIRECT_MESSAGE_TYPING = Intent(1 shl 14)
 
-        private val intents = A[
+        val intents = A[
                 "GUILDS", "GUILD_MEMBERS", "GUILD_BANS", "GUILD_EMOJIS", "GUILD_INTEGRATIONS", "GUILD_WEBHOOKS",
                 "GUILD_INVITES", "GUILD_VOICE_STATES", "GUILD_PRESENCES", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS",
                 "GUILD_MESSAGE_TYPING", "DIRECT_MESSAGES", "DIRECT_MESSAGE_REACTIONS", "DIRECT_MESSAGE_TYPING"

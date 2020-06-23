@@ -43,7 +43,9 @@ abstract class Game(val type: GameType, val setup: Setup) {
                     launch {
                         while (game.running) {
                             delay(Duration.ofMinutes(1))
-                            // TODO update player names
+                            game.state.players.forEach {
+                                it.updateUser()
+                            }
                         }
                     }
                     game.runGame()

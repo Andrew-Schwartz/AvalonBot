@@ -15,7 +15,8 @@ val characters: Set<Character> = S[
         Mordred,
         Morgana,
         Oberon,
-        Percival
+        Percival,
+        Jester
 ]
 
 abstract class Character {

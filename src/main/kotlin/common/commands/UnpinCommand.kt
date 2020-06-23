@@ -6,7 +6,6 @@ import lib.dsl.Bot
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.getPinnedMessages
 
-// TODO react with ✅ or smth when completed
 object UnpinCommand : MessageCommand(State.All) {
     override val name: String = "unpin"
 
@@ -27,6 +26,7 @@ object UnpinCommand : MessageCommand(State.All) {
                             .sortedBy { it.timestamp }
                             .take(num)
                             .forEach { it.unpin() }
+                    message.react('✅')
                 } ?: message.reply("How many pins to remove?")
                 2 -> args.last().toIntOrNull()?.let { num ->
                     val pins = getPinnedMessages(message.channelId).sortedBy { it.timestamp }
@@ -38,6 +38,7 @@ object UnpinCommand : MessageCommand(State.All) {
                             listOf()
                         }
                     }.forEach { it.unpin() }
+                    message.react('✅')
                 } ?: message.reply("How many pins to remove?")
                 else -> message.reply("Unknown args. Use `!help unpin` to find out more")
             }

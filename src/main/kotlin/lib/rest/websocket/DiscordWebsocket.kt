@@ -67,7 +67,10 @@ class DiscordWebsocket(val bot: Bot) {
                         val message = incoming.receive() as Frame.Text
 
                         runCatching { receive(message.readText().fromJson()) }
-                                .onFailure { it.printStackTrace() }
+                                .onFailure {
+                                    it.printStackTrace()
+                                    if (it is InvalidSessionException) throw it
+                                }
                     }
                     close(CloseReason.Codes.GOING_AWAY, "Incoming is closed")
                 }
@@ -98,7 +101,6 @@ class DiscordWebsocket(val bot: Bot) {
                 println("[${now()}] recv: Reconnect")
                 close(CloseReason.Codes.SERVICE_RESTART, "Reconnect requested by Discord")
             }
-            // TODO fix reconnecting after this happens
             GatewayOpcode.InvalidSession -> {
                 println("[${now()}] recv Invalid Session: $payload")
                 val resumable = payload.eventData!!.asBoolean

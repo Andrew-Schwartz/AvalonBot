@@ -5,6 +5,17 @@ import common.util.M
 
 class Rounds(private val numPlayers: Int) {
     operator fun get(roundNum: Int): Round = map.getValue(numPlayers)[roundNum - 1]
+
+    override fun toString(): String {
+        val list = map[numPlayers] ?: return ""
+        return list.zip((1..5)).joinToString(separator = "\n") { (round, i) ->
+            buildString {
+                append("Round $i: ${round.players} on the quest.")
+                if (round.fails != 1)
+                    append("${round.fails} fails are required to fail it.")
+            }
+        }
+    }
 }
 
 // @formatter:off

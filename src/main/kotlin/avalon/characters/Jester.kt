@@ -2,6 +2,7 @@ package avalon.characters
 
 import common.util.S
 
+// TODO get a picture
 object Jester : Character() {
     override val name: String = "Jester"
 
