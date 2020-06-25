@@ -28,16 +28,16 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = "", typingChannel: Channel? = null): HttpResponse =
+private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = "", typingChannel: IntoId<ChannelId>? = null): HttpResponse =
         request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.postRequest(url: String, routeKey: String, json: JsonElement, typingChannel: Channel? = null) = postRequest(url, routeKey, json.toJson(), typingChannel)
+private suspend inline fun Bot.postRequest(url: String, routeKey: String, json: JsonElement, typingChannel: IntoId<ChannelId>? = null) = postRequest(url, routeKey, json.toJson(), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, typingChannel: Channel? = null, formData: FormBuilder.() -> Unit): HttpResponse =
+private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, typingChannel: IntoId<ChannelId>? = null, formData: FormBuilder.() -> Unit): HttpResponse =
         request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }), typingChannel)
 
 /**
@@ -50,14 +50,15 @@ private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, typin
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.createMessage(channel: Channel, createMessage: CreateMessage): Message {
+suspend fun Bot.createMessage(channelId: IntoId<ChannelId>, createMessage: CreateMessage): Message {
     val (content, _, _, files, embed) = createMessage
-    val url = "/channels/${channel.id}/messages"
+    val channelId = channelId.intoId();
+    val url = "/channels/${channelId}/messages"
 
     val response = if (files == null) {
-        postRequest(url, "POST-createMessage-${channel.id}", createMessage.toJson(), channel)
+        postRequest(url, "POST-createMessage-${channelId}", createMessage.toJson(), channelId)
     } else {
-        postFormDataRequest(url, "POST-createMessage-${channel.id}", channel) {
+        postFormDataRequest(url, "POST-createMessage-${channelId}", channelId) {
             if (content.isNotEmpty() || embed != null) {
                 val payload = createMessage.copy(file = null).toJson()
                 append("payload_json", payload)

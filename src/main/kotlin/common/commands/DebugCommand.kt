@@ -8,20 +8,6 @@ import lib.dsl.Bot
 import lib.model.ChannelId
 import lib.model.channel.Message
 
-//object Debug {
-//    operator fun get(channel: IntoId<ChannelId>): Boolean {
-//        return debug.getOrDefault(channel.intoId(), false)
-//    }
-//
-//    operator fun set(channel: IntoId<ChannelId>, debug: Boolean) {
-//        this.debug[channel.intoId()] = debug
-//    }
-//
-//    override fun toString(): String {
-//        "Debug = $debug"
-//    }
-//}
-
 object DebugCommand : MessageCommand(State.All) {
     val debug = mutableMapOf<ChannelId, Boolean>()
 

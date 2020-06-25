@@ -10,7 +10,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.model.channel.Channel
+import lib.model.ChannelId
+import lib.model.IntoId
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.RateLimit
@@ -22,9 +23,9 @@ suspend fun Bot.request(
         endpoint: String,
         method: HttpMethod,
         body: Any,
-        typingChannel: Channel? = null
+        typingChannel: IntoId<ChannelId>? = null
 ): HttpResponse = loop {
-    RateLimit.route(routeKey).limit(typingChannel)
+    RateLimit.route(routeKey).limit(typingChannel?.intoId()?.channel())
     val response = client.request<HttpResponse>(api + endpoint) {
         authHeaders.forEach { (k, v) -> header(k, v) }
         header("X-RateLimit-Precision", "millisecond")
