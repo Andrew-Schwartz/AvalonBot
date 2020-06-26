@@ -178,6 +178,9 @@ class DiscordWebsocket(val bot: Bot) {
             bot.user = this.user
             this@DiscordWebsocket.sessionId = sessionId
             bot.logInTime = OffsetDateTime.now()
+            if (bot.firstLogInTime == null) {
+                bot.firstLogInTime = bot.logInTime
+            }
         }
         on(MessageReactionAdd) {
             MessageReactionUpdate.actions.forEach {

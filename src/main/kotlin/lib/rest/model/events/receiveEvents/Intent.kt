@@ -16,6 +16,8 @@ inline class Intent(val bits: Int = 0) {
 
     companion object Intents {
         private var value = Intent()
+
+        // TODO this might work now that its not a big when
         private var sentValue = false
 
         override fun toString(): String = "$value, sent=$sentValue"

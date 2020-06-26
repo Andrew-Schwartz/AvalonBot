@@ -22,6 +22,7 @@ import java.time.OffsetDateTime
 class Bot internal constructor(val token: String) {
     val authHeaders = M["Authorization" to "Bot $token"]
     val websocket = DiscordWebsocket(this)
+    var firstLogInTime: OffsetDateTime? = null
     var logInTime: OffsetDateTime? = null
 
     val pinnedMessages: MutableList<Message> = mutableListOf()
