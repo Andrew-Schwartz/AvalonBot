@@ -6,10 +6,11 @@ import avalon.game.AvalonPlayer
 import common.bot
 import common.commands.State
 import common.util.listGrammatically
+import hangman.game.HangmanPlayer
 import io.ktor.util.KtorExperimentalAPI
 import kittens.game.ExplodingKittens
+import kittens.game.KittenConfig
 import kittens.game.KittenPlayer
-import kittens.game.KittensConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
 import lib.model.guild.Guild
@@ -55,11 +56,26 @@ enum class GameType {
     Kittens {
         override fun player(user: User, guild: Guild?): Player = KittenPlayer(user, guild)
         override fun game(setup: Setup): Game = ExplodingKittens(setup)
-        override val config: GameConfig get() = KittensConfig()
+        override val config: GameConfig get() = KittenConfig()
         override val states: StateInfo = StateInfo(State.Kittens.Game, State.Setup.KittensStart, State.Kittens::class)
 
         override suspend fun startGame(message: Message) {
             TODO("not implemented")
+        }
+    },
+    Hangman {
+        override fun player(user: User, guild: Guild?): Player = HangmanPlayer(user, guild)
+        override fun game(setup: Setup): Game = hangman.game.Hangman(setup)
+        override val config: GameConfig = object : GameConfig {
+            override fun reset() {}
+        }
+        override val states: StateInfo = StateInfo(State.Hangman.Game, State.Setup.Setup, State.Hangman::class)
+
+        override suspend fun startGame(message: Message) {
+            bot.run {
+                val hangman = Game[message.channel(), Hangman] as hangman.game.Hangman
+                Game.runGame(hangman)
+            }
         }
     };
 

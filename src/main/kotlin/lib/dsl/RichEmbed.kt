@@ -22,7 +22,13 @@ data class RichEmbed internal constructor(
         private var thumbnail: EmbedThumbnail? = null,
         private var footer: EmbedFooter? = null
 ) {
-    var footerText: String? = null
+    var footerText: String?
+        get() = footer?.text
+        set(value) {
+            value?.let {
+                footer = EmbedFooter(it, "", "")
+            }
+        }
 
     companion object {
         private val empty = RichEmbed()
@@ -109,8 +115,8 @@ data class RichEmbed internal constructor(
         val fields = fields.takeUnless { it.isEmpty() }?.toTypedArray()
         val files = files.takeUnless { it.isEmpty() }
 
-        if (footer == null && footerText != null)
-            footer(footerText!!)
+//        if (footer == null && footerText != null)
+//            footer(footerText!!)
 
         ensureLimits()
 

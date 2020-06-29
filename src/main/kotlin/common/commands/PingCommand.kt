@@ -7,7 +7,8 @@ import lib.dsl.Bot
 import lib.dsl.embed
 import lib.model.Color
 import lib.model.channel.Message
-import kotlin.system.measureTimeMillis
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
 object PingCommand : MessageCommand(All) {
     override val name: String = "ping"
@@ -16,6 +17,7 @@ object PingCommand : MessageCommand(All) {
 
     override val usage: String = "ping"
 
+    @ExperimentalTime
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(Message) -> Unit = { message ->
@@ -23,12 +25,11 @@ object PingCommand : MessageCommand(All) {
             title = "Pong!"
             color = Color.gold
         }
-        var msg: Message? = null
-        val time = measureTimeMillis {
-            msg = message.reply(embed = embed)
+        val (msg, time) = measureTimedValue {
+            message.reply(embed = embed)
         }
-        msg!!.edit(embed = embed) {
-            footerText = "Took $time ms to respond"
+        msg.edit(embed = embed) {
+            footerText = "Took ${time.inSeconds} seconds to respond"
         }
     }
 }

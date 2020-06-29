@@ -28,7 +28,7 @@ class ExplodingKitten(id: Int) : Card(id) {
             player.hand.remove(defuse)
         } else {
             embed.description = "${player.name} cannot defuse the kitten and blows up!"
-            state.players.remove(player)
+//            state.players.remove(player)
             state.currentPlayerIndex-- // todo I think this is needed
         }
         with(bot) {

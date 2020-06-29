@@ -5,19 +5,14 @@ import common.game.State
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
-import lib.model.user.User
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class AvalonState(setup: Setup) : State<AvalonPlayer>() {
-    init {
-        Setup.remove(setup)
-    }
-
+class AvalonState(setup: Setup) : State<AvalonPlayer>(setup) {
     private val config = setup.config as AvalonConfig
 
-    override val players: ArrayList<AvalonPlayer> = setup.players.map { it as AvalonPlayer } as ArrayList<AvalonPlayer>
-    val userPlayerMap: Map<User, AvalonPlayer> = players.associateBy { it.user }
+//    override val players: List<AvalonPlayer> = setup.players.map { it as AvalonPlayer }.shuffled()
+//    val userPlayerMap: Map<User, AvalonPlayer> = players.associateBy { it.user }
 
     val roles = config.roles
     val randomRoles = config.randomRoles

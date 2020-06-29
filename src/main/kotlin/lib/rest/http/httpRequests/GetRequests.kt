@@ -152,9 +152,25 @@ suspend fun Bot.getUserConnection(): Array<Connection> = getRequest("/users/@me/
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.getGuild(id: IntoId<GuildId>): Guild {
+suspend fun Bot.getGuild(id: IntoId<GuildId>, forceRequest: Boolean = false): Guild {
     val id = id.intoId()
-    return guilds.computeIfAbsent(id) { getRequest("/guilds/$id", "GET-getGuild-$id").fromJson() }
+    val url = "/guilds/$id"
+    val routeKey = "GET-getGuild-$id"
+    return if (forceRequest) {
+        getRequest(url, routeKey).fromJson<Guild>().let { guilds.addOrUpdate(it) }
+    } else {
+        guilds.computeIfAbsent(id) { getRequest(url, routeKey).fromJson() }
+    }
+}
+
+@KtorExperimentalAPI
+@ExperimentalCoroutinesApi
+suspend fun Bot.getGuildChannels(id: IntoId<GuildId>): Array<Channel> {
+    val id = id.intoId()
+    val channels = getRequest("/guilds/$id/channels", "GET-getGuildChannels-$id").fromJson<Array<Channel>>()
+    // most of the time this will just be fetching from a hashmap
+    guilds.addOrUpdate(getGuild(id).copy(channels = channels))
+    return channels
 }
 
 @KtorExperimentalAPI

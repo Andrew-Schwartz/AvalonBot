@@ -2,7 +2,7 @@ package kittens.game
 
 import common.game.GameConfig
 
-class KittensConfig : GameConfig {
+class KittenConfig : GameConfig {
     var implodingKittens = false
 
     override fun reset() {}

@@ -27,6 +27,10 @@ sealed class State {
         object Game : Kittens()
     }
 
+    sealed class Hangman : State() {
+        object Game : Hangman()
+    }
+
     fun name(): String = when (this) {
         All -> "All"
         is Setup -> "Setup"
@@ -36,6 +40,7 @@ sealed class State {
         Avalon.Lady -> "Avalon Lady"
         Avalon.Voting -> "Avalon Voting"
         Kittens.Game -> "Kittens Game"
+        Hangman.Game -> "Hangman Game"
     }
 
     fun typeName(): String = name().takeWhile { it != ' ' }
@@ -59,22 +64,18 @@ object StateComparator : Comparator<MessageCommand> {
         if (o1 == null && o2 == null) return 0
         val s1 = o1?.state ?: return 1
         val s2 = o2?.state ?: return -1
-        return when (s1) {
-            s2 -> 0
-            State.All -> -1
-            is State.Setup -> when (s2) {
-                State.All -> 1
-                else -> -1
-            }
-            State.Game -> when (s2) {
-                State.All, is State.Setup -> 1
-                else -> -1
-            }
-            is State.Avalon -> when (s2) {
-                State.All, is State.Setup, State.Game -> 1
-                else -> -1
-            }
-            is State.Kittens -> 1
+
+        return s1.orderNum().compareTo(s2.orderNum())
+    }
+
+    private fun State.orderNum(): Int {
+        return when (this) {
+            State.All -> 0
+            is State.Setup -> 1
+            State.Game -> 2
+            is State.Avalon -> 3
+            is State.Kittens -> 4
+            is State.Hangman.Game -> 5
         }
     }
 }

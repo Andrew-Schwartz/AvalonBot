@@ -17,7 +17,7 @@ fun String.spoiler(): String = "||$this||"
 
 fun String.inlineCode(): String = "`$this`"
 
-fun String.multilineCode(): String = "```$this```"
+fun String.multilineCode(): String = "```\n$this\n```"
 
 fun User.pingReal(): String = "<@$id>"
 

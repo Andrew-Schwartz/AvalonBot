@@ -68,6 +68,11 @@ var IntoId<ChannelId>.debug: Boolean
         DebugCommand.debug[this.intoId()] = value
     }
 
+@Suppress("UNCHECKED_CAST")
+fun <T, R : T> Iterable<T>.mapInstance(): List<R> = map { it as R }
+
+fun OffsetDateTime.elapsed(): Duration = toInstant().elapsed()
+
 // Extensions for Exploding Kittens
 
 @KtorExperimentalAPI

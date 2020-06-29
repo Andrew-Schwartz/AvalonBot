@@ -79,7 +79,6 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             }
             roles += players.map { it.role!! }
 
-            players.shuffle()
             if (ladyEnabled) {
                 ladyOfTheLake = players.last()
             }
