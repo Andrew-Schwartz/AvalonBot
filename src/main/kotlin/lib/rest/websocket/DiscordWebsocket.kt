@@ -103,9 +103,7 @@ class DiscordWebsocket(val bot: Bot) {
                 println("[${now()}] recv Invalid Session: $payload")
                 val resumable = payload.eventData!!.asBoolean
                 if (!resumable) {
-                    authed = false
-                    sequenceNumber = null
-                    sessionId = null
+                    resetConnectionState()
                     throw InvalidSessionException("Non Resumable session")
                 }
             }
@@ -113,6 +111,12 @@ class DiscordWebsocket(val bot: Bot) {
                 println("[${now()}] should not receive ${payload.opcode}, it's content was ${payload.eventData}")
             }
         }
+    }
+
+    private fun resetConnectionState() {
+        authed = false
+        sequenceNumber = null
+        sessionId = null
     }
 
     private suspend fun processDispatch(gatewayPayload: GatewayPayload) {
@@ -157,8 +161,10 @@ class DiscordWebsocket(val bot: Bot) {
                     if (lastHeartbeat != null && lastAck != null && lastHeartbeat!!.isAfter(lastAck!!)) {
                         strikes++
                         println("[${now()}] ACK Strike $strikes")
-                        if (strikes >= 3)
+                        if (strikes >= 3) {
+                            resetConnectionState()
                             close(CloseReason.Codes.SERVICE_RESTART, "ACK not recent enough, closing websocket")
+                        }
                     }
                     sendGatewayEvent(Heartbeat(it))
                     lastHeartbeat = Instant.now()
