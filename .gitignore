@@ -4,7 +4,6 @@
 # Ignore Gradle build output directory
 build
 
-config.json
 src/main/resources/config
 
 .idea

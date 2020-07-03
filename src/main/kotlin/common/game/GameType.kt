@@ -6,6 +6,7 @@ import avalon.game.AvalonPlayer
 import common.bot
 import common.commands.State
 import common.util.listGrammatically
+import hangman.game.HangmanConfig
 import hangman.game.HangmanPlayer
 import io.ktor.util.KtorExperimentalAPI
 import kittens.game.ExplodingKittens
@@ -42,11 +43,9 @@ enum class GameType {
                     roles.size > setup.players.size -> message.reply("You have chosen more roles than there are players")
                     evil > maxEvil -> message.reply("You have too many evil roles: ${roles.filter { it.loyalty == Evil }.listGrammatically()}")
                     evil <= maxEvil -> {
-//                        GlobalScope.launch {
                         val avalon = Game[message.channel(), Avalon] as avalon.game.Avalon
                         avalon.state.numEvil = maxEvil
                         Game.runGame(avalon)
-//                        }
                     }
                     else -> message.reply("Error starting Avalon game")
                 }
@@ -66,9 +65,7 @@ enum class GameType {
     Hangman {
         override fun player(user: User, guild: Guild?): Player = HangmanPlayer(user, guild)
         override fun game(setup: Setup): Game = hangman.game.Hangman(setup)
-        override val config: GameConfig = object : GameConfig {
-            override fun reset() {}
-        }
+        override val config: GameConfig = HangmanConfig()
         override val states: StateInfo = StateInfo(State.Hangman.Game, State.Setup.Setup, State.Hangman::class)
 
         override suspend fun startGame(message: Message) {

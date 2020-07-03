@@ -5,7 +5,6 @@ import common.game.Game
 import common.game.GameFinish
 import common.game.GameType
 import common.game.Setup
-import hangman.GuildHistWord
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.suspendUntil
@@ -22,7 +21,7 @@ class Hangman(setup: Setup) : Game(GameType.Hangman, setup) {
         return bot.run game@{
             if (channel.type != ChannelType.GuildText) throw Exception("Hangman can only be played in guild channels (for now)")
             with(state) {
-                word = GuildHistWord.forGuild(channel.guild()!!).randomWord().toLowerCase()
+                word = randomWord.randomWord().toLowerCase()
                 revealed = MutableList(word.length) { '_' }
                 embed {
                     title = "The hangman is hungry: ${word.length} letter word"

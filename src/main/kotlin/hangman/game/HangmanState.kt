@@ -10,6 +10,9 @@ import lib.model.channel.Message
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class HangmanState(setup: Setup) : State<HangmanPlayer>(setup) {
+    private val config = setup.config as HangmanConfig
+
+    val randomWord = config.randomWord!!
     lateinit var word: String
     lateinit var revealed: MutableList<Char>
     val guesses = hashSetOf<Char>()
