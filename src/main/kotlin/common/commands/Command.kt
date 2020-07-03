@@ -19,11 +19,6 @@ sealed class Command<P>(val state: State) {
 
     companion object {
         val _currentStates: MutableMap<Channel, MutableSet<State>> = mutableMapOf()
-
-        init {
-            ReactCommand
-            MessageCommand
-        }
     }
 }
 

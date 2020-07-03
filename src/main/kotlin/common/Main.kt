@@ -1,6 +1,5 @@
 package common
 
-import common.commands.Command
 import common.commands.MessageCommand
 import common.commands.ReactCommand
 import common.util.now
@@ -69,11 +68,5 @@ fun main() = runBlocking {
                 ReactCommand.run(this)
             }
         }
-
-        // Initialize list of commands
-        Command
-
-        // Adds necessary intent
-        MessageReactionAdd
     }
 }

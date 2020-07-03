@@ -1,6 +1,7 @@
 package lib.rest.model.events.receiveEvents
 
 import common.util.A
+import common.util.now
 
 inline class Intent(val bits: Int = 0) {
     operator fun plus(other: Intent): Intent = Intent(bits or other.bits)
@@ -16,21 +17,28 @@ inline class Intent(val bits: Int = 0) {
 
     companion object Intents {
         private var value = Intent()
-
-        // TODO this might work now that its not a big when
-        private var sentValue = false
+        private var sentValue: Intent? = null
 
         override fun toString(): String = "$value, sent=$sentValue"
 
         operator fun plusAssign(other: Intent) {
-            if (!sentValue) {
-                value += other
+            value += other
+            sentValue?.let { sentValue ->
+                val intent = (0..14).filter { other.bits and (1 shl it) == 1 shl it }
+                        .fold(Intent()) { intent, idx -> intent + Intent(1 shl idx) }
+                if (intent != Intent()) {
+                    lateIntentsListener(intent)
+                }
             }
         }
 
+        val lateIntentsListener: (Intent) -> Unit = {
+            println("[${now()}] WARNING: $it was added after the bot connected")
+        }
+
         fun sendBits(): Int {
-            sentValue = true
-            return value.bits
+            sentValue = value
+            return sentValue!!.bits
         }
 
         val GUILDS = Intent(1 shl 0)
@@ -54,5 +62,7 @@ inline class Intent(val bits: Int = 0) {
                 "GUILD_INVITES", "GUILD_VOICE_STATES", "GUILD_PRESENCES", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS",
                 "GUILD_MESSAGE_TYPING", "DIRECT_MESSAGES", "DIRECT_MESSAGE_REACTIONS", "DIRECT_MESSAGE_TYPING"
         ]
+
+
     }
 }
