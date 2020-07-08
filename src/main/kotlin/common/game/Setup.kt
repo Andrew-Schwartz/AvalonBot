@@ -52,5 +52,8 @@ class Setup private constructor(
         operator fun get(channel: Channel, gameType: GameType): Setup =
                 setups.getOrPut(channel) { mutableMapOf() }
                         .getOrPut(gameType) { Setup(channel, gameType, gameType.config) }
+//
+//        operator fun get(channel: Channel, gameType: GameType): Setup? =
+//            setups[channel]?.get(gameType)
     }
 }

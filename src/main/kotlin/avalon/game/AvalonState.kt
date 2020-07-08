@@ -1,9 +1,12 @@
 package avalon.game
 
+import common.game.Game
+import common.game.GameType
 import common.game.Setup
 import common.game.State
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.model.channel.Channel
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
@@ -41,5 +44,9 @@ class AvalonState(setup: Setup) : State<AvalonPlayer>(setup) {
 
     override fun toString(): String {
         return "AvalonState(players=$players, roles=$roles, randomRoles=$randomRoles, numEvil=$numEvil, ladyEnabled=$ladyEnabled, party=$party, ladyTarget=$ladyTarget, pastLadies=${pastLadies.map { it.name }}, roundNum=$roundNum, leaderNum=$leaderNum, goodWins=$goodWins, evilWins=$evilWins, rejectedQuests=$rejectedQuests, ladyOfTheLake=$ladyOfTheLake)"
+    }
+
+    companion object {
+        fun inChannel(channel: Channel) = Game[channel, GameType.Avalon]?.state as? AvalonState
     }
 }

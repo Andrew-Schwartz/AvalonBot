@@ -17,13 +17,15 @@ import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
 import kotlin.reflect.KClass
+import avalon.game.Avalon as AvalonGame
+import hangman.game.Hangman as HangmanGame
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 enum class GameType {
     Avalon {
         override fun player(user: User, guild: Guild?): Player = AvalonPlayer(user, guild)
-        override fun game(setup: Setup): Game = avalon.game.Avalon(setup)
+        override fun game(setup: Setup): Game = AvalonGame(setup)
         override val config: GameConfig get() = AvalonConfig()
         override val states: StateInfo = StateInfo(State.Avalon.Game, State.Setup.AvalonStart, State.Avalon::class)
 
@@ -43,7 +45,7 @@ enum class GameType {
                     roles.size > setup.players.size -> message.reply("You have chosen more roles than there are players")
                     evil > maxEvil -> message.reply("You have too many evil roles: ${roles.filter { it.loyalty == Evil }.listGrammatically()}")
                     evil <= maxEvil -> {
-                        val avalon = Game[message.channel(), Avalon] as avalon.game.Avalon
+                        val avalon = Game(message.channel(), Avalon) as avalon.game.Avalon
                         avalon.state.numEvil = maxEvil
                         Game.runGame(avalon)
                     }
@@ -70,7 +72,7 @@ enum class GameType {
 
         override suspend fun startGame(message: Message) {
             bot.run {
-                val hangman = Game[message.channel(), Hangman] as hangman.game.Hangman
+                val hangman = Game(message.channel(), Hangman) as HangmanGame
                 Game.runGame(hangman)
             }
         }

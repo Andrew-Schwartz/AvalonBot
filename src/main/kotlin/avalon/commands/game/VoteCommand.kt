@@ -1,10 +1,9 @@
 package avalon.commands.game
 
-import avalon.game.Avalon
+import avalon.game.AvalonState
 import common.commands.ReactCommand
 import common.commands.State
 import common.game.Game
-import common.game.GameType
 import common.util.A
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,10 +22,10 @@ object VoteCommand : ReactCommand(State.Avalon.Voting) {
     @ExperimentalCoroutinesApi
     override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
         Game.forUser(reaction.userId).forEach { game ->
-            val state = (Game[game.channel, GameType.Avalon] as Avalon).state
+            val state = AvalonState.inChannel(game.channel)
             val message = reaction.message()
 
-            if (reaction.user().isBot != true && message in state.reacts.keys) {
+            if (reaction.user().isBot != true && message in state?.reacts?.keys ?: emptySet<Int>()) {
                 val delta = when (reaction.emoji.name[0]) {
                     approveChar -> 1
                     rejectChar -> -1
@@ -35,7 +34,7 @@ object VoteCommand : ReactCommand(State.Avalon.Voting) {
                     Add -> 1
                     Remove -> -1
                 }
-                state.reacts[message] = state.reacts[message]!! + delta
+                state?.reacts?.set(message, state.reacts[message]!! + delta)
             }
         }
     }

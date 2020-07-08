@@ -1,10 +1,8 @@
 package avalon.commands.game
 
-import avalon.game.Avalon
+import avalon.game.AvalonState
 import common.commands.MessageCommand
 import common.commands.State
-import common.game.Game
-import common.game.GameType
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
@@ -20,10 +18,10 @@ object QuestCommand : MessageCommand(State.Avalon.Quest) {
     override val usage: String = "quest <@player1> <@player2>..."
 
     override val execute: suspend Bot.(Message) -> Unit = { message ->
-        val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
+        val state = AvalonState.inChannel(message.channel())
 
         with(message) {
-            if (author != state.leader.user) return@with
+            if (author != state?.leader?.user) return@with
             val round = state.rounds[state.roundNum]
 
             val questers = mentions

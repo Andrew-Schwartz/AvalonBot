@@ -37,7 +37,7 @@ object RestartCommand : MessageCommand(State.Game) {
         with(message) {
             val gameFromGames = GameType.values()
                     .map { it to Game[message.channel(), it] }
-                    .singleOrNull { it.second.running }
+                    .singleOrNull { it.second?.running == true }
                     ?.first
             val gameFromArgs = GameType.getType(args.getOrDefault(0, ""))
 
@@ -45,7 +45,7 @@ object RestartCommand : MessageCommand(State.Game) {
                     ?: gameFromGames
                     ?: message.reply(" Specify which game to restart", ping = true).let { return@with }
 
-            val game = Game[message.channel(), gameType]
+            val game = Game[message.channel(), gameType]!!
             if (args.lastOrNull()?.equals("now", true) == true) {
                 if (author != steadfast) {
                     message.reply("Only Andrew is that cool")

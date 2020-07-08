@@ -1,10 +1,13 @@
 package hangman.game
 
+import common.game.Game
+import common.game.GameType
 import common.game.Setup
 import common.game.State
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.RichEmbed
+import lib.model.channel.Channel
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
@@ -113,4 +116,9 @@ class HangmanState(setup: Setup) : State<HangmanPlayer>(setup) {
                 |                           |
             """.trimIndent()
     )
+
+    companion object {
+        fun inChannel(channel: Channel) = Game[channel, GameType.Hangman]?.state as? HangmanState
+
+    }
 }

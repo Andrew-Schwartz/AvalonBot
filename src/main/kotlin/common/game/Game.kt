@@ -95,11 +95,13 @@ abstract class Game(val type: GameType, val setup: Setup) {
             return userGames.getOrDefault(user.intoId(), listOf<Game>()).distinct()
         }
 
-        operator fun get(channel: Channel, gameType: GameType): Game =
-                games.getOrPut(channel) { mutableMapOf() }
-                        .getOrPut(gameType) {
-                            val setup = Setup[channel, gameType]
-                            gameType.game(setup)
-                        }
+        operator fun invoke(channel: Channel, gameType: GameType): Game {
+            games.getOrPut(channel) { mutableMapOf() }[gameType] = gameType.game(Setup[channel, gameType])
+            return games[channel]!![gameType]!!
+        }
+
+        operator fun get(channel: Channel, gameType: GameType): Game? {
+            return games[channel]?.get(gameType)
+        }
     }
 }

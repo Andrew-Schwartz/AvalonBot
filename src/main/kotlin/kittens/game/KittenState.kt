@@ -1,11 +1,14 @@
 package kittens.game
 
+import common.game.Game
+import common.game.GameType
 import common.game.Setup
 import common.game.State
 import common.util.replaceCamelCase
 import io.ktor.util.KtorExperimentalAPI
 import kittens.cards.Card
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.model.channel.Channel
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -45,5 +48,9 @@ class KittenState(setup: Setup) : State<KittenPlayer>(setup) {
                         }
                     }
         }
+    }
+
+    companion object {
+        fun inChannel(channel: Channel) = Game[channel, GameType.Kittens]?.state as? KittenState
     }
 }
