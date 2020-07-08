@@ -9,7 +9,5 @@ import lib.model.user.User
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class HangmanPlayer(user: User, guild: Guild?) : Player(user, guild) {
-    override fun reset() {
-        TODO("Not yet implemented")
-    }
+    override fun reset() {}
 }
