@@ -50,7 +50,7 @@ object GuessCommand : ReactCommand(State.Hangman.Game) {
         "🇦" -> 'a'
         "🇧" -> 'b'
         "🇨" -> 'c'
-        "🇩" -> 'c'
+        "🇩" -> 'd'
         "🇪" -> 'e'
         "🇫" -> 'f'
         "🇬" -> 'g'
