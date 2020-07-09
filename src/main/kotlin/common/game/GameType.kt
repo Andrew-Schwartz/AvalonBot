@@ -3,7 +3,6 @@ package common.game
 import avalon.characters.Character.Loyalty.Evil
 import avalon.game.AvalonConfig
 import avalon.game.AvalonPlayer
-import common.bot
 import common.commands.State
 import common.util.listGrammatically
 import hangman.game.HangmanConfig
@@ -66,12 +65,12 @@ enum class GameType {
     },
     Hangman {
         override fun player(user: User, guild: Guild?): Player = HangmanPlayer(user, guild)
-        override fun game(setup: Setup): Game = hangman.game.Hangman(setup)
+        override fun game(setup: Setup): Game = HangmanGame(setup)
         override val config: GameConfig = HangmanConfig()
         override val states: StateInfo = StateInfo(State.Hangman.Game, State.Setup.Setup, State.Hangman::class)
 
         override suspend fun startGame(message: Message) {
-            val hangman = Game[message.channel(), Hangman] as hangman.game.Hangman
+            val hangman = Game[message.channel(), Hangman] as HangmanGame
             Game.runGame(hangman)
         }
     };
