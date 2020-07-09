@@ -1,6 +1,5 @@
 package common.game
 
-import common.bot
 import common.commands.State
 import common.commands.states
 import common.commands.subStates
@@ -10,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
+import lib.dsl.send
 import lib.model.Color.Companion.red
 import lib.model.IntoId
 import lib.model.UserId
@@ -68,21 +68,19 @@ abstract class Game(val type: GameType, val setup: Setup) {
         private val userGames: MutableMap<UserId, MutableList<Game>> = mutableMapOf()
 
         suspend fun endAndRemove(channel: Channel, gameType: GameType, info: GameFinish) {
-            with(bot) {
-                channel.send(embed = info.message)
-                games[channel]?.get(gameType)?.run {
-                    running = false
-                    state.players.map { it.user }.forEach {
-                        userGames[it.id]?.remove(this)
-                    }
-                    // toList to prevent concurrentModificationException
-                    pinnedMessages.toList().forEach { pin ->
-                        pinnedMessages -= pin
-                        runCatching { deletePin(pin.channelId, pin) }
-                                .onFailure { println(it.message) }
-                    }
-                    setup.restart()
+            channel.send(embed = info.message)
+            games[channel]?.get(gameType)?.run {
+                running = false
+                state.players.map { it.user }.forEach {
+                    userGames[it.id]?.remove(this)
                 }
+                // toList to prevent concurrentModificationException
+                pinnedMessages.toList().forEach { pin ->
+                    pinnedMessages -= pin
+                    runCatching { deletePin(pin.channelId, pin) }
+                            .onFailure { println(it.message) }
+                }
+                setup.restart()
             }
             games[channel]?.remove(gameType)
             channel.states -= gameType.states.commandState

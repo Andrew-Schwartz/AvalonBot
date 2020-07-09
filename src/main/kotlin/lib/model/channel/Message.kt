@@ -1,10 +1,7 @@
 package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
-import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.*
-import lib.model.guild.Guild
 import lib.model.guild.GuildMember
 import lib.model.user.User
 
@@ -38,14 +35,6 @@ data class Message(
         get() = prevVersions.lastOrNull()
 
     val mentionRoles: List<RoleId> by lazy { _mentionRoles.map(::RoleId) }
-
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
-    suspend fun channel(): Channel = channelId.channel()
-
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
-    suspend fun guild(): Guild? = guildId?.guild()
 
     override fun equals(other: Any?): Boolean = (other as? Message)?.id == id
 

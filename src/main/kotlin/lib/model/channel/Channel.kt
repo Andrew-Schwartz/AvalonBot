@@ -1,12 +1,9 @@
 package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
-import common.bot
-import common.util.listGrammatically
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.*
-import lib.model.guild.Guild
 import lib.model.user.User
 import lib.rest.http.httpRequests.getMessage
 
@@ -34,33 +31,6 @@ data class Channel(
     override fun equals(other: Any?): Boolean = (other as? Channel)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
-
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
-    suspend fun lastMessage(): Message? {
-        return bot.getMessage(id, lastMessageId ?: return null)
-    }
-
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
-    suspend fun guild(): Guild? = guildId?.guild()
-
-    /**
-     * In a guild, gets the channel name:
-     *
-     * ex: "AwesomeGuild/BotChannel"
-     *
-     * In a DM, gets the target user(s)
-     *
-     * ex: "DM: Bob the Builder(, Sally, and George Washington)"
-     */
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
-    suspend fun fullName(): String {
-        return guild()?.let {
-            "${it.name}/$name"
-        } ?: "DM: ${recipients?.listGrammatically { it.username }}"
-    }
 
     @Suppress("USELESS_ELVIS")
     override fun updateDataFrom(new: Channel?): Channel {
@@ -99,6 +69,6 @@ data class Channel(
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     suspend fun MessageId.message(): Message {
-        return bot.getMessage(this@Channel, this)
+        return getMessage(this@Channel, this)
     }
 }

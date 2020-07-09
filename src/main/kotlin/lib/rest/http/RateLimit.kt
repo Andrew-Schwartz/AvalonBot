@@ -1,12 +1,12 @@
 package lib.rest.http
 
-import common.bot
 import common.util.durationSince
 import common.util.now
 import io.ktor.client.statement.HttpResponse
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import lib.dsl.startTyping
 import lib.model.channel.Channel
 import java.time.Instant
 import kotlin.math.pow
@@ -25,7 +25,7 @@ data class RateLimit(
             if (remaining == 0 && !duration.isNegative) {
                 val delayTime = duration.seconds + duration.nano / 10.0.pow(9)
                 println("rate limited for $delayTime seconds in bucket $bucket")
-                with(bot) { typingChannel?.startTyping() }
+                typingChannel?.startTyping()
                 delay((delayTime * 1000.0).toLong())
             }
         }

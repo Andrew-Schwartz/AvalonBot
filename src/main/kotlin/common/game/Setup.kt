@@ -1,9 +1,9 @@
 package common.game
 
-import common.bot
 import common.util.Vote
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.guild
 import lib.model.channel.Channel
 import lib.model.user.User
 import lib.rest.http.httpRequests.getChannel
@@ -32,7 +32,7 @@ class Setup private constructor(
 
     suspend fun restart() {
         val new = Setup(
-                bot.getChannel(channel, forceRequest = true),
+                getChannel(channel, forceRequest = true),
                 gameType,
                 config.apply { reset() },
                 players.map { it.apply { reset() } }.toMutableList()

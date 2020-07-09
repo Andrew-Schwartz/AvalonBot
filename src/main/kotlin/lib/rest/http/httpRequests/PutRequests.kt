@@ -8,7 +8,6 @@ import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
 import lib.model.ChannelId
 import lib.model.IntoId
 import lib.model.MessageId
@@ -18,13 +17,13 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.putRequest(url: String, routeKey: String, jsonBody: String = "") {
+private suspend fun putRequest(url: String, routeKey: String, jsonBody: String = "") {
     request(routeKey, url, HttpMethod.Put, TextContent(jsonBody, Application.Json))
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.putRequest(url: String, routeKey: String, json: JsonElement) = putRequest(url, routeKey, json.toJson())
+private suspend inline fun putRequest(url: String, routeKey: String, json: JsonElement) = putRequest(url, routeKey, json.toJson())
 
 /**
  * Create a reaction for the message.
@@ -35,7 +34,7 @@ private suspend inline fun Bot.putRequest(url: String, routeKey: String, json: J
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.createReaction(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char) {
+suspend fun createReaction(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     putRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/@me", "PUT-createReaction-$channelId")
@@ -48,7 +47,7 @@ suspend fun Bot.createReaction(channelId: IntoId<ChannelId>, messageId: IntoId<M
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.editChannelPermissions(channelId: IntoId<ChannelId>, overwriteId: IntoId<UserRoleId>, editChannelPermissions: EditChannelPermissions) {
+suspend fun editChannelPermissions(channelId: IntoId<ChannelId>, overwriteId: IntoId<UserRoleId>, editChannelPermissions: EditChannelPermissions) {
     val channelId = channelId.intoId()
     val overwriteId = overwriteId.intoId()
     getChannel(channelId).guildId ?: throw IllegalArgumentException("Only usable for guild channels")
@@ -60,7 +59,7 @@ suspend fun Bot.editChannelPermissions(channelId: IntoId<ChannelId>, overwriteId
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.addPin(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
+suspend fun addPin(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     putRequest("/channels/$channelId/pins/$messageId", "PUT-addPin-$channelId")

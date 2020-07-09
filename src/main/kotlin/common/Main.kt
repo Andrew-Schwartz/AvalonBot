@@ -7,8 +7,8 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import lib.dsl.Bot
-import lib.dsl.bot
 import lib.dsl.on
+import lib.dsl.send
 import lib.model.Color.Companion.gold
 import lib.model.channel.Channel
 import lib.model.user.User
@@ -22,26 +22,20 @@ lateinit var kts: Channel
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-lateinit var bot: Bot
-
-@KtorExperimentalAPI
-@ExperimentalCoroutinesApi
 fun main() = runBlocking {
     val (token, prefix, sfId, ktsId) = javaClass.getResourceAsStream("/config/config.json")
             .bufferedReader()
             .readText()
             .fromJson<ConfigJson>()
 
-    bot(token) {
-        bot = this
-
+    Bot(token) {
         steadfast = getUser(sfId)
         kts = getChannel(ktsId)
 
         on(Ready) {
             println("[${now()}] Ready!")
             kts.send {
-                title = this@bot.user.username + " is logged on!!"
+                title = this@Bot.user.username + " is logged on!!"
                 color = gold
                 timestamp()
                 url = "https://github.com/Andrew-Schwartz/AvalonBot"
@@ -51,7 +45,7 @@ fun main() = runBlocking {
         on(Resumed) {
             println("[${now()}] resumed: $this")
             kts.send {
-                title = this@bot.user.username + " has resumed!"
+                title = this@Bot.user.username + " has resumed!"
                 color = gold
                 timestamp()
             }

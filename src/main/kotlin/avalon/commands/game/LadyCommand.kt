@@ -5,7 +5,8 @@ import common.commands.MessageCommand
 import common.commands.State
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.reply
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
@@ -19,7 +20,7 @@ object LadyCommand : MessageCommand(State.Avalon.Lady) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val state = AvalonState.inChannel(message.channel())
 
         with(message) {

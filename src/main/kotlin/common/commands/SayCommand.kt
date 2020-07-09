@@ -3,7 +3,7 @@ package common.commands
 import common.steadfast
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.reply
 import lib.model.ChannelId
 import lib.model.channel.Embed
 import lib.model.channel.EmbedImage
@@ -20,7 +20,7 @@ object SayCommand : MessageCommand(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         if (message.author != steadfast) {
             message.reply("Only Andrew is that cool")
         } else {

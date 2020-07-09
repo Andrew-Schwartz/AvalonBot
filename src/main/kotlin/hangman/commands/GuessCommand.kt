@@ -6,7 +6,7 @@ import common.util.L
 import hangman.game.HangmanState
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.edit
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import lib.util.multilineCode
 
@@ -18,13 +18,13 @@ object GuessCommand : ReactCommand(State.Hangman.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
-        val state = HangmanState.inChannel(reaction.channel())
-        state?.run {
-            if (bodyParts >= 5) return@run
-            if (revealed.none { it == '_' }) return@run
-            val letter = getLetter(reaction.emoji.name) ?: return@run
-            if (letter in guesses) return@run
+    override val execute: suspend (MessageReactionUpdatePayload) -> Unit = { reaction ->
+        val state = Game[reaction.channel(), GameType.Hangman].state as HangmanState
+        with(state) {
+            if (bodyParts >= 5) return@with
+            if (revealed.none { it == '_' }) return@with
+            val letter = getLetter(reaction.emoji.name) ?: return@with
+            if (letter in guesses) return@with
             guesses += letter
             val indices = word.withIndex()
                     .filter { (_, c) -> c == letter }

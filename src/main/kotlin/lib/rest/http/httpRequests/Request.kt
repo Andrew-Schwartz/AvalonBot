@@ -18,7 +18,7 @@ import lib.rest.http.RateLimit
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.request(
+suspend fun request(
         routeKey: String,
         endpoint: String,
         method: HttpMethod,
@@ -27,7 +27,7 @@ suspend fun Bot.request(
 ): HttpResponse = loop {
     RateLimit.route(routeKey).limit(typingChannel?.intoId()?.channel())
     val response = client.request<HttpResponse>(api + endpoint) {
-        authHeaders.forEach { (k, v) -> header(k, v) }
+        Bot.headers.forEach { (k, v) -> header(k, v) }
         header("X-RateLimit-Precision", "millisecond")
         this.method = method
         this.body = body

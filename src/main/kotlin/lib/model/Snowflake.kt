@@ -1,6 +1,5 @@
 package lib.model
 
-import common.bot
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
@@ -23,7 +22,7 @@ inline class GuildId(override val value: String) : Snowflake, IntoId<GuildId> {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    suspend fun guild(): Guild = bot.getGuild(this)
+    suspend fun guild(): Guild = getGuild(this)
 
     override fun toString(): String = value
 }
@@ -33,7 +32,7 @@ inline class ChannelId(override val value: String) : Snowflake, IntoId<ChannelId
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    suspend fun channel(): Channel = bot.getChannel(this)
+    suspend fun channel(): Channel = getChannel(this)
 
     override fun toString(): String = value
 }
@@ -43,7 +42,7 @@ inline class UserId(override val value: String) : Snowflake, IntoId<UserId> {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    suspend fun user(): User = bot.getUser(this)
+    suspend fun user(): User = getUser(this)
 
     override fun toString(): String = value
 }

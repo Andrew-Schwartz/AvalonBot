@@ -1,10 +1,10 @@
 package common.commands
 
-import common.bot
 import common.util.elapsed
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
+import lib.dsl.reply
 import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 import java.time.Duration
@@ -18,13 +18,13 @@ object UptimeCommand : MessageCommand(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         message.reply {
-            title = formatDuration(bot.logInTime!!.toInstant().elapsed())
-            if (bot.logInTime != bot.firstLogInTime) {
-                addField("Time since initial login", formatDuration(bot.firstLogInTime!!.toInstant().elapsed()))
+            title = formatDuration(Bot.logInTime!!.toInstant().elapsed())
+            if (Bot.logInTime != Bot.firstLogInTime) {
+                addField("Time since initial login", formatDuration(Bot.firstLogInTime!!.toInstant().elapsed()))
             }
-            timestamp(bot.logInTime!!)
+            timestamp(Bot.logInTime!!)
             color = gold
         }
     }

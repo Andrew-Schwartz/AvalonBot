@@ -7,7 +7,8 @@ import common.game.Setup
 import io.ktor.util.KtorExperimentalAPI
 import kittens.game.KittenConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.reply
 import lib.model.channel.Message
 
 object ToggleImplodingCommand : MessageCommand(State.Setup.Setup) {
@@ -19,7 +20,7 @@ object ToggleImplodingCommand : MessageCommand(State.Setup.Setup) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val config = Setup[message.channel(), GameType.Kittens].config as KittenConfig
         config.implodingKittens = !config.implodingKittens
         message.reply("Imploding Kittens is now ${if (config.implodingKittens) "en" else "dis"}abled")

@@ -14,8 +14,7 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import lib.dsl.Bot
-import lib.dsl.suspendUntil
+import lib.dsl.*
 import lib.model.Color.Companion.gold
 import lib.model.channel.Channel
 import lib.model.channel.Message
@@ -33,7 +32,7 @@ object RestartCommand : MessageCommand(State.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         with(message) {
             val gameFromGames = GameType.values()
                     .map { it to Game[message.channel(), it] }
@@ -92,7 +91,7 @@ object RestartVoteCommand : ReactCommand(State.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
+    override val execute: suspend (MessageReactionUpdatePayload) -> Unit = { reaction ->
         val vote = restarts[reaction.channel()]
         if (reaction.message() == vote?.message) {
             val delta = when (reaction.emoji.name[0]) {
@@ -103,7 +102,7 @@ object RestartVoteCommand : ReactCommand(State.Game) {
                 MessageReactionUpdatePayload.Type.Add -> 1
                 MessageReactionUpdatePayload.Type.Remove -> -1
             }
-            vote.score++
+            vote.score += delta
         }
     }
 }

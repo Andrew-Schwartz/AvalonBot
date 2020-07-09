@@ -6,7 +6,8 @@ import common.commands.State
 import common.util.listGrammatically
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.reply
 import lib.model.channel.Message
 
 object WhoDidntVoteCommand : MessageCommand(State.Avalon.Voting) {
@@ -18,7 +19,7 @@ object WhoDidntVoteCommand : MessageCommand(State.Avalon.Voting) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val state = AvalonState.inChannel(message.channel())
         val notVoted = state?.players?.filter {
             it.user in state.reacts

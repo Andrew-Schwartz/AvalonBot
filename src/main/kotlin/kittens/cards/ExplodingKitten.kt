@@ -1,11 +1,9 @@
 package kittens.cards
 
-import common.bot
 import io.ktor.util.KtorExperimentalAPI
 import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.embed
-import lib.dsl.suspendUntil
+import lib.dsl.*
 import lib.util.bold
 
 @KtorExperimentalAPI
@@ -31,34 +29,32 @@ class ExplodingKitten(id: Int) : Card(id) {
 //            state.players.remove(player)
             state.currentPlayerIndex-- // todo I think this is needed
         }
-        with(bot) {
-            channel.send(embed = embed)
-            if (defuse != null) {
-                player.user.sendDM("""Where will you put the exploding kitten?
+        channel.send(embed = embed)
+        if (defuse != null) {
+            player.user.sendDM("""Where will you put the exploding kitten?
                                      |Reply how far from the top to put it (0 being the topmost card)
                                      |or use a negative number to count from the bottom (-0 is bottom card)
                                      |There are currently ${state.deck.size} cards in the deck
                 """.trimMargin())
 
-                var bottom = true
-                var num = 0
+            var bottom = true
+            var num = 0
 
-                suspendUntil {
-                    val message = player.user.getDM().lastMessage()
-                    if (message == null || message.author != player.user) return@suspendUntil false
-                    message.content.trim()
-                            .toIntOrNull()
-                            ?.let {
-                                num = it
-                                bottom = message.content.startsWith('-')
-                                true
-                            }
-                            ?: false
-                }
-
-                val index = if (bottom) state.deck.size - num else num
-                state.deck.add(index, this@ExplodingKitten)
+            suspendUntil {
+                val message = player.user.getDM().lastMessage()
+                if (message == null || message.author != player.user) return@suspendUntil false
+                message.content.trim()
+                        .toIntOrNull()
+                        ?.let {
+                            num = it
+                            bottom = message.content.startsWith('-')
+                            true
+                        }
+                        ?: false
             }
+
+            val index = if (bottom) state.deck.size - num else num
+            state.deck.add(index, this@ExplodingKitten)
         }
     }
 }

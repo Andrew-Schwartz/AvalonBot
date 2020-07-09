@@ -10,7 +10,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
 import lib.exceptions.RequestException
 import lib.model.ChannelId
 import lib.model.IntoId
@@ -27,12 +26,12 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.patchRequest(url: String, routeKey: String, jsonBody: String): HttpResponse =
+private suspend fun patchRequest(url: String, routeKey: String, jsonBody: String): HttpResponse =
         request(routeKey, url, HttpMethod.Patch, TextContent(jsonBody, ContentType.Application.Json))
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.patchRequest(url: String, routeKey: String, json: JsonElement) = patchRequest(url, routeKey, json.toJson())
+private suspend inline fun patchRequest(url: String, routeKey: String, json: JsonElement) = patchRequest(url, routeKey, json.toJson())
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#modify-channel]
@@ -43,7 +42,7 @@ private suspend inline fun Bot.patchRequest(url: String, routeKey: String, json:
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.modifyChannel(channelId: IntoId<ChannelId>, modifyInfo: ModifyChannelOptions): Result<Channel> {
+suspend fun modifyChannel(channelId: IntoId<ChannelId>, modifyInfo: ModifyChannelOptions): Result<Channel> {
     val channelId = channelId.intoId()
     val response = patchRequest("/channels/$channelId", "PATCH-modifyChannel-$channelId", (modifyInfo forChannel getChannel(channelId)).toJson())
     return when (response.status) {
@@ -61,7 +60,7 @@ suspend fun Bot.modifyChannel(channelId: IntoId<ChannelId>, modifyInfo: ModifyCh
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.editMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, content: String? = null, embed: Embed? = null): Message {
+suspend fun editMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, content: String? = null, embed: Embed? = null): Message {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     return patchRequest("/channels/$channelId/messages/$messageId", "PATCH-editMessage-$channelId", j {

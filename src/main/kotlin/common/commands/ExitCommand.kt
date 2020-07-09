@@ -7,6 +7,7 @@ import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
+import lib.dsl.reply
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
 import kotlin.system.exitProcess
@@ -20,9 +21,9 @@ object ExitCommand : MessageCommand(All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         if (message.author == steadfast) {
-            for (pin in pinnedMessages) {
+            for (pin in Bot.pinnedMessages) {
                 runCatching { deletePin(pin.channelId, pin) }
                         .onFailure { println(it.message) }
             }
@@ -32,7 +33,7 @@ object ExitCommand : MessageCommand(All) {
                 timestamp()
             }
             println("[${now()}] $logOff")
-            websocket.close(CloseReason.Codes.NORMAL, "Exiting")
+            Bot.websocket?.close?.invoke(CloseReason.Codes.NORMAL, "Exiting")
             exitProcess(1)
         } else {
             message.reply("Only Andrew is that cool")

@@ -1,12 +1,12 @@
 package common.commands
 
-import common.bot
 import common.util.MS
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.reply
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
@@ -15,7 +15,7 @@ import org.reflections.Reflections
 sealed class Command<P>(val state: State) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    abstract val execute: suspend Bot.(P) -> Unit
+    abstract val execute: suspend (P) -> Unit
 
     companion object {
         val _currentStates: MutableMap<Channel, MutableSet<State>> = mutableMapOf()
@@ -46,12 +46,10 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
                     .forEach { command ->
                         if (message.args.firstOrNull()?.equals("help", true) == true) {
                             GlobalScope.launch {
-                                bot.run {
-                                    message.reply(embed = command.helpEmbed())
-                                }
+                                message.reply(embed = command.helpEmbed())
                             }
                         } else {
-                            command.execute(bot, message)
+                            command.execute(message)
                         }
                     }
         }
@@ -75,7 +73,7 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
         suspend fun run(reaction: MessageReactionUpdatePayload) {
             reactCommands.asSequence()
                     .filter { reaction.emoji.name in it.emojis }
-                    .forEach { it.execute(bot, reaction) }
+                    .forEach { it.execute(reaction) }
         }
     }
 }

@@ -13,7 +13,8 @@ import common.util.S
 import common.util.onNull
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.reply
 import lib.model.Color
 import lib.model.Color.Companion.gold
 import lib.model.channel.Message
@@ -34,7 +35,7 @@ object RolesCommand : MessageCommand(State.Setup.Setup) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val setup = Setup[message.channel(), GameType.Avalon]
         val roles = (setup.config as AvalonConfig).roles
         val args = message.args

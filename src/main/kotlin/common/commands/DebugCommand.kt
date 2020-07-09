@@ -4,7 +4,7 @@ import common.steadfast
 import common.util.debug
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.reply
 import lib.model.ChannelId
 import lib.model.channel.Message
 
@@ -19,7 +19,7 @@ object DebugCommand : MessageCommand(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         if (message.author == steadfast) {
             when (message.args.firstOrNull()?.toLowerCase()) {
                 null -> message.channelId.debug = !message.channelId.debug
