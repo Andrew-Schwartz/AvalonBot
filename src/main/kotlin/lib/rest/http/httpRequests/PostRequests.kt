@@ -28,16 +28,16 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postRequest(url: String, routeKey: String, jsonBody: String = "", typingChannel: IntoId<ChannelId>? = null): HttpResponse =
+private suspend fun postRequest(url: String, routeKey: String, jsonBody: String = "", typingChannel: IntoId<ChannelId>? = null): HttpResponse =
         request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun Bot.postRequest(url: String, routeKey: String, json: JsonElement, typingChannel: IntoId<ChannelId>? = null) = postRequest(url, routeKey, json.toJson(), typingChannel)
+private suspend inline fun postRequest(url: String, routeKey: String, json: JsonElement, typingChannel: IntoId<ChannelId>? = null) = postRequest(url, routeKey, json.toJson(), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, typingChannel: IntoId<ChannelId>? = null, formData: FormBuilder.() -> Unit): HttpResponse =
+private suspend fun postFormDataRequest(url: String, routeKey: String, typingChannel: IntoId<ChannelId>? = null, formData: FormBuilder.() -> Unit): HttpResponse =
         request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }), typingChannel)
 
 /**
@@ -50,7 +50,7 @@ private suspend fun Bot.postFormDataRequest(url: String, routeKey: String, typin
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.createMessage(channelId: IntoId<ChannelId>, createMessage: CreateMessage): Message {
+suspend fun createMessage(channelId: IntoId<ChannelId>, createMessage: CreateMessage): Message {
     val (content, _, _, files, embed) = createMessage
     val channelId = channelId.intoId();
     val url = "/channels/${channelId}/messages"
@@ -73,7 +73,7 @@ suspend fun Bot.createMessage(channelId: IntoId<ChannelId>, createMessage: Creat
         }
     }
 
-    return response.fromJson<Message>().let(messages::addOrUpdate)
+    return response.fromJson<Message>().let(Bot.messages::addOrUpdate)
 }
 
 /**
@@ -86,7 +86,7 @@ suspend fun Bot.createMessage(channelId: IntoId<ChannelId>, createMessage: Creat
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.bulkDeleteMessages(channelId: IntoId<ChannelId>, messages: Set<Message>) {
+suspend fun bulkDeleteMessages(channelId: IntoId<ChannelId>, messages: Set<Message>) {
     if (messages.size < 2) throw IllegalArgumentException("At least 2 messages are needed for bulk deletion")
 
     val channelId = channelId.intoId()
@@ -104,7 +104,7 @@ suspend fun Bot.bulkDeleteMessages(channelId: IntoId<ChannelId>, messages: Set<M
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.triggerTypingIndicator(channelId: IntoId<ChannelId>) {
+suspend fun triggerTypingIndicator(channelId: IntoId<ChannelId>) {
     val channelId = channelId.intoId()
     postRequest("/channels/$channelId/typing", "POST-triggerTypingIndicator-$channelId")
 }
@@ -117,9 +117,9 @@ suspend fun Bot.triggerTypingIndicator(channelId: IntoId<ChannelId>) {
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.createDM(userId: IntoId<UserId>): Channel {
+suspend fun createDM(userId: IntoId<UserId>): Channel {
     val userId = userId.intoId()
-    return channels.computeIfAbsent(userId) {
+    return Bot.channels.computeIfAbsent(userId) {
         postRequest("/users/@me/channels", "POST-createDM", j { "recipient_id" to "$userId" }).fromJson()
     }
 }

@@ -4,10 +4,10 @@ package lib.rest.model.events.receiveEvents
 
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
-import common.bot
 import common.util.A
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.Bot
 import lib.model.*
 import lib.model.channel.Channel
 import lib.model.channel.Message
@@ -49,10 +49,10 @@ sealed class DispatchEvent<P : Any>(private val payloadClass: KClass<out P>) {
     @ExperimentalCoroutinesApi
     suspend fun runActions(payloadData: JsonElement) {
         val payload = when (val payload = payloadData.fromJson(payloadClass)) {
-            is Guild -> bot.guilds.addOrUpdate(payload) as P
-            is Channel -> bot.channels.addOrUpdate(payload) as P
-            is Message -> bot.messages.addOrUpdate(payload) as P
-            is User -> bot.users.addOrUpdate(payload) as P
+            is Guild -> Bot.guilds.addOrUpdate(payload) as P
+            is Channel -> Bot.channels.addOrUpdate(payload) as P
+            is Message -> Bot.messages.addOrUpdate(payload) as P
+            is User -> Bot.users.addOrUpdate(payload) as P
             else -> payload
         }
         actions.forEach { payload.it() }
@@ -297,7 +297,7 @@ data class MessageDeletePayload(
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     suspend fun message(): Message {
-        return bot.getMessage(channelId, id)
+        return getMessage(channelId, id)
     }
 }
 

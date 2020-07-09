@@ -5,7 +5,8 @@ import common.game.Setup
 import common.steadfast
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.fullName
+import lib.dsl.reply
 import lib.model.channel.Message
 
 object LogCommand : MessageCommand(State.All) {
@@ -17,7 +18,7 @@ object LogCommand : MessageCommand(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         if (message.author == steadfast) {
             println("debug = ${DebugCommand.debug.mapKeys { it.key.channel().fullName() }}")
             println("states = ${Command._currentStates.mapKeys { it.key.name }}")

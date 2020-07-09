@@ -1,6 +1,5 @@
 package hangman
 
-import common.bot
 import common.util.loop
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +29,7 @@ class GuildHistWord private constructor(private val guild: Guild, private val me
     private suspend fun advanceMessage() {
         val msg = messages[idx]
         val num = Random.nextInt(5..10)
-        val newMessages = runCatching { bot.getMessages(GetChannelMessages.before(msg.channelId, msg, limit = num)) }.getOrNull()
+        val newMessages = runCatching { getMessages(GetChannelMessages.before(msg.channelId, msg, limit = num)) }.getOrNull()
         if (newMessages?.size == num) {
             messages[idx] = newMessages.last()
         } else {
@@ -47,13 +46,13 @@ class GuildHistWord private constructor(private val guild: Guild, private val me
         suspend fun forGuild(guild: Guild): GuildHistWord = map.getOrPut(guild) { GuildHistWord.new(guild) }
 
         suspend fun new(guild: Guild): GuildHistWord {
-            val channels = guild.channels ?: bot.getGuildChannels(guild)
+            val channels = guild.channels ?: getGuildChannels(guild)
 
             val messages = channels.map { it to it.lastMessageId }
                     .filter { (_, id) -> id != null }
                     .mapNotNull { (channel, id) ->
                         runCatching {
-                            bot.getMessages(GetChannelMessages.before(channel, id!!, limit = 100)).last()
+                            getMessages(GetChannelMessages.before(channel, id!!, limit = 100)).last()
                         }.getOrNull()
                     }
 

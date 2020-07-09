@@ -8,7 +8,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
 import lib.exceptions.RequestException
 import lib.model.*
 import lib.model.channel.Channel
@@ -20,7 +19,7 @@ import lib.util.fromJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun Bot.deleteRequest(url: String, routeKey: String): HttpResponse =
+private suspend fun deleteRequest(url: String, routeKey: String): HttpResponse =
         request(routeKey, url, HttpMethod.Delete, EmptyContent)
 
 /**
@@ -34,7 +33,7 @@ private suspend fun Bot.deleteRequest(url: String, routeKey: String): HttpRespon
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.closeChannel(channelId: IntoId<ChannelId>): Channel {
+suspend fun closeChannel(channelId: IntoId<ChannelId>): Channel {
     val channelId = channelId.intoId()
     return deleteRequest("/channels/$channelId", "DELETE-closeChannel-$channelId").fromJson()
 }
@@ -47,7 +46,7 @@ suspend fun Bot.closeChannel(channelId: IntoId<ChannelId>): Channel {
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.deleteReaction(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char, userId: IntoId<UserId>? = null) {
+suspend fun deleteReaction(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char, userId: IntoId<UserId>? = null) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     val user = userId?.intoId()?.value ?: "@me"
@@ -60,7 +59,7 @@ suspend fun Bot.deleteReaction(channelId: IntoId<ChannelId>, messageId: IntoId<M
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.deleteAllReactions(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
+suspend fun deleteAllReactions(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     deleteRequest("/channels/$channelId/messages/$messageId/reactions", "DELETE-deleteAllReactions-$channelId")
@@ -73,7 +72,7 @@ suspend fun Bot.deleteAllReactions(channelId: IntoId<ChannelId>, messageId: Into
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.deleteMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
+suspend fun deleteMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     deleteRequest("/channels/$channelId/messages/$messageId", "DELETE-deleteMessage-$channelId")
@@ -86,7 +85,7 @@ suspend fun Bot.deleteMessage(channelId: IntoId<ChannelId>, messageId: IntoId<Me
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.deleteChannelPermission(channelId: IntoId<ChannelId>, overwriteId: IntoId<UserRoleId>) {
+suspend fun deleteChannelPermission(channelId: IntoId<ChannelId>, overwriteId: IntoId<UserRoleId>) {
     val channelId = channelId.intoId()
     val overwriteId = overwriteId.intoId()
     getChannel(channelId).guildId ?: throw IllegalArgumentException("Only usable for guild channels")
@@ -99,7 +98,7 @@ suspend fun Bot.deleteChannelPermission(channelId: IntoId<ChannelId>, overwriteI
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.leaveGuild(id: IntoId<GuildId>) {
+suspend fun leaveGuild(id: IntoId<GuildId>) {
     val id = id.intoId()
     val response = deleteRequest("/users/@me/guilds/$id", "DELETE-leaveGuild-$id")
     if (response.status != HttpStatusCode.NoContent) {
@@ -109,7 +108,7 @@ suspend fun Bot.leaveGuild(id: IntoId<GuildId>) {
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Bot.deletePin(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
+suspend fun deletePin(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     val response = deleteRequest("/channels/$channelId/pins/$messageId", "DELETE-deletePin-$channelId")

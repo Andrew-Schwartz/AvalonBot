@@ -13,8 +13,7 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import lib.dsl.Bot
-import lib.dsl.suspendUntil
+import lib.dsl.*
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
@@ -36,7 +35,7 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         // exists for the return below to work
         with(message) {
             val gameFromSetups = GameType.values()
@@ -107,7 +106,7 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-fun voteExecute(gameType: GameType): suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
+fun voteExecute(gameType: GameType): suspend (MessageReactionUpdatePayload) -> Unit = { reaction ->
     val setup = Setup[reaction.channel(), gameType]
 
     setup.startVote?.let { startVote ->
@@ -130,7 +129,7 @@ object AvalonVoteCommand : ReactCommand(State.Setup.AvalonStart) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = voteExecute(GameType.Avalon)
+    override val execute: suspend (MessageReactionUpdatePayload) -> Unit = voteExecute(GameType.Avalon)
 }
 
 object KittensVoteCommand : ReactCommand(State.Setup.KittensStart) {
@@ -138,5 +137,5 @@ object KittensVoteCommand : ReactCommand(State.Setup.KittensStart) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = voteExecute(GameType.Kittens)
+    override val execute: suspend (MessageReactionUpdatePayload) -> Unit = voteExecute(GameType.Kittens)
 }

@@ -8,7 +8,6 @@ import common.game.GameType
 import common.util.A
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Remove
@@ -21,7 +20,7 @@ object VoteCommand : ReactCommand(State.Avalon.Voting) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
+    override val execute: suspend (MessageReactionUpdatePayload) -> Unit = { reaction ->
         Game.forUser(reaction.userId).forEach { game ->
             val state = (Game[game.channel, GameType.Avalon] as Avalon).state
             val message = reaction.message()

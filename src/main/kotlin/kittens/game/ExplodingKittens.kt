@@ -1,6 +1,5 @@
 package kittens.game
 
-import common.bot
 import common.game.Game
 import common.game.GameFinish
 import common.game.GameType
@@ -13,10 +12,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class ExplodingKittens(setup: Setup) : Game(GameType.Kittens, setup) {
     override val state = KittenState(setup)
 
-    override suspend fun runGame(): GameFinish = bot.run {
-        with(state) {
-            TODO()
-        }
+    override suspend fun runGame(): GameFinish = with(state) game@{
+        TODO()
     }
 
     suspend fun drawCard() {

@@ -7,7 +7,8 @@ import common.game.GameType
 import io.ktor.util.KtorExperimentalAPI
 import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.sendDM
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
@@ -21,7 +22,7 @@ object HandCommand : MessageCommand(State.Kittens.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val state = (Game[message.channel(), GameType.Kittens] as ExplodingKittens).state
         with(state) {
             message.author.sendDM(

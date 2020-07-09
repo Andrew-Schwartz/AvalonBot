@@ -1,10 +1,10 @@
 package kittens.cards
 
-import common.bot
 import common.util.replaceCamelCase
 import io.ktor.util.KtorExperimentalAPI
 import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.sendDM
 import lib.util.bold
 import java.io.File
 import kotlin.reflect.KClass
@@ -28,12 +28,10 @@ abstract class Card(val id: Int) {
 
     open suspend fun ExplodingKittens.draw() {
         val player = state.currentPlayer
-        with(bot) {
             player.user.sendDM {
                 title = "You drew ${name.bold()}"
                 image(image)
                 description = "Your hand is now ${player.hand.joinToString(separator = "\n")}"
-            }
         }
     }
 

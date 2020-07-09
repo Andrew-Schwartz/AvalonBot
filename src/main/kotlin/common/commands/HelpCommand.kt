@@ -5,9 +5,7 @@ import common.util.A
 import common.util.debug
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
-import lib.dsl.RichEmbed
-import lib.dsl.embed
+import lib.dsl.*
 import lib.model.Color
 import lib.model.channel.Message
 import lib.util.bold
@@ -25,7 +23,7 @@ object HelpCommand : MessageCommand(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val allCommandsEmbed: suspend () -> RichEmbed = {
             embed {
                 title = "List of commands".underline()

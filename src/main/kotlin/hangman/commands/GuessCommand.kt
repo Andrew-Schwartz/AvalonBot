@@ -8,7 +8,7 @@ import common.util.L
 import hangman.game.HangmanState
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.edit
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import lib.util.multilineCode
 
@@ -20,7 +20,7 @@ object GuessCommand : ReactCommand(State.Hangman.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(MessageReactionUpdatePayload) -> Unit = { reaction ->
+    override val execute: suspend (MessageReactionUpdatePayload) -> Unit = { reaction ->
         val state = Game[reaction.channel(), GameType.Hangman].state as HangmanState
         with(state) {
             if (bodyParts >= 5) return@with

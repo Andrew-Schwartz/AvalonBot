@@ -2,7 +2,9 @@ package common.commands
 
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.react
+import lib.dsl.reply
+import lib.dsl.unpin
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.getPinnedMessages
 
@@ -15,7 +17,7 @@ object UnpinCommand : MessageCommand(State.All) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val args = message.args
         if (args.isEmpty()) {
             getPinnedMessages(message.channelId).forEach { it.unpin() }

@@ -25,7 +25,7 @@ import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class DiscordWebsocket(val bot: Bot) {
+class DiscordWebsocket(val token: String) {
     private lateinit var sendWebsocket: suspend (String) -> Unit
     lateinit var close: suspend (CloseReason.Codes, message: String) -> Unit
 
@@ -43,14 +43,14 @@ class DiscordWebsocket(val bot: Bot) {
         while (true) {
             println("[${now()}] Starting websocket")
             runCatching {
-                client.wss(host = bot.gateway(), port = 443) {
+                client.wss(host = gateway(), port = 443) {
                     // set up callbacks to interact with ws from other functions
                     sendWebsocket = { send(it) }
                     close = { code, message -> close(CloseReason(code, message)) }
 
                     // Resume on reconnect
                     if (sessionId != null) {
-                        val resume = Resume(bot.token, sessionId!!, sequenceNumber!!)
+                        val resume = Resume(token, sessionId!!, sequenceNumber!!)
                         println("[${now()}] Sending Resume...")
                         sendGatewayEvent(resume)
                     }
@@ -138,7 +138,7 @@ class DiscordWebsocket(val bot: Bot) {
     private suspend fun initializeConnection(payload: GatewayPayload) {
         if (!authed) {
             val identify = Identify(
-                    bot.token,
+                    token,
                     ConnectionProperties(),
                     presence = GatewayStatus(
                             null,
@@ -181,11 +181,11 @@ class DiscordWebsocket(val bot: Bot) {
 
     private fun defaultListeners() {
         Ready.actions.add(0) {
-            bot.user = this.user
+            Bot.user = this.user
             this@DiscordWebsocket.sessionId = sessionId
-            bot.logInTime = OffsetDateTime.now()
-            if (bot.firstLogInTime == null) {
-                bot.firstLogInTime = bot.logInTime
+            Bot.logInTime = OffsetDateTime.now()
+            if (Bot.firstLogInTime == null) {
+                Bot.firstLogInTime = Bot.logInTime
             }
         }
         on(MessageReactionAdd) {

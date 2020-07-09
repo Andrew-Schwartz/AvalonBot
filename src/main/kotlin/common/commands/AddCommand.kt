@@ -7,7 +7,8 @@ import common.util.debug
 import common.util.getOrDefault
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.reply
 import lib.model.Color
 import lib.model.channel.Message
 import lib.util.inlineCode
@@ -26,7 +27,7 @@ object AddCommand : MessageCommand(State.Setup.Setup) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val gameType = GameType.getType(message.args.getOrDefault(0, "")) ?: GameType.Avalon
 
         val setup = Setup[message.channel(), gameType]

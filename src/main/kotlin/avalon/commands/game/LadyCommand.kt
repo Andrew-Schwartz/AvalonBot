@@ -7,7 +7,8 @@ import common.game.Game
 import common.game.GameType
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
+import lib.dsl.channel
+import lib.dsl.reply
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
@@ -21,7 +22,7 @@ object LadyCommand : MessageCommand(State.Avalon.Lady) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
         val state = (Game[message.channel(), GameType.Avalon] as Avalon).state
 
         with(message) {

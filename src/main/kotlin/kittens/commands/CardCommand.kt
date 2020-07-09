@@ -4,7 +4,6 @@ import common.commands.MessageCommand
 import common.commands.State
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.Bot
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
@@ -18,7 +17,7 @@ object CardCommand : MessageCommand(State.Kittens.Game) {
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override val execute: suspend Bot.(Message) -> Unit = { message ->
+    override val execute: suspend (Message) -> Unit = { message ->
 //        val state = (Game[message.channel(), GameType.Kittens] as ExplodingKittens).state
 //        with(state) {
 //            val cards = message.args.cards().distinct()
