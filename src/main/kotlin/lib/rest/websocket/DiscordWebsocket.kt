@@ -198,5 +198,15 @@ class DiscordWebsocket(val token: String) {
                 toUpdate().it()
             }
         }
+        on(MessageReactionAdd) {
+            MessageReactionUpdate.actions.forEach {
+                toUpdate().it()
+            }
+        }
+        on(MessageReactionRemove) {
+            MessageReactionUpdate.actions.forEach {
+                toUpdate().it()
+            }
+        }
     }
 }
