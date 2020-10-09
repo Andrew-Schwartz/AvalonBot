@@ -2,9 +2,9 @@ package lib.rest.websocket
 
 import common.util.now
 import common.util.onNull
-import io.ktor.client.features.websocket.wss
+import io.ktor.client.features.websocket.*
 import io.ktor.http.cio.websocket.*
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.*
 import lib.dsl.Bot
 import lib.dsl.on
@@ -76,7 +76,7 @@ class DiscordWebsocket(val token: String) {
                 lastAck = null
                 lastHeartbeat = null
                 strikes = 0
-                println("[${now()}] caught $it")
+                println("[${now()}] caught $it: ${it.message}")
             }
         }
     }

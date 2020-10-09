@@ -3,16 +3,12 @@
 package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
-import io.ktor.client.request.forms.FormBuilder
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.append
-import io.ktor.client.request.forms.formData
-import io.ktor.client.statement.HttpResponse
-import io.ktor.content.TextContent
-import io.ktor.http.ContentType
-import io.ktor.http.ContentType.Application
-import io.ktor.http.HttpMethod
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.content.*
+import io.ktor.http.*
+import io.ktor.http.ContentType.*
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.ChannelId
@@ -28,17 +24,30 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun postRequest(url: String, routeKey: String, jsonBody: String = "", typingChannel: IntoId<ChannelId>? = null): HttpResponse =
-        request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json), typingChannel)
+private suspend fun postRequest(
+        url: String,
+        routeKey: String,
+        jsonBody: String = "",
+        typingChannel: IntoId<ChannelId>? = null
+): HttpResponse = request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun postRequest(url: String, routeKey: String, json: JsonElement, typingChannel: IntoId<ChannelId>? = null) = postRequest(url, routeKey, json.toJson(), typingChannel)
+private suspend inline fun postRequest(
+        url: String,
+        routeKey: String,
+        json: JsonElement,
+        typingChannel: IntoId<ChannelId>? = null
+): HttpResponse = postRequest(url, routeKey, json.toJson(), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun postFormDataRequest(url: String, routeKey: String, typingChannel: IntoId<ChannelId>? = null, formData: FormBuilder.() -> Unit): HttpResponse =
-        request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }), typingChannel)
+private suspend fun postFormDataRequest(
+        url: String,
+        routeKey: String,
+        typingChannel: IntoId<ChannelId>? = null,
+        formData: FormBuilder.() -> Unit
+): HttpResponse = request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }), typingChannel)
 
 /**
  * Post a message to a guild text or DM channel.

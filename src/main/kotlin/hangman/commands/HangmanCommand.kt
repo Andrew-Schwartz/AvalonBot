@@ -7,7 +7,7 @@ import common.game.Setup
 import hangman.GuildHistWord
 import hangman.WordnikWord
 import hangman.game.HangmanConfig
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
 import lib.dsl.guild
@@ -23,14 +23,15 @@ object HangmanCommand : MessageCommand(State.Setup.Setup) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->
-        message.guild()?.let {
-            val config = Setup[message.channel(), GameType.Hangman].config as HangmanConfig
-            config.randomWord = if (message.args.firstOrNull() == "web") {
+        val config = Setup[message.channel(), GameType.Hangman].config as HangmanConfig
+        config.randomWord = message.guild()?.let {
+            if (message.args.firstOrNull() == "web") {
                 WordnikWord()
             } else {
                 GuildHistWord.forGuild(it)
             }
-            GameType.Hangman.startGame(message)
-        }
+        } ?: WordnikWord()
+
+        GameType.Hangman.startGame(message)
     }
 }

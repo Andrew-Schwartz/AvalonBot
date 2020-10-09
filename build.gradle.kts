@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.70"
+    kotlin("jvm") version "1.4.10"
     java
 
     application
@@ -10,18 +10,14 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
-
-//    maven(url = "https://kotlin.bintray.com/kotlinx")
-//    maven(url = "https://gitlab.com/api/v4/projects/10363714/packages/maven")
 }
 
-val ktorVersion = "1.3.0"
-
+val ktorVersion = "1.4.1"
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     implementation("io.ktor:ktor-client:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-json:$ktorVersion")
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("io.ktor:ktor-gson:$ktorVersion")
@@ -35,9 +31,12 @@ java {
 
 tasks.jar {
     manifest {
-        attributes("Main-Class" to "avalonBot.MainKt")
+        attributes("Main-Class" to "common.MainKt")
     }
-    from({ configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) } })
+//    from({ configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) } })
+    configurations["compileClasspath"].forEach { file: File ->
+        from(zipTree(file.absoluteFile))
+    }
 }
 
 tasks.withType<KotlinCompile>().all {
@@ -51,12 +50,13 @@ tasks.withType<KotlinCompile>().all {
 
 application {
     // Define the main class for the application.
-    mainClassName = "main.MainKt"
+    mainClassName = "common.MainKt"
 }
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
-    languageVersion = "1.3"
+    languageVersion = "1.4"
 }
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {

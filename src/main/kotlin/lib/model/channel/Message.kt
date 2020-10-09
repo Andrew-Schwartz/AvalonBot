@@ -41,7 +41,7 @@ data class Message(
     override fun hashCode(): Int = id.hashCode()
 
     val args: List<String>
-        get() = content.split(" +".toRegex()).drop(1)
+        get() = content.split("\\s+".toRegex()).drop(1)
 
     @Suppress("USELESS_ELVIS", "UNNECESSARY_SAFE_CALL")
     override fun updateDataFrom(new: Message?): Message {

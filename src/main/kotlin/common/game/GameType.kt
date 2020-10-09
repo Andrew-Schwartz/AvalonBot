@@ -7,7 +7,7 @@ import common.commands.State
 import common.util.listGrammatically
 import hangman.game.HangmanConfig
 import hangman.game.HangmanPlayer
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kittens.game.ExplodingKittens
 import kittens.game.KittenConfig
 import kittens.game.KittenPlayer
@@ -70,7 +70,7 @@ enum class GameType {
         override val states: StateInfo = StateInfo(State.Hangman.Game, State.Setup.Setup, State.Hangman::class)
 
         override suspend fun startGame(message: Message) {
-            val hangman = Game[message.channel(), Hangman] as HangmanGame
+            val hangman = Game(message.channel(), Hangman) as HangmanGame
             Game.runGame(hangman)
         }
     };

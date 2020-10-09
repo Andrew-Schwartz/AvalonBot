@@ -1,10 +1,8 @@
 package common.commands
 
 import common.util.MS
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import lib.dsl.channel
 import lib.dsl.reply
 import lib.model.channel.Channel
@@ -13,8 +11,6 @@ import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import org.reflections.Reflections
 
 sealed class Command<P>(val state: State) {
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
     abstract val execute: suspend (P) -> Unit
 
     companion object {
@@ -30,10 +26,10 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
     abstract val usage: String
 
     companion object {
-        val messageCommands = Reflections("").getSubTypesOf(MessageCommand::class.java)
+        val messageCommands = Reflections("")
+                .getSubTypesOf(MessageCommand::class.java)
                 .mapNotNull { it.kotlin.objectInstance }
                 .toSet()
-                .also { messageCommands -> println("messageCommands = $messageCommands") }
 
         @KtorExperimentalAPI
         @ExperimentalCoroutinesApi
@@ -45,9 +41,7 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
                     .filter { it.name.equals(commandName, true) }
                     .forEach { command ->
                         if (message.args.firstOrNull()?.equals("help", true) == true) {
-                            GlobalScope.launch {
-                                message.reply(embed = command.helpEmbed())
-                            }
+                            message.reply(embed = command.helpEmbed())
                         } else {
                             command.execute(message)
                         }
@@ -66,7 +60,6 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
         val reactCommands = Reflections("").getSubTypesOf(ReactCommand::class.java)
                 .mapNotNull { runCatching { it.kotlin.objectInstance }.getOrNull() }
                 .toSet()
-                .also { reactCommands -> println("reactCommands = $reactCommands") }
 
         @KtorExperimentalAPI
         @ExperimentalCoroutinesApi
