@@ -2,10 +2,10 @@
 
 package lib.rest.http.httpRequests
 
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.utils.EmptyContent
-import io.ktor.http.HttpMethod
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.client.statement.*
+import io.ktor.client.utils.*
+import io.ktor.http.*
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.model.*
@@ -24,8 +24,7 @@ import lib.util.fromJson
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun getRequest(url: String, routeKey: String): HttpResponse =
-        request(routeKey, url, HttpMethod.Get, EmptyContent)
+private suspend fun getRequest(url: String): HttpResponse = request(url, HttpMethod.Get, EmptyContent)
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#get-channel]
@@ -35,11 +34,10 @@ private suspend fun getRequest(url: String, routeKey: String): HttpResponse =
 suspend fun getChannel(id: IntoId<ChannelId>, forceRequest: Boolean = false): Channel {
     val id = id.intoId()
     val url = "/channels/$id"
-    val routeKey = "GET-getChannel-$id"
     return if (forceRequest) {
-        getRequest(url, routeKey).fromJson<Channel>().let { Bot.channels.addOrUpdate(it) }
+        getRequest(url).fromJson<Channel>().let { Bot.channels.addOrUpdate(it) }
     } else {
-        Bot.channels.computeIfAbsent(id) { getRequest(url, routeKey).fromJson() }
+        Bot.channels.computeIfAbsent(id) { getRequest(url).fromJson() }
     }
 }
 
@@ -54,7 +52,6 @@ suspend fun getChannel(id: IntoId<ChannelId>, forceRequest: Boolean = false): Ch
 suspend fun getMessages(getChannelMessages: GetChannelMessages): Array<Message> {
     return getRequest(
             "/channels/${getChannelMessages.channel}/messages?${getChannelMessages.queryParams}",
-            "GET-getMessages-${getChannelMessages.channel}"
     )
             .fromJson<Array<Message>>()
             .also { it.asSequence().forEach { Bot.messages.addOrUpdate(it) } }
@@ -71,11 +68,10 @@ suspend fun getMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     val url = "/channels/$channelId/messages/$messageId"
-    val routeKey = "GET-getMessage-$channelId"
     return if (forceRequest) {
-        getRequest(url, routeKey).fromJson<Message>().let { Bot.messages.addOrUpdate(it) }
+        getRequest(url).fromJson<Message>().let { Bot.messages.addOrUpdate(it) }
     } else {
-        Bot.messages.computeIfAbsent(messageId) { getRequest(url, routeKey).fromJson() }
+        Bot.messages.computeIfAbsent(messageId) { getRequest(url).fromJson() }
     }
 }
 
@@ -88,7 +84,7 @@ suspend fun getMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId
 suspend fun getReactions(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, emoji: Char): Array<User> {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
-    return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji", "GET-getReactions-$channelId").fromJson()
+    return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji").fromJson()
 }
 
 
@@ -100,7 +96,7 @@ suspend fun getReactions(channelId: IntoId<ChannelId>, messageId: IntoId<Message
 @ExperimentalCoroutinesApi
 suspend fun getPinnedMessages(channelId: IntoId<ChannelId>): Array<Message> {
     val channelId = channelId.intoId()
-    return getRequest("/channels/$channelId/pins", "GET-getPinnedReactions-$channelId").fromJson()
+    return getRequest("/channels/$channelId/pins").fromJson()
 }
 
 /**
@@ -112,7 +108,7 @@ suspend fun getPinnedMessages(channelId: IntoId<ChannelId>): Array<Message> {
 @ExperimentalCoroutinesApi
 suspend fun getPins(channelId: IntoId<ChannelId>): Array<Message> {
     val channelId = channelId.intoId()
-    return getRequest("/channels/$channelId/pins", "GET-getPins-$channelId").fromJson<Array<Message>>().also {
+    return getRequest("/channels/$channelId/pins").fromJson<Array<Message>>().also {
         for (message in it) {
             Bot.messages.addOrUpdate(message)
         }
@@ -127,7 +123,7 @@ suspend fun getPins(channelId: IntoId<ChannelId>): Array<Message> {
 @ExperimentalCoroutinesApi
 suspend fun getUser(id: IntoId<UserId>): User {
     val id = id.intoId()
-    return Bot.users.computeIfAbsent(id) { getRequest("/users/$id", "GET-getUser").fromJson() }
+    return Bot.users.computeIfAbsent(id) { getRequest("/users/$id").fromJson() }
 }
 
 /**
@@ -139,7 +135,7 @@ suspend fun getUser(id: IntoId<UserId>): User {
 @ExperimentalCoroutinesApi
 suspend fun getGuilds(before: Boolean? = null, after: Boolean? = null, limit: Int = 100): Array<Guild> {
     TODO("figure out how the before and after work")
-    return getRequest("/users/@me/guilds?", "GET-getGuilds").fromJson()
+    return getRequest("/users/@me/guilds?").fromJson()
 }
 
 /**
@@ -148,18 +144,17 @@ suspend fun getGuilds(before: Boolean? = null, after: Boolean? = null, limit: In
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun getUserConnection(): Array<Connection> = getRequest("/users/@me/connections", "GET-getUserConnection").fromJson()
+suspend fun getUserConnection(): Array<Connection> = getRequest("/users/@me/connections").fromJson()
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun getGuild(id: IntoId<GuildId>, forceRequest: Boolean = false): Guild {
     val id = id.intoId()
     val url = "/guilds/$id"
-    val routeKey = "GET-getGuild-$id"
     return if (forceRequest) {
-        getRequest(url, routeKey).fromJson<Guild>().let { Bot.guilds.addOrUpdate(it) }
+        getRequest(url).fromJson<Guild>().let { Bot.guilds.addOrUpdate(it) }
     } else {
-        Bot.guilds.computeIfAbsent(id) { getRequest(url, routeKey).fromJson() }
+        Bot.guilds.computeIfAbsent(id) { getRequest(url).fromJson() }
     }
 }
 
@@ -167,7 +162,7 @@ suspend fun getGuild(id: IntoId<GuildId>, forceRequest: Boolean = false): Guild 
 @ExperimentalCoroutinesApi
 suspend fun getGuildChannels(id: IntoId<GuildId>): Array<Channel> {
     val id = id.intoId()
-    val channels = getRequest("/guilds/$id/channels", "GET-getGuildChannels-$id").fromJson<Array<Channel>>()
+    val channels = getRequest("/guilds/$id/channels").fromJson<Array<Channel>>()
     // most of the time this will just be fetching from a hashmap
     Bot.guilds.addOrUpdate(getGuild(id).copy(channels = channels))
     return channels
@@ -178,10 +173,10 @@ suspend fun getGuildChannels(id: IntoId<GuildId>): Array<Channel> {
 suspend fun getGuildMember(guildId: IntoId<GuildId>, userId: IntoId<UserId>): GuildMember {
     val guildId = guildId.intoId()
     val userId = userId.intoId()
-    return getRequest("/guilds/$guildId/members/$userId", "GET-getGuildMember-$guildId").fromJson()
+    return getRequest("/guilds/$guildId/members/$userId").fromJson()
 }
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun gateway(): String = getRequest("/gateway/bot", "GET-gateway").fromJson<BotGateway>().url.removePrefix("wss://")
+suspend fun gateway(): String = getRequest("/gateway/bot").fromJson<BotGateway>().url.removePrefix("wss://")
 

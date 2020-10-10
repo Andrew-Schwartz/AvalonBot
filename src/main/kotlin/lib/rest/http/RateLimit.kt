@@ -1,13 +1,15 @@
 package lib.rest.http
 
+import common.util.A
 import common.util.durationSince
 import common.util.now
-import io.ktor.client.statement.HttpResponse
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.client.statement.*
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import lib.dsl.startTyping
 import lib.model.channel.Channel
+import java.time.Duration
 import java.time.Instant
 import kotlin.math.pow
 
@@ -15,21 +17,28 @@ data class RateLimit(
         var limit: Int? = null,
         var remaining: Int? = null,
         var reset: Instant? = null,
-        var bucket: String? = null
+        var bucket: BucketKey? = null
 ) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    suspend fun limit(typingChannel: Channel?) {
-        reset?.let { reset ->
-            val duration = reset.durationSince(Instant.now())
-            if (remaining == 0 && !duration.isNegative) {
-                val delayTime = duration.seconds + duration.nano / 10.0.pow(9)
-                println("rate limited for $delayTime seconds in bucket $bucket")
-                typingChannel?.startTyping()
-                delay((delayTime * 1000.0).toLong())
-            }
+    suspend fun limit(typingChannel: Channel? = null) {
+        if (limitMillis > 0) {
+            println("[${now()}] rate limited for $limitMillis ms in bucket $bucket")
+            // todo don't try to start typing if that will start a ratelimit
+            typingChannel?.startTyping()
+            delay(limitMillis)
         }
     }
+
+    val limitMillis
+        get(): Long {
+            val duration: Duration = reset?.durationSince(Instant.now()) ?: Duration.ZERO
+            return if (remaining == 0 && !duration.isNegative) {
+                ((duration.seconds + duration.nano / 10.0.pow(9)) * 1000.0).toLong()
+            } else {
+                0L
+            }
+        }
 
     override fun toString(): String {
         val duration = reset?.durationSince(Instant.now())
@@ -39,27 +48,39 @@ data class RateLimit(
     }
 
     companion object {
-        private const val GLOBAL = "GLOBAL"
-        private val routeBucketMap: MutableMap<String, String> = mutableMapOf()
-        private val buckets: MutableMap<String, RateLimit> = mutableMapOf(GLOBAL to RateLimit())
+        private val buckets: MutableMap<BucketKey, RateLimit> = mutableMapOf()
 
-        fun update(response: HttpResponse, routeKey: String): Unit = with(response.headers) {
-            val bucket = this["X-RateLimit-Bucket"] ?: GLOBAL
-            routeBucketMap[routeKey] = bucket
-            buckets.getOrPut(bucket) { RateLimit() }.let {
-                it.limit = this["X-RateLimit-Limit"]?.toInt() ?: it.limit
-                it.remaining = this["X-RateLimit-Remaining"]?.toInt() ?: it.remaining
-                this["X-RateLimit-Reset-After"]?.toDouble()?.let { secs ->
-                    it.reset = Instant.now().plusMillis((secs * 1000).toLong())
+        fun update(response: HttpResponse, key: BucketKey): Unit = with(response) {
+            buckets.getOrPut(key) { RateLimit() }.apply {
+                limit = headers["X-RateLimit-Limit"]?.toInt() ?: limit
+                remaining = headers["X-RateLimit-Remaining"]?.toInt() ?: remaining
+                headers["X-RateLimit-Reset-After"]?.toDouble()?.let { secs ->
+                    reset = Instant.now().plusMillis((secs * 1000).toLong())
                 }
-                it.bucket = bucket
             }
-            println("[${now()}] $routeKey -> $bucket -> ${buckets[bucket]!!}")
+            println("[${now()}] $key -> ${buckets[key]}")
         }
 
-        fun route(routeKey: String): RateLimit {
-            val bucket = routeBucketMap.getOrDefault(routeKey, GLOBAL)
-            return buckets[bucket]!!
+        operator fun get(endpoint: String): RateLimit = RateLimit[BucketKey.ofEndpoint(endpoint)]
+
+        operator fun get(key: BucketKey): RateLimit = buckets.getOrPut(key) { RateLimit(bucket = key) }
+    }
+}
+
+inline class BucketKey(private val route: String) {
+    companion object {
+        fun ofEndpoint(endpoint: String): BucketKey {
+            val route = endpoint.split('/').windowed(2).joinToString("/") {
+                val (prev, part) = it
+                if (Regex("""\d{16,19}""").matches(part) && prev !in A["channels", "guilds"]) {
+                    ":id"
+                } else {
+                    part
+                }
+            }
+            return BucketKey(route)
         }
     }
+
+    override fun toString(): String = route
 }

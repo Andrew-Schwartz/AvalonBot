@@ -79,7 +79,6 @@ object LowLevelCommand : MessageCommand(State.All) {
                     createMessage(id, cm)
                 } else {
                     val response = request(
-                            "LowLevelCommand",
                             endpoint,
                             method,
                             TextContent(content, Application.Json)

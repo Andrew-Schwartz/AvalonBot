@@ -1,7 +1,7 @@
 package lib.dsl
 
 import common.util.M
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
 import lib.model.channel.Message
@@ -28,7 +28,7 @@ object Bot {
     val messages: Store<Message> = Store()
     val users: Store<User> = Store()
 
-    suspend fun launchSocket(token: String) {
+    private suspend fun launchSocket(token: String) {
         websocket = DiscordWebsocket(token)
         websocket!!.run()
     }

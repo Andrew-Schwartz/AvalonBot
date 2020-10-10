@@ -13,30 +13,34 @@ import lib.model.ChannelId
 import lib.model.IntoId
 import lib.rest.api
 import lib.rest.client
+import lib.rest.http.BucketKey
 import lib.rest.http.RateLimit
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun request(
-        routeKey: String,
         endpoint: String,
         method: HttpMethod,
         body: Any,
         typingChannel: IntoId<ChannelId>? = null
-): HttpResponse = loop {
-    RateLimit.route(routeKey).limit(typingChannel?.intoId()?.channel())
-    val response = client.request<HttpResponse>(api + endpoint) {
-        Bot.headers.forEach { (k, v) -> header(k, v) }
-        header("X-RateLimit-Precision", "millisecond")
-        this.method = method
-        this.body = body
-    }
-    RateLimit.update(response, routeKey)
-    if (response.status == HttpStatusCode.TooManyRequests) {
-        println("[${now()}] 429 on '$endpoint'. Retrying...")
-        delay(1000)
-        null
-    } else {
-        response
+): HttpResponse {
+    return loop {
+        val key = BucketKey.ofEndpoint(endpoint)
+        RateLimit[key].limit(typingChannel?.intoId()?.channel())
+        val response = client.request<HttpResponse>(api + endpoint) {
+            Bot.headers.forEach { (k, v) -> header(k, v) }
+            header("X-RateLimit-Precision", "millisecond")
+            this.method = method
+            this.body = body
+        }
+        RateLimit.update(response, key)
+
+        if (response.status == HttpStatusCode.TooManyRequests) {
+            println("[${now()}] 429 on '$endpoint'. Retrying...")
+            delay(1000)
+            null
+        } else {
+            response
+        }
     }
 }

@@ -26,28 +26,25 @@ import lib.util.toJson
 @ExperimentalCoroutinesApi
 private suspend fun postRequest(
         url: String,
-        routeKey: String,
         jsonBody: String = "",
         typingChannel: IntoId<ChannelId>? = null
-): HttpResponse = request(routeKey, url, HttpMethod.Post, TextContent(jsonBody, Application.Json), typingChannel)
+): HttpResponse = request(url, HttpMethod.Post, TextContent(jsonBody, Application.Json), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 private suspend inline fun postRequest(
         url: String,
-        routeKey: String,
         json: JsonElement,
         typingChannel: IntoId<ChannelId>? = null
-): HttpResponse = postRequest(url, routeKey, json.toJson(), typingChannel)
+): HttpResponse = postRequest(url, json.toJson(), typingChannel)
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 private suspend fun postFormDataRequest(
         url: String,
-        routeKey: String,
         typingChannel: IntoId<ChannelId>? = null,
         formData: FormBuilder.() -> Unit
-): HttpResponse = request(routeKey, url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }), typingChannel)
+): HttpResponse = request(url, HttpMethod.Post, MultiPartFormDataContent(formData { formData() }), typingChannel)
 
 /**
  * Post a message to a guild text or DM channel.
@@ -65,9 +62,9 @@ suspend fun createMessage(channelId: IntoId<ChannelId>, createMessage: CreateMes
     val url = "/channels/${channelId}/messages"
 
     val response = if (files == null) {
-        postRequest(url, "POST-createMessage-${channelId}", createMessage.toJson(), channelId)
+        postRequest(url, createMessage.toJson(), channelId)
     } else {
-        postFormDataRequest(url, "POST-createMessage-${channelId}", channelId) {
+        postFormDataRequest(url, channelId) {
             if (content.isNotEmpty() || embed != null) {
                 val payload = createMessage.copy(file = null).toJson()
                 append("payload_json", payload)
@@ -100,7 +97,7 @@ suspend fun bulkDeleteMessages(channelId: IntoId<ChannelId>, messages: Set<Messa
 
     val channelId = channelId.intoId()
     val array: Array<Message> = messages.take(100).toTypedArray()
-    postRequest("/channels/$channelId/messages/bulk-delete", "POST-bulkDeleteMessages-$channelId", j { "messages" to array })
+    postRequest("/channels/$channelId/messages/bulk-delete", j { "messages" to array })
 }
 
 /**
@@ -115,7 +112,7 @@ suspend fun bulkDeleteMessages(channelId: IntoId<ChannelId>, messages: Set<Messa
 @ExperimentalCoroutinesApi
 suspend fun triggerTypingIndicator(channelId: IntoId<ChannelId>) {
     val channelId = channelId.intoId()
-    postRequest("/channels/$channelId/typing", "POST-triggerTypingIndicator-$channelId")
+    postRequest("/channels/$channelId/typing")
 }
 
 /**
@@ -129,6 +126,6 @@ suspend fun triggerTypingIndicator(channelId: IntoId<ChannelId>) {
 suspend fun createDM(userId: IntoId<UserId>): Channel {
     val userId = userId.intoId()
     return Bot.channels.computeIfAbsent(userId) {
-        postRequest("/users/@me/channels", "POST-createDM", j { "recipient_id" to "$userId" }).fromJson()
+        postRequest("/users/@me/channels", j { "recipient_id" to "$userId" }).fromJson()
     }
 }

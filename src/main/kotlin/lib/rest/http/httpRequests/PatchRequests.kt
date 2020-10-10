@@ -3,12 +3,10 @@
 package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
-import io.ktor.client.statement.HttpResponse
-import io.ktor.content.TextContent
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.client.statement.*
+import io.ktor.content.*
+import io.ktor.http.*
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.exceptions.RequestException
 import lib.model.ChannelId
@@ -26,12 +24,12 @@ import lib.util.toJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun patchRequest(url: String, routeKey: String, jsonBody: String): HttpResponse =
-        request(routeKey, url, HttpMethod.Patch, TextContent(jsonBody, ContentType.Application.Json))
+private suspend fun patchRequest(url: String, jsonBody: String): HttpResponse =
+        request(url, HttpMethod.Patch, TextContent(jsonBody, ContentType.Application.Json))
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend inline fun patchRequest(url: String, routeKey: String, json: JsonElement) = patchRequest(url, routeKey, json.toJson())
+private suspend inline fun patchRequest(url: String, json: JsonElement) = patchRequest(url, json.toJson())
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#modify-channel]
@@ -44,7 +42,7 @@ private suspend inline fun patchRequest(url: String, routeKey: String, json: Jso
 @ExperimentalCoroutinesApi
 suspend fun modifyChannel(channelId: IntoId<ChannelId>, modifyInfo: ModifyChannelOptions): Result<Channel> {
     val channelId = channelId.intoId()
-    val response = patchRequest("/channels/$channelId", "PATCH-modifyChannel-$channelId", (modifyInfo forChannel getChannel(channelId)).toJson())
+    val response = patchRequest("/channels/$channelId", (modifyInfo forChannel getChannel(channelId)).toJson())
     return when (response.status) {
         HttpStatusCode.BadRequest -> Result.failure(RequestException("400 Bad Request, Invalid parameters"))
         else -> Result.success(response.fromJson())
@@ -63,7 +61,7 @@ suspend fun modifyChannel(channelId: IntoId<ChannelId>, modifyInfo: ModifyChanne
 suspend fun editMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>, content: String? = null, embed: Embed? = null): Message {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
-    return patchRequest("/channels/$channelId/messages/$messageId", "PATCH-editMessage-$channelId", j {
+    return patchRequest("/channels/$channelId/messages/$messageId", j {
         if (content != null)
             "content" to content.take(2000)
         if (embed != null)

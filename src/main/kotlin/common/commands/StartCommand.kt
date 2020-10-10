@@ -9,7 +9,7 @@ import common.util.A
 import common.util.Vote
 import common.util.debug
 import common.util.getOrDefault
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -62,9 +62,9 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
                     val link = setup.startVote?.message?.let { msg ->
                         val msg = getMessage(msg.channelId, msg, forceRequest = true)
                         if (msg.guildId == null) { // DM
-                            "https://discordapp.com/channels/@me/${msg.channelId}/${msg.id}"
+                            "https://discord.com/channels/@me/${msg.channelId}/${msg.id}"
                         } else {
-                            "https://discordapp.com/channels/${msg.guildId}/${msg.channelId}/${msg.id}"
+                            "https://discord.com/channels/${msg.guildId}/${msg.channelId}/${msg.id}"
                         }
                     } ?: ""
                     message.reply(" You are already voting to start the game here!\n$link", ping = true)

@@ -3,7 +3,7 @@ package common
 import common.commands.MessageCommand
 import common.commands.ReactCommand
 import common.util.now
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import lib.dsl.Bot

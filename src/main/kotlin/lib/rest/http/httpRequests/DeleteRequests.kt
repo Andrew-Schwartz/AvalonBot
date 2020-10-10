@@ -2,11 +2,10 @@
 
 package lib.rest.http.httpRequests
 
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.utils.EmptyContent
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.client.statement.*
+import io.ktor.client.utils.*
+import io.ktor.http.*
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.exceptions.RequestException
 import lib.model.*
@@ -19,8 +18,7 @@ import lib.util.fromJson
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-private suspend fun deleteRequest(url: String, routeKey: String): HttpResponse =
-        request(routeKey, url, HttpMethod.Delete, EmptyContent)
+private suspend fun deleteRequest(url: String): HttpResponse = request(url, HttpMethod.Delete, EmptyContent)
 
 /**
  * see [https://discordapp.com/developers/docs/resources/channel#deleteclose-channel]
@@ -35,7 +33,7 @@ private suspend fun deleteRequest(url: String, routeKey: String): HttpResponse =
 @ExperimentalCoroutinesApi
 suspend fun closeChannel(channelId: IntoId<ChannelId>): Channel {
     val channelId = channelId.intoId()
-    return deleteRequest("/channels/$channelId", "DELETE-closeChannel-$channelId").fromJson()
+    return deleteRequest("/channels/$channelId").fromJson()
 }
 
 /**
@@ -50,7 +48,7 @@ suspend fun deleteReaction(channelId: IntoId<ChannelId>, messageId: IntoId<Messa
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
     val user = userId?.intoId()?.value ?: "@me"
-    deleteRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/$user", "DELETE-deleteReaction-$channelId")
+    deleteRequest("/channels/$channelId/messages/$messageId/reactions/$emoji/$user")
 }
 
 /**
@@ -62,7 +60,7 @@ suspend fun deleteReaction(channelId: IntoId<ChannelId>, messageId: IntoId<Messa
 suspend fun deleteAllReactions(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
-    deleteRequest("/channels/$channelId/messages/$messageId/reactions", "DELETE-deleteAllReactions-$channelId")
+    deleteRequest("/channels/$channelId/messages/$messageId/reactions")
 }
 
 /**
@@ -75,7 +73,7 @@ suspend fun deleteAllReactions(channelId: IntoId<ChannelId>, messageId: IntoId<M
 suspend fun deleteMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
-    deleteRequest("/channels/$channelId/messages/$messageId", "DELETE-deleteMessage-$channelId")
+    deleteRequest("/channels/$channelId/messages/$messageId")
 }
 
 /**
@@ -90,7 +88,7 @@ suspend fun deleteChannelPermission(channelId: IntoId<ChannelId>, overwriteId: I
     val overwriteId = overwriteId.intoId()
     getChannel(channelId).guildId ?: throw IllegalArgumentException("Only usable for guild channels")
 
-    deleteRequest("/channels/$channelId/permissions/$overwriteId", "DELETE-deleteChannelPermission-$channelId")
+    deleteRequest("/channels/$channelId/permissions/$overwriteId")
 }
 
 /**
@@ -100,7 +98,7 @@ suspend fun deleteChannelPermission(channelId: IntoId<ChannelId>, overwriteId: I
 @ExperimentalCoroutinesApi
 suspend fun leaveGuild(id: IntoId<GuildId>) {
     val id = id.intoId()
-    val response = deleteRequest("/users/@me/guilds/$id", "DELETE-leaveGuild-$id")
+    val response = deleteRequest("/users/@me/guilds/$id")
     if (response.status != HttpStatusCode.NoContent) {
         throw RequestException("Deleting guild $id did not succeed")
     }
@@ -111,7 +109,7 @@ suspend fun leaveGuild(id: IntoId<GuildId>) {
 suspend fun deletePin(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId>) {
     val channelId = channelId.intoId()
     val messageId = messageId.intoId()
-    val response = deleteRequest("/channels/$channelId/pins/$messageId", "DELETE-deletePin-$channelId")
+    val response = deleteRequest("/channels/$channelId/pins/$messageId")
     if (response.status != HttpStatusCode.NoContent) {
         throw RequestException("Deleting pin for message $messageId in channel ${getChannel(channelId).name} did not succeed")
     }

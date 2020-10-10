@@ -44,7 +44,8 @@ tasks.withType<KotlinCompile>().all {
     kotlinOptions.freeCompilerArgs = listOf(
             "-XXLanguage:+InlineClasses",
             "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes",
-            "-Xallow-result-return-type"
+            "-Xallow-result-return-type",
+            "-Xopt-in=kotlin.RequiresOptIn"
     )
 }
 
