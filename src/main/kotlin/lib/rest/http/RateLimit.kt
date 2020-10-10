@@ -22,13 +22,16 @@ data class RateLimit(
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     suspend fun limit(typingChannel: Channel? = null) {
-        if (limitMillis > 0) {
+        if (mustLimit) {
             println("[${now()}] rate limited for $limitMillis ms in bucket $bucket")
-            // todo don't try to start typing if that will start a ratelimit
-            typingChannel?.startTyping()
+            if (typingChannel != null && !RateLimit["/channels/${typingChannel.id}/typing"].mustLimit) {
+                typingChannel.startTyping()
+            }
             delay(limitMillis)
         }
     }
+
+    val mustLimit get() = limitMillis != 0L
 
     val limitMillis
         get(): Long {

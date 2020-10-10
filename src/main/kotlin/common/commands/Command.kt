@@ -3,6 +3,8 @@ package common.commands
 import common.util.MS
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import lib.dsl.channel
 import lib.dsl.reply
 import lib.model.channel.Channel
@@ -40,10 +42,12 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
                     .filter { it.state in channelStates }
                     .filter { it.name.equals(commandName, true) }
                     .forEach { command ->
-                        if (message.args.firstOrNull()?.equals("help", true) == true) {
-                            message.reply(embed = command.helpEmbed())
-                        } else {
-                            command.execute(message)
+                        GlobalScope.launch {
+                            if (message.args.firstOrNull()?.equals("help", true) == true) {
+                                message.reply(embed = command.helpEmbed())
+                            } else {
+                                command.execute(message)
+                            }
                         }
                     }
         }
@@ -66,7 +70,7 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
         suspend fun run(reaction: MessageReactionUpdatePayload) {
             reactCommands.asSequence()
                     .filter { reaction.emoji.name in it.emojis }
-                    .forEach { it.execute(reaction) }
+                    .forEach { GlobalScope.launch { it.execute(reaction) } }
         }
     }
 }
