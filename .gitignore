@@ -6,5 +6,7 @@ build
 
 src/main/resources/config
 
+src/main/resources/uptime
+
 .idea
 out

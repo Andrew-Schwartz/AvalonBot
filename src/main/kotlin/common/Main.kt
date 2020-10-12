@@ -4,8 +4,7 @@ import common.commands.MessageCommand
 import common.commands.ReactCommand
 import common.util.now
 import io.ktor.util.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import lib.dsl.Bot
 import lib.dsl.on
 import lib.dsl.send
@@ -16,6 +15,8 @@ import lib.rest.http.httpRequests.getChannel
 import lib.rest.http.httpRequests.getUser
 import lib.rest.model.events.receiveEvents.*
 import lib.util.fromJson
+import java.io.File
+import java.time.Instant
 
 lateinit var steadfast: User
 lateinit var kts: Channel
@@ -60,6 +61,19 @@ fun main() = runBlocking {
         on(MessageReactionUpdate) {
             if (user().isBot != true) {
                 ReactCommand.run(this)
+            }
+        }
+
+        GlobalScope.launch {
+            // todo maybe detect if the bot is actually connected somehow
+            while (true) {
+                // todo file handler to auto put us in that dir
+                File("src/main/resources/uptime").bufferedWriter().use {
+                    it.write(Instant.now().toString())
+                }
+                println("[${now()}] Updated uptime file")
+                val mins = 30L
+                delay(1000 * 60 * mins)
             }
         }
     }
