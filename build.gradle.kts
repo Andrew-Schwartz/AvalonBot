@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.4.10"
     java
-
     application
 }
 
@@ -33,7 +32,6 @@ tasks.jar {
     manifest {
         attributes("Main-Class" to "common.MainKt")
     }
-//    from({ configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) } })
     configurations["compileClasspath"].forEach { file: File ->
         from(zipTree(file.absoluteFile))
     }
@@ -50,7 +48,6 @@ tasks.withType<KotlinCompile>().all {
 }
 
 application {
-    // Define the main class for the application.
     mainClassName = "common.MainKt"
 }
 

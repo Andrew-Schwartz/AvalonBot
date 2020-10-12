@@ -1,9 +1,9 @@
 package hangman
 
 import common.util.loop
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.util.*
 import kotlinx.coroutines.time.delay
 import lib.rest.client
 import lib.util.fromJson
@@ -26,7 +26,7 @@ class WordnikWord : RandomWord {
 
     @Suppress("JAVA_CLASS_ON_COMPANION")
     companion object {
-        val key = javaClass.getResourceAsStream("/config/worknik_key.txt")
+        val key = javaClass.getResourceAsStream("/config/wordnik_key.txt")
                 .bufferedReader()
                 .readText()
     }
