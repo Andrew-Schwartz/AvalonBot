@@ -1,11 +1,8 @@
 package lib.model.channel
 
 import com.google.gson.annotations.SerializedName
-import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.*
 import lib.model.user.User
-import lib.rest.http.httpRequests.getMessage
 
 @Suppress("ArrayInDataClass")
 data class Channel(
@@ -66,9 +63,4 @@ data class Channel(
     val isVoice: Boolean
         get() = type.isVoice
 
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
-    suspend fun MessageId.message(): Message {
-        return getMessage(this@Channel, this)
-    }
 }

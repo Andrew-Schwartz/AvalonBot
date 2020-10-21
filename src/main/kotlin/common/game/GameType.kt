@@ -70,7 +70,9 @@ enum class GameType {
         override val states: StateInfo = StateInfo(State.Hangman.Game, State.Setup.Setup, State.Hangman::class)
 
         override suspend fun startGame(message: Message) {
-            val hangman = Game(message.channel(), Hangman) as HangmanGame
+//            val hangman = Game[message.channel(), Hangman] as HangmanGame
+            val hangman = HangmanGame(Setup[message.channel(), Hangman])
+            Game[message.channel(), Hangman] = hangman
             Game.runGame(hangman)
         }
     };

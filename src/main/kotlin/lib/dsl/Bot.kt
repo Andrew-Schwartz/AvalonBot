@@ -2,7 +2,9 @@ package lib.dsl
 
 import common.util.M
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.guild.Guild
@@ -13,7 +15,7 @@ import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-object Bot {
+object Bot : CoroutineScope by CoroutineScope(GlobalScope.coroutineContext) {
     lateinit var headers: Map<String, String>; private set
     var websocket: DiscordWebsocket? = null; private set
     var firstLogInTime: OffsetDateTime? = null; internal set
@@ -28,14 +30,13 @@ object Bot {
     val messages: Store<Message> = Store()
     val users: Store<User> = Store()
 
-    private suspend fun launchSocket(token: String) {
-        websocket = DiscordWebsocket(token)
-        websocket!!.run()
-    }
-
     suspend operator fun invoke(token: String, action: suspend Bot.() -> Unit) {
         if (websocket != null) throw IllegalStateException("The bot can only be started once")
         headers = M["Authorization" to "Bot $token"]
-        Bot.apply { action() }.launchSocket(token)
+
+        this.action()
+
+        websocket = DiscordWebsocket(token)
+        websocket!!.run()
     }
 }

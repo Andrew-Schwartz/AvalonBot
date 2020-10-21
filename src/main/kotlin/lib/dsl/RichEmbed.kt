@@ -11,6 +11,9 @@ import java.io.InputStream
 import java.time.OffsetDateTime
 import kotlin.collections.set
 
+/**
+ * Builder for Discord's Embeds.
+ */
 data class RichEmbed internal constructor(
         var title: String? = null,
         var description: String? = null,
@@ -22,28 +25,35 @@ data class RichEmbed internal constructor(
         private var thumbnail: EmbedThumbnail? = null,
         private var footer: EmbedFooter? = null
 ) {
-    var footerText: String?
-        get() = footer?.text
-        set(value) {
-            value?.let {
-                footer = EmbedFooter(it, "", "")
-            }
-        }
+    private val fields: ArrayList<EmbedField> = ArrayList()
+
+    private val files: MutableMap<String, InputStream> = mutableMapOf()
 
     companion object {
         private val empty = RichEmbed()
     }
 
+    /**
+     * Utility method if this embed is completely empty, ie in equal to `RichEmbed()`
+     */
     val isEmpty: Boolean
         get() = this == empty
 
-    val isNotEmpty: Boolean
-        get() = this != empty
+    /**
+     * The text of the footer
+     */
+    var footerText: String?
+        get() = footer?.text
+        set(value) {
+            value?.let {
+                // todo figure out iconUrl and proxyIconUrl?
+                footer = EmbedFooter(it, "", "")
+            }
+        }
 
-    private val fields: ArrayList<EmbedField> = ArrayList()
-
-    private val files: MutableMap<String, InputStream> = mutableMapOf()
-
+    /**
+     * Sets the timestamp. By default, uses the timestamp of when this method is called
+     */
     fun timestamp(time: OffsetDateTime = OffsetDateTime.now()) {
         timestamp = time.timestamp()
     }
@@ -59,22 +69,23 @@ data class RichEmbed internal constructor(
     fun addBlankField(inline: Boolean = false) = addField("\u200B", "\u200B", inline)
 
     fun image(file: File, name: String = file.name) {
-        files[name] = file.inputStream()
+        addFile(file, name)
 
         image = EmbedImage(url = "attachment://$name")
+    }
+
+    fun image(url: String) {
+        image = EmbedImage(url)
     }
 
     /**
      * uploads [file] as an attachment but does not actually attach it,
      * to do that create an image with url "attachment://$filename".
+     *
      * The preferred way to do this is by calling [image] with the same parameters
      */
     fun addFile(file: File, name: String = file.name) {
         files[name] = file.inputStream()
-    }
-
-    fun image(url: String) {
-        image = EmbedImage(url)
     }
 
     fun footer(text: String, iconUrl: String = "", proxyIconUrl: String = "") {
@@ -138,6 +149,9 @@ data class RichEmbed internal constructor(
         )
     }
 
+    /**
+     * Make it nice and easy to build a [RichEmbed]
+     */
     operator fun invoke(λ: RichEmbed.() -> Unit): RichEmbed = apply { λ() }
 }
 

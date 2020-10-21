@@ -27,7 +27,7 @@ import lib.util.fromJson
 private suspend fun getRequest(url: String): HttpResponse = request(url, HttpMethod.Get, EmptyContent)
 
 /**
- * see [https://discordapp.com/developers/docs/resources/channel#get-channel]
+ * @see [https://discordapp.com/developers/docs/resources/channel#get-channel]
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -60,7 +60,7 @@ suspend fun getMessages(getChannelMessages: GetChannelMessages): Array<Message> 
 /**
  * If operating on a guild channel, this endpoint requires the `READ_MESSAGE_HISTORY` permission to be present on the current user.
  * @return a specific [Message] in the [Channel]
- * see also [https://discordapp.com/developers/docs/resources/channel#get-channel-message]
+ * @see [https://discordapp.com/developers/docs/resources/channel#get-channel-message]
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -77,7 +77,8 @@ suspend fun getMessage(channelId: IntoId<ChannelId>, messageId: IntoId<MessageId
 
 /**
  * @return [Array]<[User]> that reacted with this emoji
- * see also [https://discordapp.com/developers/docs/resources/channel#get-reactions]
+ *
+ * @see [https://discordapp.com/developers/docs/resources/channel#get-reactions]
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -90,7 +91,8 @@ suspend fun getReactions(channelId: IntoId<ChannelId>, messageId: IntoId<Message
 
 /**
  * @return [Array]<[Message]> that are pinned
- * see also [https://discord.com/developers/docs/resources/channel#get-pinned-messages]
+ *
+ * @see [https://discord.com/developers/docs/resources/channel#get-pinned-messages]
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -102,7 +104,7 @@ suspend fun getPinnedMessages(channelId: IntoId<ChannelId>): Array<Message> {
 /**
  * Pin a message in a channel. Requires the `MANAGE_MESSAGES` permission.
  * The max pinned messages is 50.
- * see also [https://discordapp.com/developers/docs/resources/channel#get-pinned-messages]
+ * @see [https://discordapp.com/developers/docs/resources/channel#get-pinned-messages]
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -127,7 +129,7 @@ suspend fun getUser(id: IntoId<UserId>): User {
 }
 
 /**
- * see also [https://discordapp.com/developers/docs/resources/user#get-current-user-guilds]
+ * @see [https://discordapp.com/developers/docs/resources/user#get-current-user-guilds]
  * @param limit max number of guilds to return (1-100)
  * @return list of partial [Guild] objects the current user is a member of; requires the `guilds` OAuth2 scope
  */

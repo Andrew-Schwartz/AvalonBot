@@ -1,6 +1,6 @@
 package lib.model
 
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Channel
 import lib.model.guild.Guild
@@ -89,7 +89,9 @@ inline class IntegrationId(override val value: String) : Snowflake, IntoId<Integ
     override fun toString(): String = value
 }
 
-// either a user or a role, for permissions
+/**
+ * either a user or a role, for permissions
+ */
 inline class UserRoleId(override val value: String) : Snowflake, IntoId<UserRoleId> {
     override fun intoId(): UserRoleId = this
 

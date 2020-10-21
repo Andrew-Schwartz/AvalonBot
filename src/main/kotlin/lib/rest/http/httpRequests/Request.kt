@@ -14,6 +14,7 @@ import lib.model.IntoId
 import lib.rest.api
 import lib.rest.client
 import lib.rest.http.BucketKey
+import lib.rest.http.DefaultRateLimiter
 import lib.rest.http.RateLimit
 
 @KtorExperimentalAPI
@@ -26,7 +27,7 @@ suspend fun request(
 ): HttpResponse {
     return loop {
         val key = BucketKey.ofEndpoint(endpoint)
-        RateLimit[key].limit(typingChannel?.intoId()?.channel())
+        DefaultRateLimiter.rateLimit(key, typingChannel?.intoId()?.channel())
         val response = client.request<HttpResponse>(api + endpoint) {
             Bot.headers.forEach { (k, v) -> header(k, v) }
             header("X-RateLimit-Precision", "millisecond")

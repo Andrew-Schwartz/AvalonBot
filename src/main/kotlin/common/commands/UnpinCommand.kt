@@ -1,10 +1,10 @@
 package common.commands
 
-import io.ktor.util.KtorExperimentalAPI
+import common.util.L
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.react
-import lib.dsl.reply
-import lib.dsl.unpin
+import lib.dsl.*
+import lib.model.MessageId
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.getPinnedMessages
 
@@ -21,15 +21,27 @@ object UnpinCommand : MessageCommand(State.All) {
         val args = message.args
         if (args.isEmpty()) {
             getPinnedMessages(message.channelId).forEach { it.unpin() }
+            message.react('✅')
         } else {
             when (args.size) {
-                1 -> args.single().toIntOrNull()?.let { num ->
-                    getPinnedMessages(message.channelId)
-                            .sortedBy { it.timestamp }
-                            .take(num)
-                            .forEach { it.unpin() }
-                    message.react('✅')
-                } ?: message.reply("How many pins to remove?")
+                1 -> {
+                    val arg = args.single()
+                    val pins = runCatching {
+                        L[message.channel().getMessage(MessageId(arg))]
+                    }.getOrElse {
+                        arg.toIntOrNull()?.let { num ->
+                            getPinnedMessages(message.channelId)
+                                    .sortedBy { it.timestamp }
+                                    .take(num)
+                        } ?: emptyList()
+                    }
+                    if (pins.isEmpty()) {
+                        message.reply("How many pins to remove?")
+                    } else {
+                        pins.forEach { it.unpin() }
+                        message.react('✅')
+                    }
+                }
                 2 -> args.last().toIntOrNull()?.let { num ->
                     val pins = getPinnedMessages(message.channelId).sortedBy { it.timestamp }
                     when (args.first().toLowerCase()) {

@@ -16,9 +16,10 @@ import lib.model.channel.Message
 object HangmanCommand : MessageCommand(State.Setup.Setup) {
     override val name: String = "hangman"
 
-    override val description: String = "Starts a game of Hangman, using "
+    override val description: String = "Starts a game of Hangman, using a random word from this server or from an online" +
+            "service (specify `web`)"
 
-    override val usage: String = "hangman [guild/web]"
+    override val usage: String = "hangman [web]"
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi

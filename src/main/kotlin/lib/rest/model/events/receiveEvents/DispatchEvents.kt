@@ -5,9 +5,10 @@ package lib.rest.model.events.receiveEvents
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 import common.util.A
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
+import lib.dsl.getMessage
 import lib.model.*
 import lib.model.channel.Channel
 import lib.model.channel.Message
@@ -44,10 +45,15 @@ import kotlin.reflect.KClass
 sealed class DispatchEvent<P : Any>(private val payloadClass: KClass<out P>) {
     val actions: ArrayList<suspend P.() -> Unit> = ArrayList()
 
+    /**
+     * Deserialize [payloadData] as this [DispatchEvent], then run all [actions].
+     */
     @Suppress("UNCHECKED_CAST")
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     suspend fun runActions(payloadData: JsonElement) {
+        // Guild, Channel, Message, User objects may be incomplete
+        // They are cached and the fullest object possible is used to run actions on
         val payload = when (val payload = payloadData.fromJson(payloadClass)) {
             is Guild -> Bot.guilds.addOrUpdate(payload) as P
             is Channel -> Bot.channels.addOrUpdate(payload) as P
@@ -275,11 +281,11 @@ data class ReadyPayload(
         val guilds: Array<Guild> = emptyArray(),
         @SerializedName("session_id") val sessionId: String,
         val _trace: Array<String>,
-        val shard: Array<Int> = A[0, 1]
+        val shard: Array<Int> = A[0, 1],
 )
 
 data class ResumePayload(
-        val _trace: Array<String> // guilds the user is in
+        val _trace: Array<String>, // guilds the user is in
 ) {
     val guildsIds by lazy { _trace.map(::GuildId) }
 }
@@ -292,7 +298,7 @@ data class ResumePayload(
 data class MessageDeletePayload(
         val id: MessageId,
         @SerializedName("channel_id") val channelId: ChannelId,
-        @SerializedName("guild_id") val guildId: GuildId?
+        @SerializedName("guild_id") val guildId: GuildId?,
 ) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
@@ -304,7 +310,7 @@ data class MessageDeletePayload(
 data class MessageDeleteBulkPayload(
         @SerializedName("ids") private val _ids: Array<String>,
         @SerializedName("channel_id") val channelId: ChannelId,
-        @SerializedName("guild_id") val guildId: GuildId?
+        @SerializedName("guild_id") val guildId: GuildId?,
 ) {
     val ids by lazy { _ids.map(::MessageId) }
 }
@@ -312,17 +318,17 @@ data class MessageDeleteBulkPayload(
 data class ChannelPinsPayload(
         @SerializedName("guild_id") val guildId: GuildId?,
         @SerializedName("channel_id") val channelId: ChannelId,
-        @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp
+        @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp,
 )
 
 data class GuildBanUpdatePayload(
         @SerializedName("guild_id") val guildId: GuildId,
-        val user: User
+        val user: User,
 )
 
 data class GuildEmojisPayload(
         @SerializedName("guild_id") val guildId: GuildId,
-        val emojis: Array<Emoji>
+        val emojis: Array<Emoji>,
 )
 
 /**
@@ -335,7 +341,7 @@ data class MessageReactionUpdatePayload(
         val channelId: ChannelId,
         val guildId: GuildId?,
         val emoji: Emoji,
-        val type: Type
+        val type: Type,
 ) {
     enum class Type { Add, Remove }
 
@@ -349,7 +355,7 @@ data class MessageReactionUpdatePayload(
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    suspend fun message(): Message = with(channel()) { messageId.message() }
+    suspend fun message(): Message = channel().getMessage(messageId)
 
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
@@ -362,7 +368,7 @@ data class MessageReactionAddPayload(
         @SerializedName("channel_id") val channelId: ChannelId,
         @SerializedName("guild_id") val guildId: GuildId?,
         val member: GuildMember?,
-        val emoji: Emoji
+        val emoji: Emoji,
 ) {
     fun toUpdate(): MessageReactionUpdatePayload =
             MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Type.Add)
@@ -373,7 +379,7 @@ data class MessageReactionRemovePayload(
         @SerializedName("message_id") val messageId: MessageId,
         @SerializedName("channel_id") val channelId: ChannelId,
         @SerializedName("guild_id") val guildId: GuildId?,
-        val emoji: Emoji
+        val emoji: Emoji,
 ) {
     fun toUpdate(): MessageReactionUpdatePayload =
             MessageReactionUpdatePayload(userId, messageId, channelId, guildId, emoji, Type.Remove)
@@ -382,14 +388,14 @@ data class MessageReactionRemovePayload(
 data class MessageReactionRemoveAllPayload(
         @SerializedName("message_id") val messageId: UserId,
         @SerializedName("channel_id") val channelId: MessageId,
-        @SerializedName("guild_id") val guildId: GuildId?
+        @SerializedName("guild_id") val guildId: GuildId?,
 )
 
 data class MessageReactionRemoveEmojiPayload(
         @SerializedName("message_id") val messageId: UserId,
         @SerializedName("channel_id") val channelId: MessageId,
         @SerializedName("guild_id") val guildId: GuildId? = null,
-        val emoji: Emoji
+        val emoji: Emoji,
 )
 
 @Suppress("ArrayInDataClass")
@@ -400,43 +406,43 @@ data class PresenceUpdatePayload(
         @SerializedName("guild_id") val guildId: GuildId,
         val status: String,
         val activities: Array<Activity>,
-        @SerializedName("client_status") val clientStatus: ClientStatus
+        @SerializedName("client_status") val clientStatus: ClientStatus,
 ) {
     val roles by lazy { _roles.map(::RoleId) }
 }
 
 
 data class IntegrationsUpdatePayload(
-        @SerializedName("guild_id") val guildId: GuildId
+        @SerializedName("guild_id") val guildId: GuildId,
 )
 
 data class GuildMemberRemovePayload(
         @SerializedName("guild_id") val guildId: GuildId,
-        val user: User
+        val user: User,
 )
 
 data class GuildMemberUpdatePayload(
         @SerializedName("guild_id") val guildId: GuildId,
         @SerializedName("roles") private val _roles: Array<String>,
         val user: User,
-        val nick: String
+        val nick: String,
 ) {
     val roles by lazy { _roles.map(::RoleId) }
 }
 
 data class GuildMembersChunkPayload(
         @SerializedName("guild_id") val guildId: GuildId,
-        val members: Array<GuildMember>
+        val members: Array<GuildMember>,
 )
 
 data class GuildRoleUpdatePayload(
         @SerializedName("guild_id") val guildId: GuildId,
-        val role: Role
+        val role: Role,
 )
 
 data class GuildRoleDeletePayload(
         @SerializedName("guild_id") val guildId: GuildId,
-        val role: RoleId
+        val role: RoleId,
 )
 
 data class InviteCreatePayload(
@@ -450,29 +456,29 @@ data class InviteCreatePayload(
         @SerializedName("target_user") val targetUser: User? = null,
         @SerializedName("target_user_type") val targetUserType: Int? = null,
         val temporary: Boolean,
-        val uses: Int
+        val uses: Int,
 )
 
 data class InviteDeletePayload(
         @SerializedName("channel_id") val channelId: ChannelId,
         @SerializedName("guild_id") val guildId: GuildId? = null,
-        val code: String
+        val code: String,
 )
 
 data class TypingStartPayload(
         @SerializedName("channel_id") val channelId: ChannelId,
         @SerializedName("guild_id") val guildId: GuildId?,
         @SerializedName("user_id") val userId: UserId,
-        val timestamp: Long
+        val timestamp: Long,
 )
 
 data class VoiceServerUpdatePayload(
         val token: String,
         @SerializedName("guild_id") val guildId: GuildId,
-        val endpoint: String
+        val endpoint: String,
 )
 
 data class WebhookUpdatePayload(
         @SerializedName("guild_id") val guildId: GuildId,
-        @SerializedName("channel_id") val channelId: ChannelId
+        @SerializedName("channel_id") val channelId: ChannelId,
 )

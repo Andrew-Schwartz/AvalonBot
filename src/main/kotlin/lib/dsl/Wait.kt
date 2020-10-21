@@ -1,9 +1,10 @@
 package lib.dsl
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 
-@ExperimentalCoroutinesApi
+/**
+ * Used internally to delay until [predicate] is true, waiting [millis] every time it isn't.
+ */
 suspend fun suspendUntil(millis: Long = 100, predicate: suspend () -> Boolean) {
     while (!predicate()) {
         delay(millis)

@@ -2,7 +2,7 @@ package kittens.cards
 
 import common.util.cards
 import common.util.contains
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.*
@@ -28,9 +28,10 @@ class Favor(id: Int) : Card(id) {
                     target = mentions.first { it in state.players.map { it.user } }
             }
         }
-        on(MessageCreate, λ = getTarget)
+        // todo make this a command
+        Bot.on(MessageCreate, λ = getTarget)
         suspendUntil { target != null }
-        off(MessageCreate, λ = getTarget)
+        Bot.off(MessageCreate, λ = getTarget)
 
         // that player chooses one of their cards (secretly)
         target!!.sendDM("Name a card in your hand to give up")
@@ -47,9 +48,10 @@ class Favor(id: Int) : Card(id) {
                 }
             }
         }
-        on(MessageCreate, λ = getCard)
+        // make this a command
+        Bot.on(MessageCreate, λ = getCard)
         suspendUntil { card != null }
-        off(MessageCreate, λ = getCard)
+        Bot.off(MessageCreate, λ = getCard)
 
         // give first player that card and take it from second player
         state.currentPlayer.hand -= card!!

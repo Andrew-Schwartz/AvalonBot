@@ -10,9 +10,8 @@ import common.util.A
 import common.util.Vote
 import common.util.debug
 import common.util.getOrDefault
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.dsl.*
 import lib.model.Color.Companion.gold
@@ -59,7 +58,7 @@ object RestartCommand : MessageCommand(State.Game) {
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
                 RestartVoteCommand.restarts[message.channel()] = Vote(botMsg)
-                GlobalScope.launch {
+                Bot.launch {
                     var cancelled = false
                     suspendUntil(500) {
                         if (State.Game !in channel().states) {

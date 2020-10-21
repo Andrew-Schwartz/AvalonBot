@@ -5,8 +5,11 @@ import common.util.durationSince
 import common.util.now
 import io.ktor.client.statement.*
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import lib.dsl.Bot
 import lib.dsl.startTyping
 import lib.model.channel.Channel
 import java.time.Duration
@@ -19,18 +22,6 @@ data class RateLimit(
         var reset: Instant? = null,
         var bucket: BucketKey? = null
 ) {
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
-    suspend fun limit(typingChannel: Channel? = null) {
-        if (mustLimit) {
-            println("[${now()}] rate limited for $limitMillis ms in bucket $bucket")
-            if (typingChannel != null && !RateLimit["/channels/${typingChannel.id}/typing"].mustLimit) {
-                typingChannel.startTyping()
-            }
-            delay(limitMillis)
-        }
-    }
-
     val mustLimit get() = limitMillis != 0L
 
     val limitMillis
@@ -86,4 +77,40 @@ inline class BucketKey(private val route: String) {
     }
 
     override fun toString(): String = route
+}
+
+interface RateLimiter {
+    suspend fun rateLimit(key: BucketKey, typingChannel: Channel? = null)
+}
+
+object DefaultRateLimiter : RateLimiter {
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    override suspend fun rateLimit(key: BucketKey, typingChannel: Channel?) {
+        with(RateLimit[key]) {
+            if (mustLimit) {
+                println("[${now()}] rate limited for $limitMillis ms in bucket $bucket")
+                if (typingChannel != null && !RateLimit["/channels/${typingChannel.id}/typing"].mustLimit) {
+                    typingChannel.startTyping()
+                }
+                delay(limitMillis)
+            }
+        }
+    }
+}
+
+object RateLimitManager : RateLimiter {
+    //    val threads = mutableListOf<Thread>()
+    val coroutines = mutableListOf<CoroutineScope>()
+    val map = mutableMapOf<BucketKey, CoroutineScope>()
+
+    // this probably doesn't work?
+    @KtorExperimentalAPI
+    @ExperimentalCoroutinesApi
+    override suspend fun rateLimit(key: BucketKey, typingChannel: Channel?) {
+        val scope = map.getOrPut(key) { CoroutineScope(Bot.coroutineContext) }
+        withContext(scope.coroutineContext) {
+            DefaultRateLimiter.rateLimit(key, typingChannel)
+        }
+    }
 }

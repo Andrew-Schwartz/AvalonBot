@@ -3,12 +3,11 @@ package common.commands
 import common.steadfast
 import common.util.A
 import common.util.debug
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.*
 import lib.model.Color
 import lib.model.channel.Message
-import lib.util.bold
 import lib.util.inlineCode
 import lib.util.underline
 
@@ -17,7 +16,7 @@ object HelpCommand : MessageCommand(State.All) {
 
     override val description: String = "sends setup help text, or specific help text if given a command name, such" +
             "as ${"addme".inlineCode()}. Parameters documented by ${"usage".inlineCode()} are required if surrounded" +
-            "by angle brackets <...> and optional if surrounded by square bracktes [...]"
+            "by angle brackets <...> and optional if surrounded by square brackets [...]"
 
     override val usage: String = "help [command (type)]"
 
@@ -32,7 +31,7 @@ object HelpCommand : MessageCommand(State.All) {
                         .filter { message.channelId.debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand] }
                         .sortedWith(StateComparator)
                         .forEach {
-                            val name = "▶ ${it.state.typeName().toLowerCase()} - ${it.name}".bold()
+                            val name = "💡 ${it.name} \t(during ${it.state.typeName().toLowerCase()})"
                             addField(name, it.description)
                         }
             }
@@ -43,7 +42,6 @@ object HelpCommand : MessageCommand(State.All) {
         } else {
             val name = args[0].toLowerCase()
             val command = messageCommands.firstOrNull { it.name == name }
-
             when {
                 name == "here" -> message.reply(embed = allCommandsEmbed())
                 command != null -> message.reply(embed = command.helpEmbed())
@@ -54,7 +52,7 @@ object HelpCommand : MessageCommand(State.All) {
 }
 
 suspend fun MessageCommand.helpEmbed(): RichEmbed = embed {
-    title = "About $name".underline()
+    title = "About `$name`"
     color = Color.gold
     addField("Description", this@helpEmbed.description, false)
     addField("Usage", "!${usage}".inlineCode())

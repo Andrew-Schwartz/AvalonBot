@@ -11,7 +11,7 @@ import common.util.debug
 import common.util.getOrDefault
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+
 import kotlinx.coroutines.launch
 import lib.dsl.*
 import lib.model.channel.Message
@@ -77,7 +77,7 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
                 val votingState = gameType.states.startVotingState
                 channel().states += votingState
 
-                GlobalScope.launch {
+                Bot.launch {
                     var cancelled = false
                     suspendUntil(500) {
                         if (votingState !in channel().states) {

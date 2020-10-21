@@ -119,6 +119,11 @@ class DiscordWebsocket(val token: String) {
         sessionId = null
     }
 
+    /**
+     * Statically known that [gatewayPayload]'s payload is a [DispatchEvent] at this point.
+     *
+     * Depending on it's name, Deserialize it to the correct type and run all applicable actions
+     */
     private suspend fun processDispatch(gatewayPayload: GatewayPayload) {
         sequenceNumber = gatewayPayload.sequenceNumber
 
@@ -155,7 +160,7 @@ class DiscordWebsocket(val token: String) {
         val delayTime = payload.eventData!!.asJsonObject["heartbeat_interval"].asLong
 
         heartbeatJob?.cancel()
-        heartbeatJob = GlobalScope.launch {
+        heartbeatJob = Bot.launch {
             while (isActive) {
                 sequenceNumber?.let {
                     if (lastHeartbeat != null && lastAck != null && lastHeartbeat!!.isAfter(lastAck!!)) {
@@ -174,39 +179,50 @@ class DiscordWebsocket(val token: String) {
         }
     }
 
+    /**
+     * Sends [payload] to Discord's Websocket
+     */
     private suspend fun sendGatewayEvent(payload: SendEvent) {
         val message = GatewayPayload(payload.opcode.code, payload.toJsonTree())
         sendWebsocket(message.toJson())
     }
 
+    /**
+     * Load up important listeners on various [DispatchEvent]s.
+     */
     private fun defaultListeners() {
-        Ready.actions.add(0) {
-            Bot.user = this.user
-            this@DiscordWebsocket.sessionId = sessionId
-            Bot.logInTime = OffsetDateTime.now()
-            if (Bot.firstLogInTime == null) {
-                Bot.firstLogInTime = Bot.logInTime
+        with(Bot) {
+            // Initialize the bot's user object and websocket data before anything other Ready actions
+            Ready.actions.add(0) {
+                Bot.user = this.user
+                this@DiscordWebsocket.sessionId = sessionId
+                logInTime = OffsetDateTime.now()
+                if (firstLogInTime == null) {
+                    firstLogInTime = logInTime
+                }
             }
-        }
-        on(MessageReactionAdd) {
-            MessageReactionUpdate.actions.forEach {
-                toUpdate().it()
+            // trigger the derived MessageReactionUpdate when either MRAdd or MRRemove happen
+            on(MessageReactionAdd) {
+                MessageReactionUpdate.actions.forEach {
+                    toUpdate().it()
+                }
             }
-        }
-        on(MessageReactionRemove) {
-            MessageReactionUpdate.actions.forEach {
-                toUpdate().it()
+            on(MessageReactionRemove) {
+                MessageReactionUpdate.actions.forEach {
+                    toUpdate().it()
+                }
             }
-        }
-        on(MessageReactionAdd) {
-            MessageReactionUpdate.actions.forEach {
-                toUpdate().it()
-            }
-        }
-        on(MessageReactionRemove) {
-            MessageReactionUpdate.actions.forEach {
-                toUpdate().it()
-            }
+            // todo why were these duplicated?
+//            on(MessageReactionAdd) {
+//                MessageReactionUpdate.actions.forEach {
+//                    toUpdate().it()
+//                }
+//            }
+//            on(MessageReactionRemove) {
+//                MessageReactionUpdate.actions.forEach {
+//                    toUpdate().it()
+//                }
+//            }
         }
     }
 }

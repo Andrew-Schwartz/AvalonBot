@@ -9,9 +9,8 @@ import common.commands.State.Avalon.Voting
 import common.commands.states
 import common.game.*
 import common.util.*
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import lib.dsl.*
 import lib.model.Color
@@ -56,8 +55,6 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             roles.addAll(evil)
         } else {
             val (good, evil) = roles.partition { it.loyalty == Good }.map { it.size }
-//                val (good, evil) = roles.partition { it.loyalty == Good }.run { first.size to second.size }
-//                repeat(numGood - good) { roles.add(LoyalServant) }
             for (i in good until numGood) roles.add(LoyalServant)
             for (i in evil until numEvil) roles.add(MinionOfMordred)
         }
@@ -151,7 +148,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                 val msg = player.user.sendDM("React ✔ to vote to approve the quest, or ❌ to reject it\n" +
                         "The proposed party is ${party?.listGrammatically { it.name }}")
                 reacts[msg] = 0
-                GlobalScope.launch {
+                Bot.launch {
                     msg.react(approveChar)
                     msg.react(rejectChar)
                 }
@@ -207,7 +204,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             for (player in party!!) {
                 val msg = player.user.sendDM("React ✔ to succeed the quest" + if (player.role?.loyalty == Evil) ", or ❌ to fail it" else "")
                 reacts[msg] = 0
-                GlobalScope.launch {
+                Bot.launch {
                     msg.react(approveChar)
                     if (player.role?.loyalty == Evil)
                         msg.react(rejectChar)
@@ -262,9 +259,10 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                 }
                             }
                         }
-                        on(MessageCreate, MessageUpdate, λ = assassinateListener)
+                        // todo make this a command
+                        Bot.on(MessageCreate, MessageUpdate, λ = assassinateListener)
                         suspendUntil { merlinGuess != null }
-                        off(MessageCreate, MessageUpdate, λ = assassinateListener)
+                        Bot.off(MessageCreate, MessageUpdate, λ = assassinateListener)
 
                         GameFinish {
                             state.players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }

@@ -4,11 +4,11 @@ import common.commands.State
 import common.commands.states
 import common.commands.subStates
 import common.util.now
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
+import lib.dsl.Bot
 import lib.dsl.send
 import lib.model.Color.Companion.red
 import lib.model.IntoId
@@ -30,7 +30,7 @@ abstract class Game(val type: GameType, val setup: Setup) {
 
     companion object {
         suspend fun runGame(game: Game) {
-            GlobalScope.launch {
+            Bot.launch {
                 runCatching {
                     game.running = true
                     game.channel.states += game.type.states.commandState
@@ -89,17 +89,36 @@ abstract class Game(val type: GameType, val setup: Setup) {
             channel.states += State.Setup.Setup
         }
 
+        /**
+         * All of the games that [user] is in
+         */
         fun forUser(user: IntoId<UserId>): List<Game> {
-            return userGames.getOrDefault(user.intoId(), listOf<Game>()).distinct()
+            return userGames.getOrDefault(user.intoId(), listOf()).distinct()
         }
 
-        operator fun invoke(channel: Channel, gameType: GameType): Game {
-            games.getOrPut(channel) { mutableMapOf() }[gameType] = gameType.game(Setup[channel, gameType])
-            return games[channel]!![gameType]!!
-        }
+//        /**
+//         * Creates
+//         */
+//        operator fun invoke(channel: Channel, gameType: GameType): Game {
+//            games.getOrPut(channel) { mutableMapOf() }[gameType] = gameType.game(Setup[channel, gameType])
+//            return games[channel]!![gameType]!!
+//        }
 
+        /**
+         * Gets the active game of type [gameType] in channel [channel], or null if there is no
+         * game of that type in that channel
+         */
         operator fun get(channel: Channel, gameType: GameType): Game? {
             return games[channel]?.get(gameType)
+        }
+
+        /**
+         * If there is an instance of [gameType] in this [channel], end it
+         * Set the game in this channel to [game]
+         */
+        operator fun set(channel: Channel, gameType: GameType, game: Game) {
+            games[channel]?.get(gameType)
+            games.getOrPut(channel) { mutableMapOf() }[gameType] = game
         }
     }
 }

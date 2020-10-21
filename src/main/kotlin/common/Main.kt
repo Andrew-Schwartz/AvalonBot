@@ -4,7 +4,10 @@ import common.commands.MessageCommand
 import common.commands.ReactCommand
 import common.util.now
 import io.ktor.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import lib.dsl.Bot
 import lib.dsl.on
 import lib.dsl.send
@@ -64,7 +67,7 @@ fun main() = runBlocking {
             }
         }
 
-        GlobalScope.launch {
+        Bot.launch {
             // todo maybe detect if the bot is actually connected somehow
             while (true) {
                 // todo file handler to auto put us in that dir
