@@ -48,7 +48,7 @@ class Favor(id: Int) : Card(id) {
                 }
             }
         }
-        // make this a command
+        // todo make this a command
         Bot.on(MessageCreate, λ = getCard)
         suspendUntil { card != null }
         Bot.off(MessageCreate, λ = getCard)

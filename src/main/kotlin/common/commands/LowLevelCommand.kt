@@ -38,7 +38,7 @@ object LowLevelCommand : MessageCommand(State.All) {
                 }
                 val method = HttpMethod(next().toUpperCase())
                         .takeIf { it in HttpMethod.DefaultMethods }
-                        ?.onNull { message.reply("Bad HTTP method") }
+                        .onNull { message.reply("Bad HTTP method") }
                         ?: return@with
 
                 if (!hasNext()) {

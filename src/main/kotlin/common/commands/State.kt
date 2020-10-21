@@ -21,6 +21,7 @@ sealed class State {
         object Quest : Avalon()
         object Lady : Avalon()
         object Voting : Avalon()
+        object Assassinate : Avalon()
     }
 
     sealed class Kittens : State() {
@@ -38,6 +39,7 @@ sealed class State {
         Avalon.Game -> "Avalon Game"
         Avalon.Quest -> "Avalon Quest"
         Avalon.Lady -> "Avalon Lady"
+        Avalon.Assassinate -> "Avalon Assassinating"
         Avalon.Voting -> "Avalon Voting"
         Kittens.Game -> "Kittens Game"
         Hangman.Game -> "Hangman Game"

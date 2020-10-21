@@ -43,6 +43,10 @@ abstract class Game(val type: GameType, val setup: Setup) {
                     launch {
                         while (game.running) {
                             delay(Duration.ofMinutes(1))
+                            // TODO honestly the way this should work is the cache should have time limit for each
+                            //  object and re-fetch it if its been more than a minute.
+                            //  In this case, player isn't cached, so don't actually need to change this code
+                            //  this is just a good reminder/place to put this to do
                             game.state.players.forEach {
                                 it.updateUser()
                             }

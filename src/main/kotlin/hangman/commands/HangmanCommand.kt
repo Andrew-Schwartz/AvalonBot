@@ -33,6 +33,7 @@ object HangmanCommand : MessageCommand(State.Setup.Setup) {
             }
         } ?: WordnikWord()
 
+//        StartCommand.execute()
         GameType.Hangman.startGame(message)
     }
 }

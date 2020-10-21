@@ -17,7 +17,7 @@ sealed class Command<P>(val state: State) {
     abstract val execute: suspend (P) -> Unit
 
     companion object {
-        val _currentStates: MutableMap<Channel, MutableSet<State>> = mutableMapOf()
+        val channelStates: MutableMap<Channel, MutableSet<State>> = mutableMapOf()
     }
 }
 
@@ -34,15 +34,18 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
         val messageCommands = Reflections("")
                 .getSubTypesOf(MessageCommand::class.java)
                 .mapNotNull { it.kotlin.objectInstance }
-                .toSet()
+                .toMutableSet()
 
         @KtorExperimentalAPI
         @ExperimentalCoroutinesApi
         suspend fun run(message: Message, prefix: String) {
             val commandName = message.content.removePrefix(prefix).takeWhile { it != ' ' }
             val channelStates = message.channel().states
-            messageCommands.asSequence()
+            messageCommands
+                    .toList() // copy in case list is modified
+                    .asSequence()
                     .filter { it.state in channelStates }
+                    // todo fix that `!ass` and `!assassinate` trigger the commond twice
                     .filter { it.name.equals(commandName, true) || it.aliases.any { it(commandName) } }
                     .forEach { command ->
                         Bot.launch {
@@ -66,12 +69,14 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
     companion object {
         val reactCommands = Reflections("").getSubTypesOf(ReactCommand::class.java)
                 .mapNotNull { runCatching { it.kotlin.objectInstance }.getOrNull() }
-                .toSet()
+                .toMutableSet()
 
         @KtorExperimentalAPI
         @ExperimentalCoroutinesApi
         suspend fun run(reaction: MessageReactionUpdatePayload) {
-            reactCommands.asSequence()
+            reactCommands
+                    .toList() // copy in case list is modified
+                    .asSequence()
                     .filter { reaction.emoji.name in it.emojis }
                     .forEach { Bot.launch { it.execute(reaction) } }
         }
@@ -79,4 +84,4 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
 }
 
 val Channel.states: MutableSet<State>
-    get() = Command._currentStates.getOrPut(this) { MS[State.All, State.Setup.Setup] }
+    get() = Command.channelStates.getOrPut(this) { MS[State.All, State.Setup.Setup] }

@@ -4,6 +4,7 @@ import avalon.characters.*
 import avalon.characters.Character.Loyalty.Evil
 import avalon.characters.Character.Loyalty.Good
 import avalon.commands.game.VoteCommand
+import common.commands.MessageCommand
 import common.commands.State
 import common.commands.State.Avalon.Voting
 import common.commands.states
@@ -17,8 +18,6 @@ import lib.model.Color
 import lib.model.Color.Companion.gold
 import lib.model.Color.Companion.red
 import lib.model.channel.Message
-import lib.rest.model.events.receiveEvents.MessageCreate
-import lib.rest.model.events.receiveEvents.MessageUpdate
 import lib.util.inlineCode
 import lib.util.ping
 import lib.util.underline
@@ -245,24 +244,50 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                     return@game if (Assassin in roles && Merlin in roles) {
                         channel.send {
                             title = "The good guys have succeeded three quests, but the Assassin can try to kill Merlin"
-                            description = "Assassin, use ${"!assassinate <name>".inlineCode()} to assassinate who you think Merlin is"
+                            description = "Assassin, use `!assassinate <name>` to assassinate who you think Merlin is"
                             players.filter { it.role?.loyalty == Evil }
                                     .forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }
                         }
                         var merlinGuess: Player? = null
-                        val assassinateListener: suspend Message.() -> Unit = { // TODO make this a command
-                            if (userPlayerMap[author]?.role == Assassin && content.startsWith("!ass") && mentions.size == 1) {
-                                userPlayerMap[mentions.first()]?.let { target ->
-                                    if (target.role?.loyalty == Good) {
-                                        merlinGuess = target
+
+                        val assassinate = object : MessageCommand(State.Avalon.Assassinate) {
+                            override val execute: suspend (Message) -> Unit = {
+                                with(it) {
+                                    if (userPlayerMap[author]?.role != Assassin) return@with
+                                    if (mentions.size != 1) {
+                                        reply(", assassinate one player (@ them)", ping = true)
+                                        return@with
                                     }
+                                    userPlayerMap[mentions.single()]?.let { target ->
+                                        if (target.role?.loyalty == Good) {
+                                            merlinGuess = target
+                                        } else {
+                                            reply(", you can only assassinate a Good player", ping = true)
+                                        }
+                                    }.onNull { reply(", assassinate a player in the game", ping = true) }
                                 }
                             }
+                            override val name: String = "assassinate"
+                            override val aliases: List<(name: String) -> Boolean> = L[{ it.startsWith("ass") }]
+                            override val description: String = "Only usable by the assassin. Assassinate your best guess of Merlin"
+                            override val usage: String = "assassinate <user>"
                         }
-                        // todo make this a command
-                        Bot.on(MessageCreate, MessageUpdate, λ = assassinateListener)
+//                        val assassinateListener: suspend Message.() -> Unit = { // TODO make this a command
+//                            if (userPlayerMap[author]?.role == Assassin && content.startsWith("!ass") && mentions.size == 1) {
+//                                userPlayerMap[mentions.first()]?.let { target ->
+//                                    if (target.role?.loyalty == Good) {
+//                                        merlinGuess = target
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        Bot.on(MessageCreate, MessageUpdate, λ = assassinateListener)
+                        MessageCommand.messageCommands += assassinate
+                        channel.states += State.Avalon.Assassinate
                         suspendUntil { merlinGuess != null }
-                        Bot.off(MessageCreate, MessageUpdate, λ = assassinateListener)
+//                        Bot.off(MessageCreate, MessageUpdate, λ = assassinateListener)
+                        channel.states -= State.Avalon.Assassinate
+                        MessageCommand.messageCommands -= assassinate
 
                         GameFinish {
                             state.players.forEach { addField(it.name.underline(), "${it.role?.name}", inline = true) }

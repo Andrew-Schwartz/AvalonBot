@@ -8,7 +8,6 @@ import common.util.listGrammatically
 import hangman.game.HangmanConfig
 import hangman.game.HangmanPlayer
 import io.ktor.util.*
-import kittens.game.ExplodingKittens
 import kittens.game.KittenConfig
 import kittens.game.KittenPlayer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,7 +25,7 @@ import hangman.game.Hangman as HangmanGame
 enum class GameType {
     Avalon {
         override fun player(user: User, guild: Guild?): Player = AvalonPlayer(user, guild)
-        override fun game(setup: Setup): Game = AvalonGame(setup)
+//        override fun game(setup: Setup): Game = AvalonGame(setup)
         override val config: GameConfig get() = AvalonConfig()
         override val states: StateInfo = StateInfo(State.Avalon.Game, State.Setup.AvalonStart, State.Avalon::class)
 
@@ -45,7 +44,8 @@ enum class GameType {
                 roles.size > setup.players.size -> message.reply("You have chosen more roles than there are players")
                 evil > maxEvil -> message.reply("You have too many evil roles: ${roles.filter { it.loyalty == Evil }.listGrammatically()}")
                 evil <= maxEvil -> {
-                    val avalon = Game[message.channel(), Avalon] as avalon.game.Avalon
+                    val avalon = AvalonGame(Setup[message.channel(), Avalon])
+                    Game[message.channel(), Avalon] = avalon
                     avalon.state.numEvil = maxEvil
                     Game.runGame(avalon)
                 }
@@ -55,7 +55,8 @@ enum class GameType {
     },
     Kittens {
         override fun player(user: User, guild: Guild?): Player = KittenPlayer(user, guild)
-        override fun game(setup: Setup): Game = ExplodingKittens(setup)
+
+        //        override fun game(setup: Setup): Game = ExplodingKittens(setup)
         override val config: GameConfig get() = KittenConfig()
         override val states: StateInfo = StateInfo(State.Kittens.Game, State.Setup.KittensStart, State.Kittens::class)
 
@@ -65,12 +66,12 @@ enum class GameType {
     },
     Hangman {
         override fun player(user: User, guild: Guild?): Player = HangmanPlayer(user, guild)
-        override fun game(setup: Setup): Game = HangmanGame(setup)
+
+        //        override fun game(setup: Setup): Game = HangmanGame(setup)
         override val config: GameConfig = HangmanConfig()
         override val states: StateInfo = StateInfo(State.Hangman.Game, State.Setup.Setup, State.Hangman::class)
 
         override suspend fun startGame(message: Message) {
-//            val hangman = Game[message.channel(), Hangman] as HangmanGame
             val hangman = HangmanGame(Setup[message.channel(), Hangman])
             Game[message.channel(), Hangman] = hangman
             Game.runGame(hangman)
@@ -78,7 +79,8 @@ enum class GameType {
     };
 
     abstract fun player(user: User, guild: Guild?): Player
-    abstract fun game(setup: Setup): Game
+
+    //    abstract fun game(setup: Setup): Game
     abstract val config: GameConfig
     abstract val states: StateInfo
 
