@@ -20,7 +20,7 @@ import lib.rest.http.httpRequests.request
 object LowLevelCommand : MessageCommand(State.All) {
     override val name: String = "ll"
 
-    override val description: String = "raw REST requests"
+    override val description: String = "raw REST requests\nhttps://discord.com/developers/docs/resources/channel"
 
     override val usage: String = "ll METHOD endpoint content"
 

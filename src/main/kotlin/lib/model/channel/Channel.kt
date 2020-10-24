@@ -23,7 +23,7 @@ data class Channel(
         @SerializedName("owner_id") val ownerId: UserId?,
         @SerializedName("application_id") val applicationId: ApplicationId?,
         @SerializedName("parent_id") val parentId: ChannelId?,
-        @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?
+        @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?,
 ) : Storable<Channel>, IntoId<ChannelId> by id {
     override fun equals(other: Any?): Boolean = (other as? Channel)?.id == id
 
@@ -57,10 +57,12 @@ data class Channel(
 
     override val prevVersions: MutableList<Channel> = mutableListOf()
 
+    val isDM: Boolean
+        get() = type.isDM
+
     val isText: Boolean
         get() = type.isText
 
     val isVoice: Boolean
         get() = type.isVoice
-
 }

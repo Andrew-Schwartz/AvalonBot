@@ -20,7 +20,7 @@ import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 
 object RestartCommand : MessageCommand(State.Game) {
-    const val approveChar = '✔'
+    const val approveChar = '✅'
     const val rejectChar = '❌'
 
     override val name: String = "restart"
@@ -48,13 +48,13 @@ object RestartCommand : MessageCommand(State.Game) {
                 if (author != steadfast) {
                     message.reply("Only Andrew is that cool")
                 } else {
-                    Game.endAndRemove(message.channel(), gameType, GameFinish {
+                    Game.endAndRemove(message.channel(), gameType, GameFinish(embed {
                         title = "Manually restarted"
                         color = gold
-                    })
+                    }))
                 }
             } else {
-                val botMsg = message.reply("React ✔ if you agree to restart the game, if not react ❌")
+                val botMsg = message.reply("React ✅ if you agree to restart the game, if not react ❌")
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
                 RestartVoteCommand.restarts[message.channel()] = Vote(botMsg)
@@ -72,10 +72,10 @@ object RestartCommand : MessageCommand(State.Game) {
                                 game.state.players.count { it.user in approves } >= 4
                     }
                     if (!cancelled) {
-                        Game.endAndRemove(message.channel(), gameType, GameFinish {
+                        Game.endAndRemove(message.channel(), gameType, GameFinish(embed {
                             title = "Manually restarted"
                             color = gold
-                        })
+                        }))
                     }
                 }
             }

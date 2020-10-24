@@ -1,17 +1,17 @@
 package avalon.commands.game
 
+import avalon.game.AvalonPlayer
 import avalon.game.AvalonState
 import common.commands.MessageCommand
 import common.commands.State
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.channel
 import lib.dsl.reply
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-object LadyCommand : MessageCommand(State.Avalon.Lady) {
+class LadyCommand(state: AvalonState, setter: (AvalonPlayer) -> Unit) : MessageCommand(State.Avalon.Lady) {
     override val name: String = "lotl"
 
     override val description: String = "Use to see someone's true loyalty (lotl is short for Lady of the Lake)"
@@ -21,16 +21,14 @@ object LadyCommand : MessageCommand(State.Avalon.Lady) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->
-        val state = AvalonState.inChannel(message.channel())
+        with(state) {
+            if (message.author != ladyOfTheLake?.user) return@with
 
-        with(message) {
-            if (author != state?.ladyOfTheLake?.user) return@with
-
-            when (val potentialTarget = message.mentions.firstOrNull()?.let { state.userPlayerMap[it] }) {
-                null -> reply("No user given")
-                state.ladyOfTheLake -> reply("You can't use the Lady of the Lake to determine your own loyalty")
-                in state.pastLadies -> reply("${potentialTarget.user.username} has already had the Lady of the Lake")
-                else -> state.ladyTarget = potentialTarget
+            when (val potentialTarget = message.mentions.firstOrNull()?.let { userPlayerMap[it] }) {
+                null -> message.reply("No user given")
+                ladyOfTheLake -> message.reply("You can't use the Lady of the Lake to determine your own loyalty")
+                in pastLadies -> message.reply("${potentialTarget.user.username} has already had the Lady of the Lake")
+                else -> setter(potentialTarget)
             }
         }
     }

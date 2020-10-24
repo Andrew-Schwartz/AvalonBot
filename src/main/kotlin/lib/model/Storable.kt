@@ -3,6 +3,7 @@ package lib.model
 interface Storable<T : Storable<T>> {
     val id: Snowflake
 
+    // TODO: most/all of this is not needed???
     fun updateDataFrom(new: T?): T
 
     val prevVersions: MutableList<T>

@@ -1,6 +1,6 @@
 package common.commands
 
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.dsl.reply
@@ -18,7 +18,7 @@ object DowntimeCommand : MessageCommand(State.All) {
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->
         message.reply {
-            title = "Approximately 13.7 billion years"
+            title = "Approximately 13.8 billion years"
             Bot.logInTime?.let { timestamp(it) }
             color = Color.gold
         }

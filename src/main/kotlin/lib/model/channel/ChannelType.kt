@@ -13,8 +13,10 @@ enum class ChannelType {
     GroupDM,
     @SerializedName("4")
     GuildCategory,
+
     @SerializedName("5")
     GuildNews,
+
     @SerializedName("6")
     GuildStore;
 
@@ -23,4 +25,7 @@ enum class ChannelType {
 
     val isVoice: Boolean
         get() = this == GuildVoice
+
+    val isDM: Boolean
+        get() = this == DM || this == GroupDM
 }

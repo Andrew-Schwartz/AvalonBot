@@ -4,14 +4,12 @@ import common.commands.StartCommand.approveChar
 import common.commands.StartCommand.rejectChar
 import common.game.GameType
 import common.game.Setup
-import common.steadfast
 import common.util.A
 import common.util.Vote
 import common.util.debug
 import common.util.getOrDefault
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-
 import kotlinx.coroutines.launch
 import lib.dsl.*
 import lib.model.channel.Message
@@ -21,7 +19,7 @@ import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Remove
 
 object StartCommand : MessageCommand(State.Setup.Setup) {
-    const val approveChar = '✔'
+    const val approveChar = '✅'
     const val rejectChar = '❌'
 
     override val name: String = "start"
@@ -36,7 +34,7 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->
-        // exists for the return below to work
+        // exists for the returns to work
         with(message) {
             val gameFromSetups = GameType.values()
                     .map { it to Setup[message.channel(), it] }
@@ -51,28 +49,20 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
             val setup = Setup[message.channel(), gameType]
 
             if (args.lastOrNull() == "now") {
-                if (message.author != steadfast) {
-                    message.reply("Only Andrew is that cool")
-                } else {
-                    channel().states -= GameType.values().map { it.states.startVotingState }
-                    gameType.startGame(message)
-                }
+                channel().states -= GameType.values().map { it.states.startVotingState }
+                gameType.startGame(message)
             } else {
                 if (State.Setup.AvalonStart in channel().states || State.Setup.KittensStart in channel().states) {
                     val link = setup.startVote?.message?.let { msg ->
-                        val msg = getMessage(msg.channelId, msg, forceRequest = true)
-                        if (msg.guildId == null) { // DM
-                            "https://discord.com/channels/@me/${msg.channelId}/${msg.id}"
-                        } else {
-                            "https://discord.com/channels/${msg.guildId}/${msg.channelId}/${msg.id}"
-                        }
+                        getMessage(msg.channelId, msg, forceRequest = true).link()
                     } ?: ""
                     message.reply(" You are already voting to start the game here!\n$link", ping = true)
                     return@with
                 }
-                val botMsg = message.reply("React ✔ if you are ready to start the game, if you're not ready react ❌")
+                val botMsg = message.reply("React ✅ if you are ready to start the game, if you're not ready react ❌")
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
+
                 setup.startVote = Vote(botMsg)
                 val votingState = gameType.states.startVotingState
                 channel().states += votingState
@@ -88,9 +78,8 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
                         if (!channelId.debug && score != setup.players.size) return@suspendUntil false
                         val (approves, rejects) = botMsg.reactions(approveChar, rejectChar)
                         when {
-                            setup.players.all { it.user in approves } -> true
-                            setup.players.any { it.user in rejects } -> false
                             rejects.size >= 3 -> false
+                            setup.players.all { it.user in approves } -> true
                             else -> false
                         }
                     }
@@ -102,6 +91,7 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
             }
         }
     }
+
 }
 
 @KtorExperimentalAPI

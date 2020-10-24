@@ -5,11 +5,9 @@ import common.game.GameFinish
 import common.game.GameType
 import common.game.Setup
 import hangman.GuildHistWord
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.react
-import lib.dsl.send
-import lib.dsl.suspendUntil
+import lib.dsl.*
 import lib.model.Color
 import lib.model.channel.ChannelType
 import lib.util.multilineCode
@@ -35,7 +33,7 @@ class Hangman(setup: Setup) : Game(GameType.Hangman, setup) {
 
             suspendUntil(500) { revealed.none { it == '_' } || bodyParts >= 5 }
 
-            GameFinish {
+            GameFinish(lib.dsl.embed {
                 if (bodyParts >= 5) {
                     title = "You lose and the hangman gets to eat"
                     color = Color.red
@@ -44,7 +42,12 @@ class Hangman(setup: Setup) : Game(GameType.Hangman, setup) {
                     color = Color.gold
                 }
                 description = "The word was $word"
-            }
+                if (randomWord is GuildHistWord && channel.guild() != null) {
+                    GuildHistWord.guildMessages[channel.guild()]?.let { message ->
+                        description += "\n" + message.link()
+                    }
+                }
+            })
         }
     }
 }

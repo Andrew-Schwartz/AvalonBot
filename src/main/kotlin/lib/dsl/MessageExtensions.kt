@@ -25,7 +25,7 @@ suspend fun Message.reply(
         content: String = "",
         embed: RichEmbed = RichEmbed(),
         ping: Boolean = false,
-        builder: suspend RichEmbed.() -> Unit = {}
+        builder: suspend RichEmbed.() -> Unit = {},
 ): Message = channel().send(
         content = content,
         embed = embed,
@@ -44,7 +44,7 @@ suspend fun Message.edit(
         content: String? = null,
         embed: RichEmbed? = null,
         pingTargets: Array<User> = emptyArray(),
-        builder: (suspend RichEmbed.() -> Unit)? = null
+        builder: (suspend RichEmbed.() -> Unit)? = null,
 ): Message {
     if (author != Bot.user) throw PermissionException("Can only edit messages you have sent")
 
@@ -144,13 +144,31 @@ suspend fun Message.unpin() {
 /**
  * @return The [Channel] object this message is in
  */
-@KtorExperimentalAPI
 @ExperimentalCoroutinesApi
+@KtorExperimentalAPI
 suspend fun Message.channel(): Channel = channelId.channel()
 
 /**
  * @return The [Guild] object this message is in, or null if in a DM
  */
-@KtorExperimentalAPI
 @ExperimentalCoroutinesApi
+@KtorExperimentalAPI
 suspend fun Message.guild(): Guild? = guildId?.guild()
+
+/**
+ * @return true if this message in in a DM channel, ie its guild is null
+ */
+val Message.isDM get() = guildId == null
+
+/**
+ * Gets the url link to this message, as you can get by right clicking in Discord.
+ */
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
+fun Message.link(): String {
+    return if (isDM) {
+        "https://discord.com/channels/@me/$channelId/$id"
+    } else {
+        "https://discord.com/channels/$guildId/$channelId/$id"
+    }
+}

@@ -88,7 +88,6 @@ suspend fun getReactions(channelId: IntoId<ChannelId>, messageId: IntoId<Message
     return getRequest("/channels/$channelId/messages/$messageId/reactions/$emoji").fromJson()
 }
 
-
 /**
  * @return [Array]<[Message]> that are pinned
  *
@@ -135,9 +134,14 @@ suspend fun getUser(id: IntoId<UserId>): User {
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun getGuilds(before: Boolean? = null, after: Boolean? = null, limit: Int = 100): Array<Guild> {
-    TODO("figure out how the before and after work")
-    return getRequest("/users/@me/guilds?").fromJson()
+suspend fun getGuilds(before: ChannelId? = null, after: ChannelId? = null, limit: Int = 100): Array<Guild> {
+    val query = buildString {
+        append("llimit=$limit")
+        if (before != null) append("&before=$before")
+        if (after != null) append("&after=$after")
+    }
+
+    return getRequest("/users/@me/guilds?$query").fromJson()
 }
 
 /**

@@ -38,6 +38,8 @@ object HelpCommand : MessageCommand(State.All) {
         }
         val args = message.args
         if (args.isEmpty()) {
+            // todo don't do this cuz its annoying and the states could mean the help there should be different
+            //  paginate this that's cool
             message.author.sendDM(embed = allCommandsEmbed()) // DM cuz its long
         } else {
             val name = args[0].toLowerCase()

@@ -1,5 +1,8 @@
 package common.util
 
+/**
+ * the backend for [loop]
+ */
 class Loop<T> internal constructor(val action: suspend Loop<T>.() -> T?) {
     private var retVal: T? = null
 

@@ -152,7 +152,7 @@ data class RichEmbed internal constructor(
     /**
      * Make it nice and easy to build a [RichEmbed]
      */
-    operator fun invoke(λ: RichEmbed.() -> Unit): RichEmbed = apply { λ() }
+    suspend operator fun invoke(λ: suspend RichEmbed.() -> Unit): RichEmbed = apply { λ() }
 }
 
 suspend fun embed(builder: suspend RichEmbed.() -> Unit): RichEmbed = RichEmbed().apply { builder() }

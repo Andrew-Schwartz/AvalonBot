@@ -9,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import lib.dsl.Bot
+import lib.dsl.embed
 import lib.dsl.send
 import lib.model.Color.Companion.red
 import lib.model.IntoId
@@ -56,11 +57,11 @@ abstract class Game(val type: GameType, val setup: Setup) {
                 }.onFailure { e ->
                     println("[${now()}] Error in game ${game.type.name} in channel ${game.channel.name}")
                     e.printStackTrace()
-                    endAndRemove(game.channel, game.type, GameFinish {
+                    endAndRemove(game.channel, game.type, GameFinish(embed {
                         title = "ERROR in game ${game.type.name}"
                         description = e.message
                         color = red
-                    })
+                    }))
                 }.onSuccess { info ->
                     println("[${now()}] ${game.type.name} in channel ${game.channel.name} ended normally")
                     endAndRemove(game.channel, game.type, info)

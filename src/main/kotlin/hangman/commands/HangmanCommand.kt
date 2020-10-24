@@ -11,6 +11,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
 import lib.dsl.guild
+import lib.dsl.startTyping
 import lib.model.channel.Message
 
 object HangmanCommand : MessageCommand(State.Setup.Setup) {
@@ -29,6 +30,10 @@ object HangmanCommand : MessageCommand(State.Setup.Setup) {
             if (message.args.firstOrNull() == "web") {
                 WordnikWord()
             } else {
+                if (GuildHistWord.noGuildData(it)) {
+                    // gathering words takes a bit the first time
+                    message.channel().startTyping()
+                }
                 GuildHistWord.forGuild(it)
             }
         } ?: WordnikWord()

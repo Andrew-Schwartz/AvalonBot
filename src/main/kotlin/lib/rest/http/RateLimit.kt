@@ -20,7 +20,7 @@ data class RateLimit(
         var limit: Int? = null,
         var remaining: Int? = null,
         var reset: Instant? = null,
-        var bucket: BucketKey? = null
+        var bucket: BucketKey? = null,
 ) {
     val mustLimit get() = limitMillis != 0L
 
@@ -64,14 +64,18 @@ data class RateLimit(
 inline class BucketKey(private val route: String) {
     companion object {
         fun ofEndpoint(endpoint: String): BucketKey {
-            val route = endpoint.split('/').windowed(2).joinToString("/") {
-                val (prev, part) = it
-                if (Regex("""\d{16,19}""").matches(part) && prev !in A["channels", "guilds"]) {
-                    ":id"
-                } else {
-                    part
-                }
-            }
+            val route = endpoint
+                    .substringBefore("?")
+                    .split('/')
+                    .windowed(2)
+                    .joinToString("/") {
+                        val (prev, part) = it
+                        if (Regex("""\d{16,19}""").matches(part) && prev !in A["channels", "guilds"]) {
+                            ":id"
+                        } else {
+                            part
+                        }
+                    }
             return BucketKey(route)
         }
     }

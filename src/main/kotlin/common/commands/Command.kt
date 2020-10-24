@@ -3,7 +3,6 @@ package common.commands
 import common.util.MS
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-
 import kotlinx.coroutines.launch
 import lib.dsl.Bot
 import lib.dsl.channel
@@ -45,7 +44,6 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
                     .toList() // copy in case list is modified
                     .asSequence()
                     .filter { it.state in channelStates }
-                    // todo fix that `!ass` and `!assassinate` trigger the commond twice
                     .filter { it.name.equals(commandName, true) || it.aliases.any { it(commandName) } }
                     .forEach { command ->
                         Bot.launch {
@@ -57,6 +55,16 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
                         }
                     }
         }
+
+        fun addCommand(command: MessageCommand, channel: Channel) {
+            messageCommands += command
+            channelStates.getOrPut(channel) { mutableSetOf() } += command.state
+        }
+
+        fun removeCommand(command: MessageCommand, channel: Channel) {
+            messageCommands -= command
+            channelStates[channel]?.remove(command.state)
+        }
     }
 }
 
@@ -67,18 +75,32 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
     abstract val emojis: List<String>
 
     companion object {
-        val reactCommands = Reflections("").getSubTypesOf(ReactCommand::class.java)
+        val reactCommands = Reflections("")
+                .getSubTypesOf(ReactCommand::class.java)
                 .mapNotNull { runCatching { it.kotlin.objectInstance }.getOrNull() }
                 .toMutableSet()
 
         @KtorExperimentalAPI
         @ExperimentalCoroutinesApi
         suspend fun run(reaction: MessageReactionUpdatePayload) {
+            val channelStates = reaction.channel().states
+
             reactCommands
                     .toList() // copy in case list is modified
                     .asSequence()
                     .filter { reaction.emoji.name in it.emojis }
+                    .filter { it.state in channelStates }
                     .forEach { Bot.launch { it.execute(reaction) } }
+        }
+
+        fun addCommand(command: ReactCommand, channel: Channel) {
+            reactCommands += command
+            channelStates.getOrPut(channel) { mutableSetOf() } += command.state
+        }
+
+        fun removeCommand(command: ReactCommand, channel: Channel) {
+            reactCommands -= command
+            channelStates[channel]?.remove(command.state)
         }
     }
 }
