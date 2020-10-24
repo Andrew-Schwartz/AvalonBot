@@ -3,6 +3,9 @@ package lib.model.user
 import com.google.gson.annotations.SerializedName
 import lib.model.guild.Integration
 
+/**
+ * @see [https://discord.com/developers/docs/resources/user#get-current-user]
+ */
 @Suppress("ArrayInDataClass")
 data class Connection(
         val id: String,

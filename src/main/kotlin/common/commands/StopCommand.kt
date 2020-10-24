@@ -1,7 +1,7 @@
 package common.commands
 
-import common.commands.RestartCommand.approveChar
-import common.commands.RestartCommand.rejectChar
+import common.commands.StopCommand.approveChar
+import common.commands.StopCommand.rejectChar
 import common.game.Game
 import common.game.GameFinish
 import common.game.GameType
@@ -19,7 +19,7 @@ import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 
-object RestartCommand : MessageCommand(State.Game) {
+object StopCommand : MessageCommand(State.Game) {
     const val approveChar = '✅'
     const val rejectChar = '❌'
 
