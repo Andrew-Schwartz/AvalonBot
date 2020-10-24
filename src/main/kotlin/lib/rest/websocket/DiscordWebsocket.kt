@@ -212,6 +212,9 @@ class DiscordWebsocket(val token: String) {
                     toUpdate().it()
                 }
             }
+            on(ChannelCreate) {
+                channels.addOrUpdate(this)
+            }
             // todo why were these duplicated?
 //            on(MessageReactionAdd) {
 //                MessageReactionUpdate.actions.forEach {

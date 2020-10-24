@@ -6,14 +6,19 @@ import common.util.now
 inline class Intent(val bits: Int = 0) {
     operator fun plus(other: Intent): Intent = Intent(bits or other.bits)
 
+    // !this and (this xor other)
+    operator fun minus(other: Intent): Intent = Intent(bits.inv() and (bits xor other.bits))
+
     operator fun contains(other: Intent): Boolean {
         return other.bits and bits == other.bits
     }
 
-    override fun toString(): String = "Intents(${(0..14).filter {
-        val bit = 1 shl it
-        bits and bit == bit
-    }.joinToString(prefix = "[", postfix = "]") { intents[it] }}}"
+    override fun toString(): String = "Intents(${
+        (0..14).filter {
+            val bit = 1 shl it
+            bits and bit == bit
+        }.joinToString(prefix = "[", postfix = "]") { intents[it] }
+    }}"
 
     companion object Intents {
         private var value = Intent()
@@ -24,10 +29,13 @@ inline class Intent(val bits: Int = 0) {
         operator fun plusAssign(other: Intent) {
             value += other
             sentValue?.let { sentValue ->
-                val intent = (0..14).filter { other.bits and (1 shl it) == 1 shl it }
-                        .fold(Intent()) { intent, idx -> intent + Intent(1 shl idx) }
-                if (intent != Intent()) {
-                    lateIntentsListener(intent)
+                val new = sentValue - other
+//                println("new = $new")
+//                val intent = (0..14).filter { new.bits and (1 shl it) == 1 shl it }
+//                        .fold(Intent()) { intent, idx -> intent + Intent(1 shl idx) }
+//                println("intent = $intent")
+                if (new != Intent()) {
+                    lateIntentsListener(new)
                 }
             }
         }
@@ -62,7 +70,5 @@ inline class Intent(val bits: Int = 0) {
                 "GUILD_INVITES", "GUILD_VOICE_STATES", "GUILD_PRESENCES", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS",
                 "GUILD_MESSAGE_TYPING", "DIRECT_MESSAGES", "DIRECT_MESSAGE_REACTIONS", "DIRECT_MESSAGE_TYPING"
         ]
-
-
     }
 }
