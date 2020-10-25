@@ -1,7 +1,7 @@
 package common.game
 
 import common.util.Vote
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.guild
 import lib.model.channel.Channel
@@ -20,6 +20,8 @@ class Setup private constructor(
 
     suspend fun addPlayer(user: User) {
         players += gameType.player(user, channel.guild())
+        for (player in players)
+            player.updateUser()
     }
 
     fun removePlayer(user: User) {

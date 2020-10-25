@@ -7,28 +7,21 @@ import lib.model.Storable
 
 data class Attachment(
         override val id: AttachmentId,
-        val filename: String,
-        val size: Int,
-        val url: String,
-        @SerializedName("proxy_url") val proxyUrl: String,
-        val height: Int?,
-        val width: Int?
+        var filename: String,
+        var size: Int,
+        var url: String,
+        @SerializedName("proxy_url") var proxyUrl: String,
+        var height: Int?,
+        var width: Int?,
 ) : Storable<Attachment>, IntoId<AttachmentId> by id {
-    override val prevVersions: MutableList<Attachment> = mutableListOf()
-
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Attachment?): Attachment {
-        val a = new ?: return this
-
-        return Attachment(
-                a.id ?: id,
-                a.filename ?: filename,
-                a.size ?: size,
-                a.url ?: url,
-                a.proxyUrl ?: proxyUrl,
-                a.height ?: height,
-                a.width ?: width
-        ).savePrev()
+    override fun updateFrom(new: Attachment) {
+        filename = new.filename ?: filename
+        size = new.size ?: size
+        url = new.url ?: url
+        proxyUrl = new.proxyUrl ?: proxyUrl
+        height = new.height ?: height
+        width = new.width ?: width
     }
 
     override fun equals(other: Any?): Boolean = (other as? Attachment)?.id == id

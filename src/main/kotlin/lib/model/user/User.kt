@@ -5,43 +5,33 @@ import common.util.L
 import lib.model.IntoId
 import lib.model.Storable
 import lib.model.UserId
-import lib.model.guild.GuildMember
 
 data class User(
         override val id: UserId,
-        val username: String,
-        val discriminator: String,
-        val avatar: String?,
-        @SerializedName("bot") val isBot: Boolean?,
-        @SerializedName("mfa_enabled") val mfaEnabled: Boolean?,
-        val locale: String?,
-        val verified: Boolean?,
-        val email: String?,
-        @SerializedName("flags") private val _flags: Int?,
-        @SerializedName("premium_type") val premiumType: PremiumType?,
-        val member: GuildMember? // from Message.mentions, maybe
+        var username: String,
+        var discriminator: String,
+        var avatar: String?,
+        @SerializedName("bot") var isBot: Boolean?,
+        @SerializedName("mfa_enabled") var mfaEnabled: Boolean?,
+        var locale: String?,
+        var verified: Boolean?,
+        var email: String?,
+        @SerializedName("flags") private var _flags: Int?,
+        @SerializedName("premium_type") var premiumType: PremiumType?,
 ) : Storable<User>, IntoId<UserId> by id {
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: User?): User {
-        val u = new ?: return this
-
-        return User(
-                u.id ?: id,
-                u.username ?: username,
-                u.discriminator ?: discriminator,
-                u.avatar ?: avatar,
-                u.isBot ?: isBot,
-                u.mfaEnabled ?: mfaEnabled,
-                u.locale ?: locale,
-                u.verified ?: verified,
-                u.email ?: email,
-                u._flags ?: _flags,
-                u.premiumType ?: premiumType,
-                u.member ?: member
-        ).savePrev()
+    override fun updateFrom(new: User) {
+        username = new.username ?: username
+        discriminator = new.discriminator ?: discriminator
+        avatar = new.avatar ?: avatar
+        isBot = new.isBot ?: isBot
+        mfaEnabled = new.mfaEnabled ?: mfaEnabled
+        locale = new.locale ?: locale
+        verified = new.verified ?: verified
+        email = new.email ?: email
+        _flags = new._flags ?: _flags
+        premiumType = new.premiumType ?: premiumType
     }
-
-    override val prevVersions: MutableList<User> = mutableListOf()
 
     override fun equals(other: Any?): Boolean = (other as? User)?.id == id
 
@@ -77,17 +67,6 @@ enum class UserFlag(val mask: Int) {
                     .toList()
                     .takeUnless { it.isEmpty() }
                     ?: L[None]
-
-//            val flags = flags ?: return L[None]
-//            val list: MutableList<UserFlag> = mutableListOf()
-//            for (i in (0..3) + (6..10)) {
-//                val mask = 1 shl i
-//                if (flags and mask != 0) {
-//                    list += invoke(mask)!!
-//                }
-//            }
-//
-//            return list.takeUnless { it.isEmpty() } ?: L[None]
         }
     }
 }

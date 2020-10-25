@@ -36,7 +36,7 @@ class GuildHistWord private constructor(private val guild: Guild, private val me
             // we know what the guild is even though the Message obj in the response doesn't
             messages[idx] = with(noGuild) {
                 Message(id, channelId, guild.id, author, member, content, timestamp,
-                        editedTimestamp, tts, mentionsEveryone, mentions, arrayOf(), attachments,
+                        editedTimestamp, tts, mentionsEveryone, mentions, emptyList(), attachments,
                         embeds, reactions, nonce, pinned, webhookId, type, activity, application)
             }
         } else {
@@ -68,7 +68,7 @@ class GuildHistWord private constructor(private val guild: Guild, private val me
 //                            noGuild.copy(guildId = guild.id) NPE's
                             with(noGuild) {
                                 Message(this.id, channelId, guild.id, author, member, content, timestamp,
-                                        editedTimestamp, tts, mentionsEveryone, mentions, arrayOf(), attachments,
+                                        editedTimestamp, tts, mentionsEveryone, mentions, emptyList(), attachments,
                                         embeds, reactions, nonce, pinned, webhookId, type, activity, application)
                             }
                         }.getOrNull()

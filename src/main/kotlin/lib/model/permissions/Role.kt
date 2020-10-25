@@ -7,31 +7,24 @@ import lib.model.Storable
 
 data class Role(
         override val id: RoleId,
-        val name: String,
-        val color: Color,
-        val hoist: Boolean,
-        val position: Int,
-        val permissions: Int, // bit set
-        val managed: Boolean,
-        val mentionable: Boolean
+        var name: String,
+        var color: Color,
+        var hoist: Boolean,
+        var position: Int,
+        var permissions: Int, // bit set
+        var managed: Boolean,
+        var mentionable: Boolean,
 ) : Storable<Role>, IntoId<RoleId> by id {
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Role?): Role {
-        val r = new ?: return this
-
-        return Role(
-                r.id ?: id,
-                r.name ?: name,
-                r.color ?: color,
-                r.hoist ?: hoist,
-                r.position ?: position,
-                r.permissions ?: permissions,
-                r.managed ?: managed,
-                r.mentionable ?: mentionable
-        ).savePrev()
+    override fun updateFrom(new: Role) {
+        name = new.name ?: name
+        color = new.color ?: color
+        hoist = new.hoist ?: hoist
+        position = new.position ?: position
+        permissions = new.permissions ?: permissions
+        managed = new.managed ?: managed
+        mentionable = new.mentionable ?: mentionable
     }
-
-    override val prevVersions: MutableList<Role> = mutableListOf()
 
     override fun equals(other: Any?): Boolean = (other as? Role)?.id == id
 

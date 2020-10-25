@@ -10,12 +10,14 @@ class Store<T : Storable<T>> {
     val size: Int
         get() = map.size
 
-    fun addOrUpdate(value: T): T {
-        val id = value.id
-        return when (id) {
-            in map -> map[id]!!.updateDataFrom(value)
-            else -> value
-        }.also { map[id] = it }
+    fun addOrUpdate(new: T): T {
+        val id = new.id
+        return map.compute(id) { _, old ->
+            old?.let {
+                it.updateFrom(new)
+                it
+            } ?: new
+        }!!
     }
 
     fun remove(id: Snowflake) {
@@ -44,6 +46,7 @@ inline fun <T : Storable<T>> Store<T>.all(predicate: (T) -> Boolean) = map.all {
 inline fun <T : Storable<T>> Store<T>.any(predicate: (T) -> Boolean) = map.any { predicate(it.value) }
 inline fun <T : Storable<T>> Store<T>.none(predicate: (T) -> Boolean) = map.none { predicate(it.value) }
 
+// what do first and last mean though this is a map???
 inline fun <T : Storable<T>> Store<T>.first(predicate: (T) -> Boolean = { true }): T? {
     for ((_, v) in map) {
         if (predicate(v)) return v

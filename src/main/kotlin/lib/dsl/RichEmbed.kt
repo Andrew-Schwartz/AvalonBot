@@ -14,6 +14,7 @@ import kotlin.collections.set
 /**
  * Builder for Discord's Embeds.
  */
+// TODO figure avatar images etc
 data class RichEmbed internal constructor(
         var title: String? = null,
         var description: String? = null,

@@ -8,6 +8,19 @@ import lib.model.user.User
 
 @Suppress("ArrayInDataClass")
 data class GuildMember(
+        /**
+         * Partial user object. Contains:
+         *
+         * id
+         *
+         * username
+         *
+         * avatar
+         *
+         * discriminator
+         *
+         * publicFlags
+         */
         val user: User,
         val nick: String?,
         @SerializedName("roles") private val _roles: Array<String>,
@@ -15,7 +28,7 @@ data class GuildMember(
         @SerializedName("premium_since") val premiumSince: Timestamp?,
         val deaf: Boolean,
         val mute: Boolean,
-        @SerializedName("guild_id") val guildId: GuildId? // for GuildMemberAdd
+        @SerializedName("guild_id") val guildId: GuildId?, // for GuildMemberAdd
 ) {
     val username: String = user.username
 

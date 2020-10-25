@@ -9,53 +9,44 @@ data class Channel(
         override val id: ChannelId,
         val type: ChannelType,
         @SerializedName("guild_id") val guildId: GuildId?,
-        val position: Int?,
-        @SerializedName("permission_overwrites") val permissionOverwrites: Array<Overwrite>,
-        val name: String?,
-        val topic: String?,
-        val nsfw: Boolean?,
-        @SerializedName("last_message_id") val lastMessageId: MessageId?,
-        val bitrate: Int?,
-        @SerializedName("userLimit") val userLimit: Int?,
-        @SerializedName("rate_limit_per_user") val rateLimitPerUser: Int?,
-        val recipients: Array<User>?,
-        val icon: String?,
-        @SerializedName("owner_id") val ownerId: UserId?,
-        @SerializedName("application_id") val applicationId: ApplicationId?,
-        @SerializedName("parent_id") val parentId: ChannelId?,
-        @SerializedName("last_pin_timestamp") val lastPinTimestamp: Timestamp?,
+        var position: Int?,
+        @SerializedName("permission_overwrites") var permissionOverwrites: Array<Overwrite>,
+        var name: String?,
+        var topic: String?,
+        var nsfw: Boolean?,
+        @SerializedName("last_message_id") var lastMessageId: MessageId?,
+        var bitrate: Int?,
+        @SerializedName("userLimit") var userLimit: Int?,
+        @SerializedName("rate_limit_per_user") var rateLimitPerUser: Int?,
+        var recipients: Array<User>?,
+        var icon: String?,
+        @SerializedName("owner_id") var ownerId: UserId?,
+        @SerializedName("application_id") var applicationId: ApplicationId?,
+        @SerializedName("parent_id") var parentId: ChannelId?,
+        @SerializedName("last_pin_timestamp") var lastPinTimestamp: Timestamp?,
 ) : Storable<Channel>, IntoId<ChannelId> by id {
     override fun equals(other: Any?): Boolean = (other as? Channel)?.id == id
 
     override fun hashCode(): Int = id.hashCode()
 
     @Suppress("USELESS_ELVIS")
-    override fun updateDataFrom(new: Channel?): Channel {
-        val c = new ?: return this
-
-        return Channel(
-                c.id ?: id,
-                c.type ?: type,
-                c.guildId ?: guildId,
-                c.position ?: position,
-                c.permissionOverwrites ?: permissionOverwrites,
-                c.name ?: name,
-                c.topic ?: topic,
-                c.nsfw ?: nsfw,
-                c.lastMessageId ?: lastMessageId,
-                c.bitrate ?: bitrate,
-                c.userLimit ?: userLimit,
-                c.rateLimitPerUser ?: rateLimitPerUser,
-                c.recipients ?: recipients,
-                c.icon ?: icon,
-                c.ownerId ?: ownerId,
-                c.applicationId ?: applicationId,
-                c.parentId ?: parentId,
-                c.lastPinTimestamp ?: lastPinTimestamp
-        ).savePrev()
+    override fun updateFrom(new: Channel) {
+        position = new.position ?: position
+        permissionOverwrites = new.permissionOverwrites ?: permissionOverwrites
+        name = new.name ?: name
+        topic = new.topic ?: topic
+        nsfw = new.nsfw ?: nsfw
+        lastMessageId = new.lastMessageId ?: lastMessageId
+        bitrate = new.bitrate ?: bitrate
+        userLimit = new.userLimit ?: userLimit
+        rateLimitPerUser = new.rateLimitPerUser ?: rateLimitPerUser
+        recipients = new.recipients ?: recipients
+        icon = new.icon ?: icon
+        ownerId = new.ownerId ?: ownerId
+        applicationId = new.applicationId ?: applicationId
+        parentId = new.parentId ?: parentId
+        lastPinTimestamp = new.lastPinTimestamp ?: lastPinTimestamp
     }
-
-    override val prevVersions: MutableList<Channel> = mutableListOf()
 
     val isDM: Boolean
         get() = type.isDM
