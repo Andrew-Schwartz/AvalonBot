@@ -7,7 +7,7 @@ import lib.rest.model.GatewayOpcode
 /**
  * Sent by the client to indicate a presence or status update.
  */
-data class StatusUpdate(
+data class UpdateStatus(
         val activities: List<Activity>,
         val status: Status,
         val afk: Boolean,

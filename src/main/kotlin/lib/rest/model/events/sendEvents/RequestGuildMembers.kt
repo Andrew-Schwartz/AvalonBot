@@ -13,14 +13,15 @@ class RequestGuildMembers private constructor(
         @SerializedName("guild_id") val guildId: GuildId,
         val query: String?,
         val limit: Int?,
-        @SerializedName("user_ids") val userIds: List<UserId>,
+        @SerializedName("user_ids") val userIds: List<UserId>?,
         val presences: Boolean,
         val nonce: String?,
 ) : SendEvent {
+    @Transient
     override val opcode: GatewayOpcode = GatewayOpcode.RequestGuildMembers
 
     init {
-        if (userIds.isEmpty() && query == null) throw IllegalStateException("Must set one of `query` or `userIds`")
+        if (userIds == null && query == null) throw IllegalStateException("Must set one of `query` or `userIds`")
 
         if (presences) Intents += GUILD_PRESENCES
         if (query == "" && limit == 0) Intents += GUILD_MEMBERS
@@ -28,7 +29,7 @@ class RequestGuildMembers private constructor(
 
     companion object {
         fun query(guildId: IntoId<GuildId>, query: String, limit: Int = 0, presences: Boolean = false, nonce: String? = null) =
-                RequestGuildMembers(guildId.intoId(), query, limit, emptyList(), presences, nonce)
+                RequestGuildMembers(guildId.intoId(), query, limit, null, presences, nonce)
 
         fun users(guildId: IntoId<GuildId>, users: List<IntoId<UserId>>, presences: Boolean = false, nonce: String? = null) =
                 RequestGuildMembers(guildId.intoId(), null, null, users.map { it.intoId() }, presences, nonce)

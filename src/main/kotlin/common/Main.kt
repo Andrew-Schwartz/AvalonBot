@@ -2,7 +2,6 @@ package common
 
 import common.commands.MessageCommand
 import common.commands.ReactCommand
-import common.util.L
 import common.util.now
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,6 +11,7 @@ import kotlinx.coroutines.runBlocking
 import lib.dsl.Bot
 import lib.dsl.on
 import lib.dsl.send
+import lib.dsl.updateStatus
 import lib.model.Activity
 import lib.model.ActivityType
 import lib.model.Color.Companion.gold
@@ -21,7 +21,6 @@ import lib.rest.http.httpRequests.getChannel
 import lib.rest.http.httpRequests.getUser
 import lib.rest.model.events.receiveEvents.*
 import lib.rest.model.events.sendEvents.Status
-import lib.rest.model.events.sendEvents.StatusUpdate
 import lib.util.fromJson
 import java.io.File
 import java.time.Instant
@@ -49,12 +48,7 @@ fun main() = runBlocking {
                 timestamp()
                 url = "https://github.com/Andrew-Schwartz/AvalonBot"
             }
-            websocket!!.sendGatewayEvent(StatusUpdate(
-                    L[Activity("Avalon - say `!help`", ActivityType.Game)],
-                    Status.Online,
-                    false,
-                    Instant.now().toEpochMilli()
-            ))
+            updateStatus(Activity("Avalon - say `!help`", ActivityType.Game), Status.Online)
         }
 
         on(Resumed) {

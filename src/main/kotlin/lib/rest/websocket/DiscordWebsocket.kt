@@ -24,7 +24,7 @@ import java.time.OffsetDateTime
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class DiscordWebsocket(val token: String) {
-    /*private*/ lateinit var sendWebsocket: suspend (String) -> Unit
+    private lateinit var sendWebsocket: suspend (String) -> Unit
     lateinit var close: suspend (CloseReason.Codes, message: String) -> Unit
 
     private var heartbeatJob: Job? = null
@@ -145,7 +145,6 @@ class DiscordWebsocket(val token: String) {
                     ConnectionProperties(),
                     intents = Intent.sendBits(),
             )
-//            println("[${now()}] send: $identify")
             sendGatewayEvent(identify)
             authed = true
         }
@@ -174,7 +173,7 @@ class DiscordWebsocket(val token: String) {
     /**
      * Sends [payload] to Discord's Websocket
      */
-    /*private*/ suspend fun sendGatewayEvent(payload: SendEvent) {
+    internal suspend fun sendGatewayEvent(payload: SendEvent) {
         val message = GatewayPayload(payload.opcode.code, payload.toJsonTree())
         val json = message.toJson()
         if (payload !is Heartbeat) {

@@ -89,7 +89,7 @@ interface RateLimiter {
 
 object DefaultRateLimiter : RateLimiter {
     @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
+//    @ExperimentalCoroutinesApi
     override suspend fun rateLimit(key: BucketKey, typingChannel: Channel?) {
         with(RateLimit[key]) {
             if (mustLimit) {
@@ -103,6 +103,7 @@ object DefaultRateLimiter : RateLimiter {
     }
 }
 
+// todo
 object RateLimitManager : RateLimiter {
     //    val threads = mutableListOf<Thread>()
     val coroutines = mutableListOf<CoroutineScope>()

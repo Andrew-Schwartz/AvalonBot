@@ -11,7 +11,7 @@ data class Identify(
         val compress: Boolean = false,
         @SerializedName("large_threshold") val largeThreshold: Int = 50,
         val shard: Array<Int>? = A[0, 1],
-        val presence: StatusUpdate? = null,
+        val presence: UpdateStatus? = null,
         @SerializedName("guild_subscriptions") val guildSubscriptions: Boolean = true,
         val intents: Int? = null,
 ) : SendEvent {

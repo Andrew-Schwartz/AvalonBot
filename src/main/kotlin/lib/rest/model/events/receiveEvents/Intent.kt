@@ -30,10 +30,6 @@ inline class Intent(val bits: Int = 0) {
             value += other
             sentValue?.let { sentValue ->
                 val new = sentValue - other
-//                println("new = $new")
-//                val intent = (0..14).filter { new.bits and (1 shl it) == 1 shl it }
-//                        .fold(Intent()) { intent, idx -> intent + Intent(1 shl idx) }
-//                println("intent = $intent")
                 if (new != Intent()) {
                     lateIntentsListener(new)
                 }
@@ -41,6 +37,7 @@ inline class Intent(val bits: Int = 0) {
         }
 
         val lateIntentsListener: (Intent) -> Unit = {
+//            throw RuntimeException("Tried to add $it after the bot connected")
             println("[${now()}] WARNING: $it was added after the bot connected")
         }
 
