@@ -38,5 +38,5 @@ data class Word(
         val originalWord: String?,
         val suggestions: List<Word>?,
         val vulgar: String?,
-        val word: String
+        val word: String,
 )

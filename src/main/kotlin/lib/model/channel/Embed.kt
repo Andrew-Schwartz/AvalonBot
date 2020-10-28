@@ -19,49 +19,49 @@ data class Embed(
         val provider: EmbedProvider? = null,
         val author: EmbedAuthor? = null,
         val fields: Array<EmbedField>? = null,
-        @Transient val files: Map<String, InputStream>? = null // for sending files
+        @Transient val files: Map<String, InputStream>? = null, // for sending files
 )
 
 data class EmbedFooter(
         val text: String,
         @SerializedName("icon_url") val iconUrl: String,
-        @SerializedName("proxy_icon_url") val proxyIconUrl: String
+        @SerializedName("proxy_icon_url") val proxyIconUrl: String,
 )
 
 data class EmbedImage(
         val url: String? = null,
         @SerializedName("proxy_url") val proxyUrl: String? = null,
         val height: Int? = null,
-        val width: Int? = null
+        val width: Int? = null,
 )
 
 data class EmbedThumbnail(
         val url: String? = null,
         @SerializedName("proxy_url") val proxyUrl: String? = null,
         val height: Int? = null,
-        val width: Int? = null
+        val width: Int? = null,
 )
 
 data class EmbedVideo(
         val url: String?,
         val height: Int?,
-        val width: Int?
+        val width: Int?,
 )
 
 data class EmbedProvider(
         val name: String?,
-        val url: String?
+        val url: String?,
 )
 
 data class EmbedAuthor(
         val name: String?,
         val url: String?,
         @SerializedName("icon_url") val iconUrl: String?,
-        @SerializedName("proxy_icon_url") val proxyIconUrl: String?
+        @SerializedName("proxy_icon_url") val proxyIconUrl: String?,
 )
 
 data class EmbedField(
         val name: String,
         val value: String,
-        val inline: Boolean?
+        val inline: Boolean?,
 )

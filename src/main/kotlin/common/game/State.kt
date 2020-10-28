@@ -1,7 +1,7 @@
 package common.game
 
 import common.util.mapInstance
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @KtorExperimentalAPI

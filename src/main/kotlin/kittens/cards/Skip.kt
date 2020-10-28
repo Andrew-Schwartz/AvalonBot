@@ -1,7 +1,7 @@
 package kittens.cards
 
+import io.ktor.util.*
 import kittens.game.ExplodingKittens
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @KtorExperimentalAPI

@@ -5,11 +5,13 @@ package lib.util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
+import io.ktor.client.statement.*
+import lib.model.ActivityType
+import lib.model.ActivityTypeAdapter
 import kotlin.reflect.KClass
 
 val gson: Gson = GsonBuilder().run {
+    registerTypeAdapter(ActivityType::class.java, ActivityTypeAdapter())
     //    serializeNulls()
     create()
 }

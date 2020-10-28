@@ -5,12 +5,16 @@ import com.google.gson.annotations.SerializedName
 enum class ChannelType {
     @SerializedName("0")
     GuildText,
+
     @SerializedName("1")
     DM,
+
     @SerializedName("2")
     GuildVoice,
+
     @SerializedName("3")
     GroupDM,
+
     @SerializedName("4")
     GuildCategory,
 

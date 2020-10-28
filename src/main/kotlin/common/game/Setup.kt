@@ -14,7 +14,7 @@ class Setup private constructor(
         val channel: Channel,
         private val gameType: GameType,
         val config: GameConfig,
-        val players: MutableList<Player> = mutableListOf()
+        val players: MutableList<Player> = mutableListOf(),
 ) {
     var startVote: Vote? = null
 

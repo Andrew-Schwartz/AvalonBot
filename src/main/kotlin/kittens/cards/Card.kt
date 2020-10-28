@@ -1,7 +1,7 @@
 package kittens.cards
 
 import common.util.replaceCamelCase
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kittens.game.ExplodingKittens
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.sendDM
@@ -28,10 +28,10 @@ abstract class Card(val id: Int) {
 
     open suspend fun ExplodingKittens.draw() {
         val player = state.currentPlayer
-            player.user.sendDM {
-                title = "You drew ${name.bold()}"
-                image(image)
-                description = "Your hand is now ${player.hand.joinToString(separator = "\n")}"
+        player.user.sendDM {
+            title = "You drew ${name.bold()}"
+            image(image)
+            description = "Your hand is now ${player.hand.joinToString(separator = "\n")}"
         }
     }
 

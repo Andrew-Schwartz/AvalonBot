@@ -1,7 +1,7 @@
 package common.util
 
 import common.commands.DebugCommand
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kittens.cards.Card
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.ChannelId
@@ -26,8 +26,8 @@ fun <T> Iterable<T>.listGrammatically(default: String = "", stringify: (T) -> St
     } else {
         strings.reduceIndexed { index, acc, name ->
             "$acc${
-            if (index == count() - 1) "${if (index != 1) "," else ""} and"
-            else ","
+                if (index == count() - 1) "${if (index != 1) "," else ""} and"
+                else ","
             } $name"
         }
     }

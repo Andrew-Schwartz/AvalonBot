@@ -9,8 +9,6 @@ import kotlinx.coroutines.*
 import lib.dsl.Bot
 import lib.dsl.on
 import lib.exceptions.InvalidSessionException
-import lib.model.Activity
-import lib.model.ActivityType
 import lib.rest.client
 import lib.rest.http.httpRequests.gateway
 import lib.rest.model.GatewayOpcode
@@ -26,7 +24,7 @@ import java.time.OffsetDateTime
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 class DiscordWebsocket(val token: String) {
-    private lateinit var sendWebsocket: suspend (String) -> Unit
+    /*private*/ lateinit var sendWebsocket: suspend (String) -> Unit
     lateinit var close: suspend (CloseReason.Codes, message: String) -> Unit
 
     private var heartbeatJob: Job? = null
@@ -145,15 +143,9 @@ class DiscordWebsocket(val token: String) {
             val identify = Identify(
                     token,
                     ConnectionProperties(),
-                    presence = GatewayStatus(
-                            null,
-                            Activity("Playin Avalon", ActivityType.Custom),
-                            Status.Online,
-                            false
-                    ),
-                    intents = Intent.sendBits()
+                    intents = Intent.sendBits(),
             )
-            println("[${now()}] send: $identify")
+//            println("[${now()}] send: $identify")
             sendGatewayEvent(identify)
             authed = true
         }
@@ -182,9 +174,13 @@ class DiscordWebsocket(val token: String) {
     /**
      * Sends [payload] to Discord's Websocket
      */
-    private suspend fun sendGatewayEvent(payload: SendEvent) {
+    /*private*/ suspend fun sendGatewayEvent(payload: SendEvent) {
         val message = GatewayPayload(payload.opcode.code, payload.toJsonTree())
-        sendWebsocket(message.toJson())
+        val json = message.toJson()
+        if (payload !is Heartbeat) {
+            println("[${now()}] send: $json")
+        }
+        sendWebsocket(json)
     }
 
     /**

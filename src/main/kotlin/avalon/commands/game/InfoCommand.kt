@@ -3,7 +3,7 @@ package avalon.commands.game
 import avalon.game.AvalonState
 import common.commands.MessageCommand
 import common.commands.State
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
 import lib.dsl.reply

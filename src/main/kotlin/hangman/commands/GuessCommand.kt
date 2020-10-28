@@ -4,7 +4,7 @@ import common.commands.ReactCommand
 import common.commands.State
 import common.util.L
 import hangman.game.HangmanState
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.edit
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
@@ -35,10 +35,10 @@ object GuessCommand : ReactCommand(State.Hangman.Game) {
                 description = asciiArt[bodyParts]?.multilineCode()
                 footerText = """
                     There ${
-                when (val n = indices.size) {
-                    1 -> "is 1 $letter"
-                    else -> "are $n $letter's"
-                }
+                    when (val n = indices.size) {
+                        1 -> "is 1 $letter"
+                        else -> "are $n $letter's"
+                    }
                 } in the word.
                     ${revealed.joinToString(" ")}
                 """.trimIndent()

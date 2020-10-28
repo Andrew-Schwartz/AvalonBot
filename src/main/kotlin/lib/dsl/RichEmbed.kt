@@ -24,7 +24,7 @@ data class RichEmbed internal constructor(
         var author: User? = null,
         private var image: EmbedImage? = null,
         private var thumbnail: EmbedThumbnail? = null,
-        private var footer: EmbedFooter? = null
+        private var footer: EmbedFooter? = null,
 ) {
     private val fields: ArrayList<EmbedField> = ArrayList()
 

@@ -1,7 +1,7 @@
 package common.commands
 
 import common.util.elapsed
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.dsl.reply

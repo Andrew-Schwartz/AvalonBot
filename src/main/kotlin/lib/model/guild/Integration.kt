@@ -17,5 +17,5 @@ data class Integration(
         @SerializedName("expire_grace_period") val expireGracePeriod: Int,
         val user: User,
         val account: Account,
-        @SerializedName("synced_at") val syncedAt: Timestamp
+        @SerializedName("synced_at") val syncedAt: Timestamp,
 )

@@ -15,5 +15,5 @@ data class VoiceState(
         val mute: Boolean,
         @SerializedName("self_deaf") val selfDeaf: Boolean,
         @SerializedName("self_mute") val selfMute: Boolean,
-        val suppress: Boolean
+        val suppress: Boolean,
 )

@@ -27,7 +27,7 @@ suspend fun Channel.send(
         content: String = "",
         embed: RichEmbed = RichEmbed(),
         pingTargets: Array<User> = emptyArray(),
-        builder: suspend RichEmbed.() -> Unit = {}
+        builder: suspend RichEmbed.() -> Unit = {},
 ): Message {
     val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.ping() }
 

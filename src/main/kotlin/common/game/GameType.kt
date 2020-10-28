@@ -25,7 +25,8 @@ import hangman.game.Hangman as HangmanGame
 enum class GameType {
     Avalon {
         override fun player(user: User, guild: Guild?): Player = AvalonPlayer(user, guild)
-//        override fun game(setup: Setup): Game = AvalonGame(setup)
+
+        //        override fun game(setup: Setup): Game = AvalonGame(setup)
         override val config: GameConfig get() = AvalonConfig()
         override val states: StateInfo = StateInfo(State.Avalon.Game, State.Setup.AvalonStart, State.Avalon::class)
 

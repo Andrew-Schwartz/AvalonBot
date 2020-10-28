@@ -15,7 +15,7 @@ data class ModifyChannelOptions(
         val bitrate: Int? = null,
         @SerializedName("userLimit") val userLimit: Int? = null,
         @SerializedName("permission_overwrites") val permissionOverwrites: Array<Overwrite>? = null,
-        @SerializedName("parent_id") val parentId: ChannelId? = null
+        @SerializedName("parent_id") val parentId: ChannelId? = null,
 ) {
     infix fun forChannel(channel: Channel): ModifyChannelOptions = when {
         channel.isText -> copy(bitrate = null, userLimit = null)

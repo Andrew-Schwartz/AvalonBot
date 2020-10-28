@@ -8,5 +8,5 @@ data class MessageApplication(
         @SerializedName("cover_image") val coverImage: String,
         val description: String,
         val icon: String?,
-        val name: String
+        val name: String,
 )

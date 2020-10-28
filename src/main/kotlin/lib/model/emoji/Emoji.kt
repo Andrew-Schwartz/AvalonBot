@@ -14,7 +14,7 @@ data class Emoji(
         val user: User,
         @SerializedName("require_colons") val requireColons: Boolean?,
         val managed: Boolean?,
-        val animated: Boolean?
+        val animated: Boolean?,
 ) : IntoId<EmojiId?> {
     override fun intoId(): EmojiId? = id
 }

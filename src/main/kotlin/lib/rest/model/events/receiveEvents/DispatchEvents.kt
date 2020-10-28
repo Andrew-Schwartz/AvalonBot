@@ -36,6 +36,7 @@ import lib.rest.model.events.receiveEvents.Intent.Intents.GUILD_PRESENCES
 import lib.rest.model.events.receiveEvents.Intent.Intents.GUILD_VOICE_STATES
 import lib.rest.model.events.receiveEvents.Intent.Intents.GUILD_WEBHOOKS
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type
+import lib.rest.model.events.sendEvents.Status
 import lib.util.fromJson
 import kotlin.reflect.KClass
 
@@ -401,16 +402,11 @@ data class MessageReactionRemoveEmojiPayload(
 @Suppress("ArrayInDataClass")
 data class PresenceUpdatePayload(
         val user: User,
-        @SerializedName("roles") private val _roles: Array<String>,
-        val game: Activity?,
         @SerializedName("guild_id") val guildId: GuildId,
-        val status: String,
+        val status: Status,
         val activities: Array<Activity>,
         @SerializedName("client_status") val clientStatus: ClientStatus,
-) {
-    val roles by lazy { _roles.map(::RoleId) }
-}
-
+)
 
 data class IntegrationsUpdatePayload(
         @SerializedName("guild_id") val guildId: GuildId,

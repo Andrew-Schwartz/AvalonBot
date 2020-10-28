@@ -8,6 +8,7 @@ enum class Visibility {
      */
     @SerializedName("0")
     None,
+
     /**
      * visible to everyone
      */

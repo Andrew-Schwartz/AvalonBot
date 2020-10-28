@@ -9,7 +9,7 @@ class GetChannelMessages private constructor(
         val limit: Int,
         val around: MessageId? = null,
         val before: MessageId? = null,
-        val after: MessageId? = null
+        val after: MessageId? = null,
 ) {
     val queryParams: String
         get() = when {

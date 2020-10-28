@@ -9,5 +9,5 @@ data class CreateMessage(
         val nonce: String? = null,
         val tts: Boolean = false,
         val file: Map<String, InputStream>? = null,
-        val embed: Embed? = null
+        val embed: Embed? = null,
 )

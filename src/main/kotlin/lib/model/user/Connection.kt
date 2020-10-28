@@ -16,5 +16,5 @@ data class Connection(
         val verified: Boolean,
         @SerializedName("friend_sync") val friendSync: Boolean,
         @SerializedName("show_activity") val showActivity: Boolean,
-        val visibility: Visibility
+        val visibility: Visibility,
 )
