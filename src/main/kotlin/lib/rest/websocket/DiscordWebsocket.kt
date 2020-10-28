@@ -23,7 +23,7 @@ import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-class DiscordWebsocket(val token: String) {
+class DiscordWebsocket(private val token: String) {
     private lateinit var sendWebsocket: suspend (String) -> Unit
     lateinit var close: suspend (CloseReason.Codes, message: String) -> Unit
 
@@ -210,17 +210,6 @@ class DiscordWebsocket(val token: String) {
             on(ChannelCreate) {
                 channels.addOrUpdate(this)
             }
-            // todo why were these duplicated?
-//            on(MessageReactionAdd) {
-//                MessageReactionUpdate.actions.forEach {
-//                    toUpdate().it()
-//                }
-//            }
-//            on(MessageReactionRemove) {
-//                MessageReactionUpdate.actions.forEach {
-//                    toUpdate().it()
-//                }
-//            }
         }
     }
 }

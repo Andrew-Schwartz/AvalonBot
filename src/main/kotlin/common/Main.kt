@@ -48,7 +48,7 @@ fun main() = runBlocking {
                 timestamp()
                 url = "https://github.com/Andrew-Schwartz/AvalonBot"
             }
-            updateStatus(Activity("Avalon - say `!help`", ActivityType.Game), Status.Online)
+            updateStatus(Activity("Avalon - say !help", ActivityType.Game), Status.Online)
         }
 
         on(Resumed) {
