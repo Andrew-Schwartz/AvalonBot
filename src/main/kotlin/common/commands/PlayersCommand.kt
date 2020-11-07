@@ -11,6 +11,7 @@ import lib.dsl.reply
 import lib.model.Color
 import lib.model.channel.Message
 
+// TODO fix me cuz I don't work at all lmao
 object PlayersCommand : MessageCommand(All) {
     override val name: String = "players"
 

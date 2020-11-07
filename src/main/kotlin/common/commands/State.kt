@@ -7,6 +7,7 @@ import kotlin.reflect.KClass
  */
 sealed class State {
     object All : State()
+    data class Arbitrary(val obj: Any) : State()
 
     sealed class Setup : State() {
         object Setup : State.Setup()
@@ -43,6 +44,7 @@ sealed class State {
         Avalon.Voting -> "Avalon Voting"
         Kittens.Game -> "Kittens Game"
         Hangman.Game -> "Hangman Game"
+        is Arbitrary -> obj.toString()
     }
 
     fun typeName(): String = name().takeWhile { it != ' ' }
@@ -78,6 +80,7 @@ object StateComparator : Comparator<MessageCommand> {
             is State.Avalon -> 3
             is State.Kittens -> 4
             is State.Hangman.Game -> 5
+            is State.Arbitrary -> 99
         }
     }
 }

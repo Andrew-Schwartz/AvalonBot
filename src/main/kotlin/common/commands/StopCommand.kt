@@ -17,6 +17,7 @@ import lib.dsl.*
 import lib.model.Color.Companion.gold
 import lib.model.channel.Channel
 import lib.model.channel.Message
+import lib.model.emoji.asChar
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 
 object StopCommand : MessageCommand(State.Game) {
@@ -93,7 +94,7 @@ object RestartVoteCommand : ReactCommand(State.Game) {
     override val execute: suspend (MessageReactionUpdatePayload) -> Unit = { reaction ->
         val vote = restarts[reaction.channel()]
         if (reaction.message() == vote?.message) {
-            val delta = when (reaction.emoji.name[0]) {
+            val delta = when (reaction.emoji.asChar) {
                 StartCommand.approveChar -> 1
                 StartCommand.rejectChar -> -1
                 else -> 0

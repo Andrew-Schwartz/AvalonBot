@@ -6,6 +6,7 @@ import common.util.A
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.channel.Message
+import lib.model.emoji.asChar
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Remove
@@ -19,7 +20,7 @@ class VoteCommand(votes: MutableMap<Message, Int>) : ReactCommand(State.Avalon.V
         val message = reaction.message()
 
         if (reaction.user().isBot != true && message in votes.keys) {
-            val delta = when (reaction.emoji.name[0]) {
+            val delta = when (reaction.emoji.asChar) {
                 approveChar -> 1
                 rejectChar -> -1
                 else -> 0

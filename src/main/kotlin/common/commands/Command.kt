@@ -7,6 +7,8 @@ import kotlinx.coroutines.launch
 import lib.dsl.Bot
 import lib.dsl.channel
 import lib.dsl.reply
+import lib.model.ChannelId
+import lib.model.IntoId
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
@@ -16,7 +18,7 @@ sealed class Command<P>(val state: State) {
     abstract val execute: suspend (P) -> Unit
 
     companion object {
-        val channelStates: MutableMap<Channel, MutableSet<State>> = mutableMapOf()
+        val channelStates: MutableMap<ChannelId, MutableSet<State>> = mutableMapOf()
     }
 }
 
@@ -58,12 +60,12 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
 
         fun addCommand(command: MessageCommand, channel: Channel) {
             messageCommands += command
-            channelStates.getOrPut(channel) { mutableSetOf() } += command.state
+            channelStates.getOrPut(channel.id) { mutableSetOf() } += command.state
         }
 
         fun removeCommand(command: MessageCommand, channel: Channel) {
             messageCommands -= command
-            channelStates[channel]?.remove(command.state)
+            channelStates[channel.id]?.remove(command.state)
         }
     }
 }
@@ -93,17 +95,19 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
                     .forEach { Bot.launch { it.execute(reaction) } }
         }
 
-        fun addCommand(command: ReactCommand, channel: Channel) {
+        fun addCommand(command: ReactCommand, channel: IntoId<ChannelId>) {
             reactCommands += command
-            channelStates.getOrPut(channel) { mutableSetOf() } += command.state
+            channel.states += command.state
+//            channelStates.getOrPut(channel.intoId()) { mutableSetOf() } += command.state
         }
 
-        fun removeCommand(command: ReactCommand, channel: Channel) {
+        fun removeCommand(command: ReactCommand, channel: IntoId<ChannelId>) {
             reactCommands -= command
-            channelStates[channel]?.remove(command.state)
+            channel.states.remove(command.state)
+//            channelStates[channel.intoId()]?.remove(command.state)
         }
     }
 }
 
-val Channel.states: MutableSet<State>
-    get() = Command.channelStates.getOrPut(this) { MS[State.All, State.Setup.Setup] }
+val IntoId<ChannelId>.states: MutableSet<State>
+    get() = Command.channelStates.getOrPut(this.intoId()) { MS[State.All, State.Setup.Setup] }

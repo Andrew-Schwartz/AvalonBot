@@ -13,6 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import lib.dsl.*
 import lib.model.channel.Message
+import lib.model.emoji.asChar
 import lib.rest.http.httpRequests.getMessage
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload.Type.Add
@@ -101,7 +102,7 @@ fun voteExecute(gameType: GameType): suspend (MessageReactionUpdatePayload) -> U
 
     setup.startVote?.let { startVote ->
         if (reaction.message() == startVote.message) {
-            val delta = when (reaction.emoji.name[0]) {
+            val delta = when (reaction.emoji.asChar) {
                 approveChar -> 1
                 rejectChar -> -1
                 else -> 0

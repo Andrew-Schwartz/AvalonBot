@@ -18,3 +18,5 @@ data class Emoji(
 ) : IntoId<EmojiId?> {
     override fun intoId(): EmojiId? = id
 }
+
+val Emoji.asChar get(): Char = name[0]

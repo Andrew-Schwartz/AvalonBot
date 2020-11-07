@@ -21,7 +21,7 @@ object LogCommand : MessageCommand(State.All) {
     override val execute: suspend (Message) -> Unit = { message ->
         if (message.author == steadfast) {
             println("debug = ${DebugCommand.debug.mapKeys { it.key.channel().fullName() }}")
-            println("states = ${Command.channelStates.mapKeys { it.key.name }}")
+            println("states = ${Command.channelStates.mapKeys { it.key.channel().name }}")
             println("Games: ")
             Game.games.flatMap { (channel, map) ->
                 map.map { (type, game) -> Triple(type, channel, game) }

@@ -157,10 +157,10 @@ suspend fun createReaction(channelId: IntoId<ChannelId>, messageId: IntoId<Messa
 }
 
 /**
- * @param userId id of users whose message will be deleted. null to delete this bot's reaction
  * Delete a reaction on a [Message].
  * When deleting the reaction of another user, this endpoint requires the `MANAGE_MESSAGES` permission to be present.
  * see also [https://discordapp.com/developers/docs/resources/channel#delete-own-reaction] and [https://discordapp.com/developers/docs/resources/channel#delete-user-reaction]
+ * @param userId id of users whose message will be deleted. null to delete this bot's reaction
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi

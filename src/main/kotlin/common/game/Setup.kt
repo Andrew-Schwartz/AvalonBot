@@ -20,7 +20,8 @@ class Setup private constructor(
 
     suspend fun addPlayer(user: User) {
         players += gameType.player(user, channel.guild())
-        for (player in players)
+        // todo does this work?? (toList to prevent CME
+        for (player in players.toList())
             player.updateUser()
     }
 
