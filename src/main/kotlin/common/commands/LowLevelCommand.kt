@@ -24,6 +24,8 @@ object LowLevelCommand : MessageCommand(State.All) {
 
     override val usage: String = "ll METHOD endpoint content"
 
+    override val privileged: Boolean = true
+
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->

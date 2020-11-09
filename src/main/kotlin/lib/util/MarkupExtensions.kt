@@ -19,8 +19,10 @@ fun String.inlineCode(): String = "`$this`"
 
 fun String.multilineCode(): String = "```\n$this\n```"
 
+// todo ??
 fun User.pingReal(): String = "<@$id>"
 
+// todo ??
 fun User.ping(): String = "<@!$id>"
 
 fun Channel.link(): String = "<#$id>"

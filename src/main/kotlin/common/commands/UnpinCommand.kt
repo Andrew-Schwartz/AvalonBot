@@ -15,6 +15,8 @@ object UnpinCommand : MessageCommand(State.All) {
 
     override val usage: String = "unpin [new/old #]"
 
+    override val privileged: Boolean = true
+
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->

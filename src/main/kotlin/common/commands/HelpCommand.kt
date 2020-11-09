@@ -1,7 +1,6 @@
 package common.commands
 
 import common.steadfast
-import common.util.A
 import common.util.debug
 import common.util.onNull
 import io.ktor.util.*
@@ -43,7 +42,7 @@ class PaginatedHelp(message: Message) : Paginated(
         MessageCommand.messageCommands.asSequence()
                 .filter { it.state !is State.Arbitrary }
                 .filter { message.channelId.debug || it.state in message.channelId.states }
-                .filter { message.channelId.debug || message.author == steadfast || it !in A[ExitCommand, LogCommand, DebugCommand, LowLevelCommand] }
+                .filter { message.channelId.debug || message.author == steadfast || !it.privileged }
                 .groupBy { it.state }
                 .map {
                     RichEmbed().apply {

@@ -139,7 +139,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             MessageCommand.removeCommand(quest, channel)
 
             channel.send {
-                title = "${leader.name} has chosen that ${party.listGrammatically { it.name }} will go on this quest"
+                title = "${leader.name} has chosen that ${party.listGrammatically { it.user.ping() }} will go on this quest"
                 description = "react to my DM to Approve or Reject this party"
             }
             players.forEach { it.user.getDM().startTyping() }
@@ -153,7 +153,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
 
             for (player in players) {
                 val msg = player.user.sendDM("React ✅ to vote to approve the quest, or ❌ to reject it\n" +
-                        "The proposed party is ${party.listGrammatically { it.name }}")
+                        "The proposed party is ${party.listGrammatically { it.user.ping() }}")
                 msg.channel().states += State.Avalon.Voting
                 votes[msg] = 0
                 Bot.launch {

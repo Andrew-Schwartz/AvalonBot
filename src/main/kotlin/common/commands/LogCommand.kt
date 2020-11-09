@@ -16,6 +16,8 @@ object LogCommand : MessageCommand(State.All) {
 
     override val usage: String = "log"
 
+    override val privileged: Boolean = true
+
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->

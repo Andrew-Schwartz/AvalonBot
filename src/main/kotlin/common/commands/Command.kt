@@ -31,6 +31,8 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
 
     abstract val usage: String
 
+    open val privileged: Boolean = false
+
     companion object {
         val messageCommands = Reflections("")
                 .getSubTypesOf(MessageCommand::class.java)
@@ -60,12 +62,14 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
 
         fun addCommand(command: MessageCommand, channel: Channel) {
             messageCommands += command
-            channelStates.getOrPut(channel.id) { mutableSetOf() } += command.state
+            channel.states += command.state
+//            channelStates.getOrPut(channel.id) { mutableSetOf() } += command.state
         }
 
         fun removeCommand(command: MessageCommand, channel: Channel) {
             messageCommands -= command
-            channelStates[channel.id]?.remove(command.state)
+            channel.states -= command.state
+//            channelStates[channel.id]?.remove(command.state)
         }
     }
 }
@@ -103,7 +107,7 @@ abstract class ReactCommand(state: State) : Command<MessageReactionUpdatePayload
 
         fun removeCommand(command: ReactCommand, channel: IntoId<ChannelId>) {
             reactCommands -= command
-            channel.states.remove(command.state)
+            channel.states -= command.state
 //            channelStates[channel.intoId()]?.remove(command.state)
         }
     }

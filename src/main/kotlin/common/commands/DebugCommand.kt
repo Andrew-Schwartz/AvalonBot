@@ -17,6 +17,8 @@ object DebugCommand : MessageCommand(State.All) {
 
     override val usage: String = "debug [true/false] [channel/dm id]"
 
+    override val privileged: Boolean = true
+
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->

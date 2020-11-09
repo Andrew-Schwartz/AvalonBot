@@ -36,7 +36,23 @@ object InfoCommand : MessageCommand(State.Avalon.Game) {
                 }
 
 //          description = "Here's where there would be an edited pic of the Avalon board if I was cool"
-                description = "Order of leaders\n".underline() + state.players.joinToString(separator = "\n") { it.name }
+
+                // todo did this work???
+                val orderedLeaders = buildString {
+                    append("Order of Leaders".underline())
+                    append("\n")
+                    val players = state.players
+                    for (i in state.leaderNum until players.size) {
+                        append(players[i].user.ping())
+                        append("\n")
+                    }
+                    for (i in 0 until state.leaderNum) {
+                        append(players[i].user.ping())
+                        append("\n")
+                    }
+                }
+                description = orderedLeaders
+//                description = "Order of leaders\n".underline() + state.players.joinToString(separator = "\n") { it.name }
                 addField("Number of Good Victories".underline(), "${state.goodWins}", true)
                 addField("Number of Evil Victories".underline(), "${state.evilWins}", true)
                 addField("Current Leader".underline(), state.leader.user.ping(), true)

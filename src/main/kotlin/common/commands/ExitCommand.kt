@@ -19,6 +19,8 @@ object ExitCommand : MessageCommand(All) {
 
     override val usage: String = "logoff"
 
+    override val privileged: Boolean = true
+
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->
