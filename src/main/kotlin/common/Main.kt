@@ -72,7 +72,11 @@ fun main() = runBlocking {
             }
         }
 
-        Bot.launch {
+        on(GuildCreate) {
+            println("[${now()}] Guild ${this.name} created! (${this.id})")
+        }
+
+        launch {
             // todo maybe detect if the bot is actually connected somehow
             while (true) {
                 // todo file handler to auto put us in that dir
