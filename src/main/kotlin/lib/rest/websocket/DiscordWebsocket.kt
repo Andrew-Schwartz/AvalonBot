@@ -210,6 +210,9 @@ class DiscordWebsocket(private val token: String) {
             on(ChannelCreate) {
                 channels.addOrUpdate(this)
             }
+            on(GuildCreate) {
+                println("[${now()}] Guild ${this.name} created! (${this.id})")
+            }
         }
     }
 }

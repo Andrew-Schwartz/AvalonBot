@@ -1,7 +1,7 @@
 package common.commands
 
 // todo ???
-inline class Permissions(val flags: Int) {
+inline class Permissions(val bits: Int) {
     companion object {
         // @formatter:off
         val CREATE_INSTANT_INVITE = Permissions(0x00000001)
@@ -37,4 +37,7 @@ inline class Permissions(val flags: Int) {
         val MANAGE_EMOJIS         = Permissions(0x40000000)
         // @formatter:on
     }
+
+    infix fun or(other: Permissions) = Permissions(bits or other.bits)
+    infix operator fun plus(other: Permissions) = this or other
 }
