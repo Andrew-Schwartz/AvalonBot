@@ -9,7 +9,6 @@ import lib.model.IntoId
 import java.time.Duration
 import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.pow
 import kotlin.reflect.KClass
 
@@ -51,8 +50,6 @@ fun <T> not(predicate: (T) -> Boolean): (T) -> Boolean = { !predicate(it) }
 
 fun <T> List<T>.getOrDefault(index: Int, default: T): T =
         if (index in 0..lastIndex) get(index) else default
-
-fun now(): String = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("dd HH:mm:ss"))
 
 fun Instant.durationSince(start: Instant): Duration = Duration.between(start, this)
 

@@ -2,14 +2,15 @@ package common.commands
 
 import common.commands.State.All
 import common.steadfast
-import common.util.now
 import io.ktor.http.cio.websocket.*
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.dsl.reply
+import lib.dsl.channel
+import lib.dsl.send
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
+import lib.util.log
 import kotlin.system.exitProcess
 
 object ExitCommand : MessageCommand(All) {
@@ -30,15 +31,15 @@ object ExitCommand : MessageCommand(All) {
                         .onFailure { println(it.message) }
             }
             val logOff = "Logging off!"
-            message.reply {
+            message.channel().send {
                 title = logOff
                 timestamp()
             }
-            println("[${now()}] $logOff")
+            log(logOff)
             Bot.websocket?.close?.invoke(CloseReason.Codes.NORMAL, "Exiting")
             exitProcess(1)
         } else {
-            message.reply("Only Andrew is that cool")
+            message.channel().send("Only Andrew is that cool")
         }
     }
 }

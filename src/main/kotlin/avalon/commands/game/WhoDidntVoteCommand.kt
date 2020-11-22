@@ -7,7 +7,7 @@ import common.util.listGrammatically
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
-import lib.dsl.reply
+import lib.dsl.send
 import lib.model.channel.Message
 
 @ExperimentalCoroutinesApi
@@ -26,6 +26,6 @@ class WhoDidntVoteCommand(votes: Map<Message, Int>) : MessageCommand(State.Avalo
                     .filterValues { it == 0 }
                     .map { (msg, _) -> msg.channel().recipients?.singleOrNull() }
         }?.map { it.name } ?: emptyList()
-        message.reply("${notVoted.listGrammatically("no one")} ${if (notVoted.size < 2) "has" else "have"} not voted")
+        message.channel().send("${notVoted.listGrammatically("no one")} ${if (notVoted.size < 2) "has" else "have"} not voted")
     }
 }

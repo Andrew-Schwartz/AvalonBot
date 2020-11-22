@@ -1,6 +1,5 @@
 package lib.rest.websocket
 
-import common.util.now
 import common.util.onNull
 import io.ktor.client.features.websocket.*
 import io.ktor.http.cio.websocket.*
@@ -16,6 +15,7 @@ import lib.rest.model.GatewayPayload
 import lib.rest.model.events.receiveEvents.*
 import lib.rest.model.events.sendEvents.*
 import lib.util.fromJson
+import lib.util.log
 import lib.util.toJson
 import lib.util.toJsonTree
 import java.time.Instant
@@ -39,7 +39,7 @@ class DiscordWebsocket(private val token: String) {
     suspend fun run(): Nothing {
         defaultListeners()
         while (true) {
-            println("[${now()}] Starting websocket")
+            log("Starting websocket")
             runCatching {
                 client.wss(host = gateway(), port = 443) {
                     // set up callbacks to interact with ws from other functions
@@ -49,14 +49,14 @@ class DiscordWebsocket(private val token: String) {
                     // Resume on reconnect
                     if (sessionId != null) {
                         val resume = Resume(token, sessionId!!, sequenceNumber!!)
-                        println("[${now()}] Sending Resume...")
+                        log("Sending Resume...")
                         sendGatewayEvent(resume)
                     }
 
                     // diagnostic
                     launch {
                         val closeReason = closeReason.await()
-                        println("[${now()}] closed because $closeReason")
+                        log("closed because $closeReason")
                     }
 
                     eventLoop@ while (!incoming.isClosedForReceive) {
@@ -74,7 +74,7 @@ class DiscordWebsocket(private val token: String) {
                 lastAck = null
                 lastHeartbeat = null
                 strikes = 0
-                println("[${now()}] caught $it: ${it.message}")
+                log("caught $it: ${it.message}")
             }
         }
     }
@@ -94,11 +94,11 @@ class DiscordWebsocket(private val token: String) {
                 lastAck = Instant.now()
             }
             GatewayOpcode.Reconnect -> {
-                println("[${now()}] recv: Reconnect")
+                log("recv: Reconnect")
                 close(CloseReason.Codes.SERVICE_RESTART, "Reconnect requested by Discord")
             }
             GatewayOpcode.InvalidSession -> {
-                println("[${now()}] recv Invalid Session: $payload")
+                log("recv Invalid Session: $payload")
                 val resumable = payload.eventData!!.asBoolean
                 if (!resumable) {
                     resetConnectionState()
@@ -106,7 +106,7 @@ class DiscordWebsocket(private val token: String) {
                 }
             }
             else -> {
-                println("[${now()}] should not receive ${payload.opcode}, it's content was ${payload.eventData}")
+                log("should not receive ${payload.opcode}, it's content was ${payload.eventData}")
             }
         }
     }
@@ -131,7 +131,7 @@ class DiscordWebsocket(private val token: String) {
 
         val kClass = DispatchEvent::class.sealedSubclasses
                 .firstOrNull { it.simpleName?.toUpperCase() == name }
-                .onNull { println("[${now()}] No DispatchEvent for $name, data is:\n$payload") }
+                .onNull { log("No DispatchEvent for $name, data is:\n$payload") }
                 ?: return
 
         val event: DispatchEvent<*> = kClass.objectInstance!!
@@ -156,7 +156,7 @@ class DiscordWebsocket(private val token: String) {
                 sequenceNumber?.let {
                     if (lastHeartbeat != null && lastAck != null && lastHeartbeat!!.isAfter(lastAck!!)) {
                         strikes++
-                        println("[${now()}] ACK Strike $strikes")
+                        log("ACK Strike $strikes")
                         if (strikes >= 3) {
                             resetConnectionState()
                             close(CloseReason.Codes.SERVICE_RESTART, "ACK not recent enough, closing websocket")
@@ -177,7 +177,7 @@ class DiscordWebsocket(private val token: String) {
         val message = GatewayPayload(payload.opcode.code, payload.toJsonTree())
         val json = message.toJson()
         if (payload !is Heartbeat) {
-            println("[${now()}] send: $json")
+            log("send: $json")
         }
         sendWebsocket(json)
     }

@@ -2,7 +2,6 @@ package common
 
 import common.commands.MessageCommand
 import common.commands.ReactCommand
-import common.util.now
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -22,6 +21,7 @@ import lib.rest.http.httpRequests.getUser
 import lib.rest.model.events.receiveEvents.*
 import lib.rest.model.events.sendEvents.Status
 import lib.util.fromJson
+import lib.util.log
 import java.io.File
 import java.time.Instant
 
@@ -41,7 +41,7 @@ fun main() = runBlocking {
         kts = getChannel(ktsId)
 
         on(Ready) {
-            println("[${now()}] Ready!")
+            log("Ready!")
             kts.send {
                 title = this@Bot.user.username + " is logged on!!"
                 color = gold
@@ -52,7 +52,7 @@ fun main() = runBlocking {
         }
 
         on(Resumed) {
-            println("[${now()}] resumed: $this")
+            log("resumed: $this")
             kts.send {
                 title = this@Bot.user.username + " has resumed!"
                 color = gold
@@ -73,7 +73,7 @@ fun main() = runBlocking {
         }
 
         on(GuildCreate) {
-            println("[${now()}] Guild ${this.name} created! (${this.id})")
+            log("Guild ${this.name} created! (${this.id})")
         }
 
         launch {
@@ -83,7 +83,7 @@ fun main() = runBlocking {
                 File("src/main/resources/uptime").bufferedWriter().use {
                     it.write(Instant.now().toString())
                 }
-                println("[${now()}] Updated uptime file")
+                log("Updated uptime file")
                 val mins = 30L
                 delay(1000 * 60 * mins)
             }

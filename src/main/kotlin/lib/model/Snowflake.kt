@@ -13,6 +13,7 @@ interface Snowflake {
     val value: String
 }
 
+// TODO most extensions on one these (that is cached) should be on the ID's themself
 interface IntoId<T : Snowflake?> {
     fun intoId(): T
 }

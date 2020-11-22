@@ -18,26 +18,64 @@ data class CreateMessage(
         val messageReference: MessageReference? = null,
 )
 
+sealed class AllowedMentionsStrategy {
+    object Inferred : AllowedMentionsStrategy()
+    class Explicit(val allowed: AllowedMentions) : AllowedMentionsStrategy()
+
+    fun from(content: String): AllowedMentions? = when (this) {
+        Inferred -> AllowedMentions.inferFrom(content)
+        is Explicit -> this.allowed
+    }.takeUnless { it == AllowedMentions() }
+}
+
 // TODO model mutual exclusivity
 data class AllowedMentions(
         /**
          * An array of allowed mention types to parse from the content.
          */
-        val parse: List<AllowedMentionType>?,
+        val parse: Set<AllowedMentionType>? = null,
         /**
          * Array of role_ids to mention (Max size of 100)
          */
-        val roles: List<RoleId>?,
+        val roles: Set<RoleId>? = null,
         /**
          * Array of user_ids to mention (Max size of 100)
          */
-        val users: List<UserId>?,
+        val users: Set<UserId>? = null,
         /**
          * For replies, whether to mention the author of the message being replied to (default false)
          */
         @SerializedName("replied_user")
-        val repliedUser: Boolean,
-)
+        val repliedUser: Boolean = false,
+) {
+    companion object {
+        // todo
+        fun inferFrom(content: String, repliedUser: Boolean = false): AllowedMentions {
+            var parse = emptySet<AllowedMentionType>()
+            var roles = emptySet<RoleId>()
+            var users = emptySet<UserId>()
+
+            Regex("""<@([!&])(\d{16,19})>""").findAll(content)
+                    .map { it.groupValues }
+                    .forEach {
+                        println("it = $it")
+                    }
+
+//            when (val char = find.groupValues.getOrNull(1)) {
+//                null, "!" -> allowed = allowed.copy(users = L[])
+//                "&" -> { }
+//                else -> throw IllegalStateException("Matched $char instead of `!` or `&` in String `$content`")
+//            }
+
+            return AllowedMentions(
+                    parse.takeUnless { it.isEmpty() },
+                    roles.takeUnless { it.isEmpty() },
+                    users.takeUnless { it.isEmpty() },
+                    repliedUser
+            )
+        }
+    }
+}
 
 enum class AllowedMentionType {
     /**
@@ -69,4 +107,6 @@ data class MessageReference(
         val channel: ChannelId? = null,
         @SerializedName("guild_id")
         val guild: GuildId?,
+        @Transient
+        val ping: Boolean = false,
 )

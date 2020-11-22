@@ -60,7 +60,7 @@ object StartCommand : MessageCommand(State.Setup.Setup) {
                     message.reply(" You are already voting to start the game here!\n$link", ping = true)
                     return@with
                 }
-                val botMsg = message.reply("React ✅ if you are ready to start the game, if you're not ready react ❌")
+                val botMsg = message.channel().send("React ✅ if you are ready to start the game, if you're not ready react ❌")
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
 

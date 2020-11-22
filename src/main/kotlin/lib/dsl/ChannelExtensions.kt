@@ -7,17 +7,17 @@ import lib.model.MessageId
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.guild.Guild
-import lib.model.user.User
+import lib.rest.http.AllowedMentionsStrategy
 import lib.rest.http.CreateMessage
+import lib.rest.http.MessageReference
 import lib.rest.http.httpRequests.createMessage
 import lib.rest.http.httpRequests.getMessage
 import lib.rest.http.httpRequests.triggerTypingIndicator
-import lib.util.pingNick
 
 /**
  * Send a message in this [Channel]. If [content] is set, that string will be sent in the message. To send a
  * [RichEmbed], either set [embed] or build the embed with the RichEmbed [builder]. Note: [builder] takes [embed] as its
- * receiver, so if both are set, the code in [builder] will determine what is send. Will @ every user in [pingTargets].
+ * receiver, so if both are set, the code in [builder] will determine what is send. Will @ every user in [ping].
  *
  * @return The [Message] object that was sent
  */
@@ -26,18 +26,19 @@ import lib.util.pingNick
 suspend fun Channel.send(
         content: String = "",
         embed: RichEmbed = RichEmbed(),
-        pingTargets: Array<User> = emptyArray(),
+        replyTo: MessageReference? = null,
+        allowedMentionsStrategy: AllowedMentionsStrategy = AllowedMentionsStrategy.Inferred,
         builder: suspend RichEmbed.() -> Unit = {},
 ): Message {
-    val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.pingNick() }
-
     @Suppress("NAME_SHADOWING")
     val embed = embed.apply { builder() }.takeIf { !it.isEmpty }?.build()
 
     return createMessage(this, CreateMessage(
-            content = text,
+            content = content,
             embed = embed,
-            file = embed?.files
+            file = embed?.files,
+            allowedMentions = allowedMentionsStrategy.from(content),
+            messageReference = replyTo,
     ))
 }
 

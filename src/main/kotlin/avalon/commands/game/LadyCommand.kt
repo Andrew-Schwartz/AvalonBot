@@ -6,7 +6,8 @@ import common.commands.MessageCommand
 import common.commands.State
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.reply
+import lib.dsl.channel
+import lib.dsl.send
 import lib.model.channel.Message
 
 @KtorExperimentalAPI
@@ -25,9 +26,9 @@ class LadyCommand(state: AvalonState, setter: (AvalonPlayer) -> Unit) : MessageC
             if (message.author != ladyOfTheLake?.user) return@with
 
             when (val potentialTarget = message.mentions.firstOrNull()?.let { userPlayerMap[it] }) {
-                null -> message.reply("No user given")
-                ladyOfTheLake -> message.reply("You can't use the Lady of the Lake to determine your own loyalty")
-                in pastLadies -> message.reply("${potentialTarget.user.username} has already had the Lady of the Lake")
+                null -> message.channel().send("No user given")
+                ladyOfTheLake -> message.channel().send("You can't use the Lady of the Lake to determine your own loyalty")
+                in pastLadies -> message.channel().send("${potentialTarget.user.username} has already had the Lady of the Lake")
                 else -> setter(potentialTarget)
             }
         }

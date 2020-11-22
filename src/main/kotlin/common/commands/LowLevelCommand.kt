@@ -8,7 +8,9 @@ import io.ktor.http.*
 import io.ktor.http.ContentType.*
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.channel
 import lib.dsl.reply
+import lib.dsl.send
 import lib.model.ChannelId
 import lib.model.channel.Embed
 import lib.model.channel.EmbedImage
@@ -52,6 +54,7 @@ object LowLevelCommand : MessageCommand(State.All) {
 
                 val content = message.args.drop(2).joinToString(separator = " ")
                 val postMessageId = "/channels/(\\d+)/messages".toRegex().find(endpoint)
+                // todo support json body (I want to send embeds)
                 if (method == HttpMethod.Post && postMessageId != null) {
                     val id = ChannelId(postMessageId.groupValues[1])
                     val cm = when {
@@ -88,9 +91,9 @@ object LowLevelCommand : MessageCommand(State.All) {
                     println(response.status.description)
                     if (response.status.hashCode() == 200) {
                         response.readText().chunkedSequence(2000)
-                                .forEach { message.reply(it) }
+                                .forEach { message.channel().send(it) }
                     } else {
-                        message.reply(response.status.description)
+                        message.channel().send(response.status.description)
                     }
                 }
             }

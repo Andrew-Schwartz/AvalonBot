@@ -5,8 +5,10 @@ import common.game.Setup
 import common.steadfast
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.channel
 import lib.dsl.fullName
 import lib.dsl.reply
+import lib.dsl.send
 import lib.model.channel.Message
 
 object LogCommand : MessageCommand(State.All) {
@@ -36,7 +38,7 @@ object LogCommand : MessageCommand(State.All) {
             }.forEach { (type, channel, setup) ->
                 println("$type in ${channel.name} = $setup")
             }
-            message.reply("logged to stdout")
+            message.channel().send("logged to stdout")
         } else {
             message.reply("Only Andrew is that cool")
         }

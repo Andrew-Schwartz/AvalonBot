@@ -3,9 +3,10 @@ package common.commands
 import common.commands.State.All
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.dsl.channel
 import lib.dsl.edit
 import lib.dsl.embed
-import lib.dsl.reply
+import lib.dsl.send
 import lib.model.Color
 import lib.model.channel.Message
 import kotlin.time.ExperimentalTime
@@ -27,7 +28,7 @@ object PingCommand : MessageCommand(All) {
             color = Color.gold
         }
         val (msg, time) = measureTimedValue {
-            message.reply(embed = embed)
+            message.channel().send(embed = embed)
         }
         msg.edit(embed = embed) {
             footerText = "Took ${time.inSeconds} seconds to respond"

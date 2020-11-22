@@ -4,7 +4,8 @@ import common.util.elapsed
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.dsl.reply
+import lib.dsl.channel
+import lib.dsl.send
 import lib.model.Color.Companion.gold
 import lib.model.channel.Message
 import java.time.Duration
@@ -19,7 +20,7 @@ object UptimeCommand : MessageCommand(State.All) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->
-        message.reply {
+        message.channel().send {
             title = formatDuration(Bot.logInTime!!.toInstant().elapsed())
             if (Bot.logInTime != Bot.firstLogInTime) {
                 addField("Time since initial login", formatDuration(Bot.firstLogInTime!!.toInstant().elapsed()))

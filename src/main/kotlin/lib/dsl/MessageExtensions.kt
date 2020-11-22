@@ -1,6 +1,5 @@
 package lib.dsl
 
-import common.util.A
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.exceptions.PermissionException
@@ -8,14 +7,16 @@ import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
+import lib.rest.http.MessageReference
 import lib.rest.http.httpRequests.*
 import lib.util.pingNick
 
 /**
- * Send a message in the same channel that this message was sent in. If [content] is set, that string will be sent
- * in the message. To send a [RichEmbed], either set [embed] or build the embed with the RichEmbed [builder]. Note:
- * [builder] takes [embed] as its receiver, so if both are set, the code in [builder] will determine what is send.
- * If [ping] is true, will @ the author of this [Message]. To @ any number of specific users, use [Channel.send].
+ * Reply to this message. If [ping] is false, will not ping the original author. If [content] is set, that string will
+ * be sent in the message. To send a [RichEmbed], either set [embed] or build the embed with the RichEmbed [builder].
+ * Note: [builder] takes [embed] as its receiver, so if both are set, the code in [builder] will have the final say on
+ * what is sent. If [ping] is true, will @ the author of this [Message]. To @ any number of specific users, use
+ * [Channel.send].
  *
  * @return The [Message] object that was sent
  */
@@ -23,14 +24,14 @@ import lib.util.pingNick
 @ExperimentalCoroutinesApi
 suspend fun Message.reply(
         content: String = "",
+        ping: Boolean = true,
         embed: RichEmbed = RichEmbed(),
-        ping: Boolean = false,
-        builder: suspend RichEmbed.() -> Unit = {},
+        builder: (suspend RichEmbed.() -> Unit) = {},
 ): Message = channel().send(
         content = content,
         embed = embed,
-        pingTargets = if (ping) A[author] else emptyArray(),
-        builder = builder
+        replyTo = MessageReference(id, channelId, guildId, ping),
+        builder = builder,
 )
 
 /**

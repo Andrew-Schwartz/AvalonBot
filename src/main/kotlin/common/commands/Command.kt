@@ -6,7 +6,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import lib.dsl.Bot
 import lib.dsl.channel
-import lib.dsl.reply
+import lib.dsl.send
 import lib.model.ChannelId
 import lib.model.IntoId
 import lib.model.channel.Channel
@@ -52,7 +52,7 @@ abstract class MessageCommand(state: State) : Command<Message>(state) {
                     .forEach { command ->
                         Bot.launch {
                             if (message.args.firstOrNull()?.equals("help", true) == true) {
-                                message.reply(embed = command.helpEmbed())
+                                message.channel().send(embed = command.helpEmbed())
                             } else {
                                 command.execute(message)
                             }

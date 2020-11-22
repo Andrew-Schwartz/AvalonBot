@@ -41,6 +41,7 @@ enum class GameType {
             }
             val evil = roles.filter { it.loyalty == Evil }.size
             when {
+                // todo got here then wasn't is setup anymore so everything broke
                 maxEvil == -1 -> message.reply("Between 5 and 10 players are required")
                 roles.size > setup.players.size -> message.reply("You have chosen more roles than there are players")
                 evil > maxEvil -> message.reply("You have too many evil roles: ${roles.filter { it.loyalty == Evil }.listGrammatically()}")

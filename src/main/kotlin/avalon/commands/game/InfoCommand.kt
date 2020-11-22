@@ -6,7 +6,7 @@ import common.commands.State
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
-import lib.dsl.reply
+import lib.dsl.send
 import lib.model.Color
 import lib.model.channel.Message
 import lib.util.pingNick
@@ -27,7 +27,7 @@ object InfoCommand : MessageCommand(State.Avalon.Game) {
     override val execute: suspend (Message) -> Unit = { message ->
         val state = AvalonState.inChannel(message.channel())
         state?.run {
-            message.reply {
+            message.channel().send {
                 title = "Avalon Info".underline()
                 color = when {
                     state.goodWins > state.evilWins -> Color.blue

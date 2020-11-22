@@ -5,9 +5,7 @@ import common.util.debug
 import common.util.onNull
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.RichEmbed
-import lib.dsl.embed
-import lib.dsl.reply
+import lib.dsl.*
 import lib.model.Color
 import lib.model.channel.Message
 import lib.util.inlineCode
@@ -31,7 +29,7 @@ object HelpCommand : MessageCommand(State.All) {
         } else {
             val name = args[0].toLowerCase()
             messageCommands.firstOrNull { it.name == name }
-                    ?.let { message.reply(embed = it.helpEmbed()) }
+                    ?.let { message.channel().send(embed = it.helpEmbed()) }
                     .onNull { message.reply("Unrecognized command. To learn more about a command, use `usage`.") }
         }
     }

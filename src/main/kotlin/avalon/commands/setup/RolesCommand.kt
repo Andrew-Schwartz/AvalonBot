@@ -15,6 +15,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
 import lib.dsl.reply
+import lib.dsl.send
 import lib.model.Color
 import lib.model.Color.Companion.gold
 import lib.model.channel.Message
@@ -56,18 +57,18 @@ object RolesCommand : MessageCommand(State.Setup.Setup) {
                 }
 
         if (LIST_ROLES in args && roles.isEmpty()) {
-            message.reply {
+            message.channel().send {
                 title = "Remaining roles"
                 description = (characters - roles - S[LoyalServant, MinionOfMordred]).joinToString(separator = "\n") { it.name }
             }
         } else if (RANDOM_ROLES in args && roles.isEmpty()) {
             setup.config.randomRoles = !setup.config.randomRoles
-            message.reply {
+            message.channel().send {
                 title = "Random mode ${if (setup.config.randomRoles) "engaged!" else "disengaged"}"
                 color = gold
             }
         } else {
-            message.reply {
+            message.channel().send {
                 color = Color.gold
                 title = "Current Roles"
                 description = if (roles.isEmpty()) "none" else roles.joinToString(separator = "\n") { it.name }

@@ -1,7 +1,7 @@
 package lib.rest.model.events.receiveEvents
 
 import common.util.A
-import common.util.now
+import lib.util.log
 
 inline class Intent(val bits: Int = 0) {
     operator fun plus(other: Intent): Intent = Intent(bits or other.bits)
@@ -38,7 +38,7 @@ inline class Intent(val bits: Int = 0) {
 
         val lateIntentsListener: (Intent) -> Unit = {
 //            throw RuntimeException("Tried to add $it after the bot connected")
-            println("[${now()}] WARNING: $it was added after the bot connected")
+            log("WARNING: $it was added after the bot connected")
         }
 
         fun sendBits(): Int {

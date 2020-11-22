@@ -12,7 +12,10 @@ import common.game.Game
 import common.game.GameFinish
 import common.game.GameType
 import common.game.Setup
-import common.util.*
+import common.util.ML
+import common.util.debug
+import common.util.listGrammatically
+import common.util.map
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -21,6 +24,7 @@ import lib.model.Color
 import lib.model.channel.Message
 import lib.util.pingNick
 import lib.util.underline
+import kotlin.collections.set
 import kotlin.math.absoluteValue
 
 @KtorExperimentalAPI
@@ -99,9 +103,6 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
                                 inline = true)
                     }
                     image(picture)
-                }.apply {
-                    pin()
-                    this@Avalon.pinnedMessages += this
                 }
             }
         } // notify all players of their role
@@ -119,9 +120,9 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
         gameLoop@ while (goodWins < 3 && evilWins < 3) {
             val round = rounds[roundNum]
 
-            channel.send(pingTargets = A[leader.user]) {
+            channel.send(leader.user.pingNick()) {
                 color = Color.gold
-                title = "The leader is ${leader.name}".underline()
+                title = "The leader is ${leader.name}"
                 if (ladyEnabled && roundNum != 5)
                     description = "${ladyOfTheLake!!.user.username} has the Lady of the Lake"
                 addField(
@@ -139,13 +140,15 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             MessageCommand.removeCommand(quest, channel)
 
             channel.send {
-                title = "${leader.name} has chosen that ${party.listGrammatically { it.user.pingNick() }} will go on this quest"
-                description = "react to my DM to Approve or Reject this party"
+                title = "${leader.name} has chosen that the party that will go on this quest!"
+                description = party.listGrammatically { it.user.pingNick() }
+                footerText = "react to my DM to Approve or Reject this party"
             }
             players.forEach { it.user.getDM().startTyping() }
             val approveChar = VoteCommand.approveChar
             val rejectChar = VoteCommand.rejectChar
 
+//            val v: Vote
             val votes = mutableMapOf<Message, Int>() // -1 = reject, +1 = approve
 
             val whoDidntVote = WhoDidntVoteCommand(votes)
@@ -292,7 +295,7 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
             }
 
             if (ladyEnabled && roundNum in 2..4) {
-                channel.send(pingTargets = A[ladyOfTheLake!!.user]) {
+                channel.send(ladyOfTheLake!!.user.pingNick()) {
                     title = "Now ${ladyOfTheLake!!.name} will use the Lady of the Lake on someone to find their alignment"
                     description = "use `!lotl` and a player's name/username"
                 }

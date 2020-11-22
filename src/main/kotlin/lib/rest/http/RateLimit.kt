@@ -2,7 +2,6 @@ package lib.rest.http
 
 import common.util.A
 import common.util.durationSince
-import common.util.now
 import io.ktor.client.statement.*
 import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
@@ -12,6 +11,7 @@ import kotlinx.coroutines.withContext
 import lib.dsl.Bot
 import lib.dsl.startTyping
 import lib.model.channel.Channel
+import lib.util.log
 import java.time.Duration
 import java.time.Instant
 import kotlin.math.pow
@@ -52,7 +52,7 @@ data class RateLimit(
                     reset = Instant.now().plusMillis((secs * 1000).toLong())
                 }
             }
-            println("[${now()}] $key -> ${buckets[key]}")
+            log("$key -> ${buckets[key]}")
         }
 
         operator fun get(endpoint: String): RateLimit = RateLimit[BucketKey.ofEndpoint(endpoint)]
@@ -93,7 +93,7 @@ object DefaultRateLimiter : RateLimiter {
     override suspend fun rateLimit(key: BucketKey, typingChannel: Channel?) {
         with(RateLimit[key]) {
             if (mustLimit) {
-                println("[${now()}] rate limited for $limitMillis ms in bucket $bucket")
+                log("rate limited for $limitMillis ms in bucket $bucket")
                 if (typingChannel != null && !RateLimit["/channels/${typingChannel.id}/typing"].mustLimit) {
                     typingChannel.startTyping()
                 }
@@ -103,7 +103,7 @@ object DefaultRateLimiter : RateLimiter {
     }
 }
 
-// todo
+// todo (not sure this is really possible?)
 object RateLimitManager : RateLimiter {
     //    val threads = mutableListOf<Thread>()
     val coroutines = mutableListOf<CoroutineScope>()

@@ -4,7 +4,8 @@ import common.steadfast
 import common.util.debug
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lib.dsl.reply
+import lib.dsl.channel
+import lib.dsl.send
 import lib.model.ChannelId
 import lib.model.channel.Message
 
@@ -28,9 +29,9 @@ object DebugCommand : MessageCommand(State.All) {
                 "true", "on" -> message.channelId.debug = true
                 "false", "off" -> message.channelId.debug = false
             }
-            message.reply("Debug mode is now ${if (message.channelId.debug) "on" else "off"}")
+            message.channel().send("Debug mode is now ${if (message.channelId.debug) "on" else "off"}")
         } else {
-            message.reply("Only Andrew is this cool")
+            message.channel().send("Only Andrew is this cool")
         }
     }
 }

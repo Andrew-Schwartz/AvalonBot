@@ -19,10 +19,9 @@ class Setup private constructor(
     var startVote: Vote? = null
 
     suspend fun addPlayer(user: User) {
-        players += gameType.player(user, channel.guild())
-        // todo does this work?? (toList to prevent CME
-        for (player in players.toList())
-            player.updateUser()
+        val player = gameType.player(user, channel.guild())
+        player.updateUser()
+        players += player
     }
 
     fun removePlayer(user: User) {

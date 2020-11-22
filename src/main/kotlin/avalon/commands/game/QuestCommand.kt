@@ -28,7 +28,7 @@ class QuestCommand(state: AvalonState, setter: (Set<AvalonPlayer>) -> Unit) : Me
                     .toSet()
 
             if (questers.size != round.players) {
-                message.reply(ping = true, content = "\nYou need to send ${round.players} people on the quest!")
+                message.reply("You need to send ${round.players} people on the quest!", ping = true)
                 return@with
             }
             setter(questers)

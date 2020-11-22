@@ -8,11 +8,11 @@ import common.util.getOrDefault
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
-import lib.dsl.reply
+import lib.dsl.send
 import lib.model.Color
 import lib.model.channel.Message
 import lib.util.inlineCode
-import lib.util.ping
+import lib.util.pingNick
 import lib.util.underline
 
 object AddCommand : MessageCommand(State.Setup.Setup) {
@@ -41,10 +41,10 @@ object AddCommand : MessageCommand(State.Setup.Setup) {
             else -> setup.removePlayer(message.author)
         }
 
-        message.reply {
+        message.channel().send {
             color = Color.gold
             val playersList = setup.players
-                    .joinToString(separator = "\n") { it.user.ping() }
+                    .joinToString(separator = "\n") { it.user.pingNick() }
                     .takeIf { it.isNotEmpty() }
                     ?: "None"
             addField("$gameType Current Players".underline(), playersList)

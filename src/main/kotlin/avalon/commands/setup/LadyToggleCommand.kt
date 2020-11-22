@@ -8,7 +8,7 @@ import common.game.Setup
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
-import lib.dsl.reply
+import lib.dsl.send
 import lib.model.channel.Message
 
 object LadyToggleCommand : MessageCommand(State.Setup.Setup) {
@@ -31,6 +31,6 @@ object LadyToggleCommand : MessageCommand(State.Setup.Setup) {
             else -> config.ladyEnabled = !config.ladyEnabled
         }
 
-        message.reply("The Lady of the Lake is now ${if (config.ladyEnabled) "en" else "dis"}abled")
+        message.channel().send("The Lady of the Lake is now ${if (config.ladyEnabled) "en" else "dis"}abled")
     }
 }

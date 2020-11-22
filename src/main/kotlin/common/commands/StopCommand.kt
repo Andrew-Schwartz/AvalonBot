@@ -19,6 +19,9 @@ import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.emoji.asChar
 import lib.rest.model.events.receiveEvents.MessageReactionUpdatePayload
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 object StopCommand : MessageCommand(State.Game) {
     const val approveChar = '✅'
@@ -55,10 +58,11 @@ object StopCommand : MessageCommand(State.Game) {
                     }))
                 }
             } else {
-                val botMsg = message.reply("React ✅ if you agree to restart the game, if not react ❌")
+                val botMsg = message.channel().send("React ✅ if you agree to restart the game, if not react ❌")
                 botMsg.react(approveChar)
                 botMsg.react(rejectChar)
                 RestartVoteCommand.restarts[message.channel()] = Vote(botMsg)
+                // todo fix this, it currently spams requests instead of listening to Dispatch Events
                 Bot.launch {
                     var cancelled = false
                     suspendUntil(500) {

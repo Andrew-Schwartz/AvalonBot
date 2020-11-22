@@ -7,7 +7,7 @@ import common.util.replaceCamelCase
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.channel
-import lib.dsl.reply
+import lib.dsl.send
 import lib.model.Color
 import lib.model.channel.Message
 
@@ -28,14 +28,14 @@ object PlayersCommand : MessageCommand(All) {
                 .filterValues { it.isNotEmpty() }
 
         when {
-            players.isEmpty() -> message.reply("There are currently no players in any game")
-            players.size == 1 -> message.reply {
+            players.isEmpty() -> message.channel().send("There are currently no players in any game")
+            players.size == 1 -> message.channel().send {
                 val (game, players) = players.entries.first()
                 title = "Players in " + game.name.replaceCamelCase(" ")
                 description = players.joinToString(separator = "\n") { it.name }
                 color = Color.gold
             }
-            else -> message.reply {
+            else -> message.channel().send {
                 color = Color.gold
                 title = "Players"
                 players.forEach { (game, players) ->

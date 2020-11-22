@@ -3,7 +3,8 @@ package common.commands
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
-import lib.dsl.reply
+import lib.dsl.channel
+import lib.dsl.send
 import lib.model.Color
 import lib.model.channel.Message
 
@@ -17,7 +18,7 @@ object InfoCommand : MessageCommand(State.All) {
     override val usage: String = "info"
 
     override val execute: suspend (Message) -> Unit = { message ->
-        message.reply {
+        message.channel().send {
             title = "Avalon Bot"
             url = "https://github.com/Andrew-Schwartz/AvalonBot"
             color = Color.gold

@@ -2,7 +2,6 @@ package lib.rest.http.httpRequests
 
 import com.google.gson.JsonElement
 import common.util.loop
-import common.util.now
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -20,6 +19,7 @@ import lib.rest.client
 import lib.rest.http.BucketKey
 import lib.rest.http.DefaultRateLimiter
 import lib.rest.http.RateLimit
+import lib.util.log
 import lib.util.toJson
 
 @KtorExperimentalAPI
@@ -42,7 +42,7 @@ suspend fun request(
         RateLimit.update(response, key)
 
         if (response.status == HttpStatusCode.TooManyRequests) {
-            println("[${now()}] 429 on '$endpoint'. Retrying...")
+            log("429 on '$endpoint'. Retrying...")
             delay(1000)
             null
         } else {

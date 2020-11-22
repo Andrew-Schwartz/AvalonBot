@@ -3,7 +3,6 @@ package common.game
 import common.commands.State
 import common.commands.states
 import common.commands.subStates
-import common.util.now
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -17,6 +16,7 @@ import lib.model.UserId
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.rest.http.httpRequests.deletePin
+import lib.util.log
 import java.time.Duration
 
 @KtorExperimentalAPI
@@ -48,6 +48,7 @@ abstract class Game(val type: GameType, val setup: Setup) {
                             //  object and re-fetch it if its been more than a minute.
                             //  In this case, player isn't cached, so don't actually need to change this code
                             //  this is just a good reminder/place to put this to do
+                            log("Updating players in $game")
                             game.state.players.forEach {
                                 it.updateUser()
                             }
@@ -55,7 +56,7 @@ abstract class Game(val type: GameType, val setup: Setup) {
                     }
                     game.runGame()
                 }.onFailure { e ->
-                    println("[${now()}] Error in game ${game.type.name} in channel ${game.channel.name}")
+                    log("Error in game ${game.type.name} in channel ${game.channel.name}")
                     e.printStackTrace()
                     endAndRemove(game.channel, game.type, GameFinish(embed {
                         title = "ERROR in game ${game.type.name}"
@@ -63,7 +64,7 @@ abstract class Game(val type: GameType, val setup: Setup) {
                         color = red
                     }))
                 }.onSuccess { info ->
-                    println("[${now()}] ${game.type.name} in channel ${game.channel.name} ended normally")
+                    log("${game.type.name} in channel ${game.channel.name} ended normally")
                     endAndRemove(game.channel, game.type, info)
                 }
             }
