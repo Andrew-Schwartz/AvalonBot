@@ -12,7 +12,7 @@ import lib.dsl.reply
 import lib.model.Color
 import lib.model.channel.Message
 import lib.util.inlineCode
-import lib.util.pingReal
+import lib.util.ping
 import lib.util.underline
 
 object AddCommand : MessageCommand(State.Setup.Setup) {
@@ -44,7 +44,7 @@ object AddCommand : MessageCommand(State.Setup.Setup) {
         message.reply {
             color = Color.gold
             val playersList = setup.players
-                    .joinToString(separator = "\n") { it.user.pingReal() }
+                    .joinToString(separator = "\n") { it.user.ping() }
                     .takeIf { it.isNotEmpty() }
                     ?: "None"
             addField("$gameType Current Players".underline(), playersList)

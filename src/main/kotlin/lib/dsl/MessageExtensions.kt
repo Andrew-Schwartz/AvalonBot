@@ -9,7 +9,7 @@ import lib.model.channel.Message
 import lib.model.guild.Guild
 import lib.model.user.User
 import lib.rest.http.httpRequests.*
-import lib.util.ping
+import lib.util.pingNick
 
 /**
  * Send a message in the same channel that this message was sent in. If [content] is set, that string will be sent
@@ -48,7 +48,7 @@ suspend fun Message.edit(
 ): Message {
     if (author != Bot.user) throw PermissionException("Can only edit messages you have sent")
 
-    val pingText = pingTargets.joinToString(separator = "\n") { it.ping() }
+    val pingText = pingTargets.joinToString(separator = "\n") { it.pingNick() }
 
     val text = when {
         content == null && pingTargets.isEmpty() -> null

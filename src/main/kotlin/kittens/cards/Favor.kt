@@ -9,7 +9,7 @@ import lib.dsl.*
 import lib.model.channel.Message
 import lib.model.user.User
 import lib.rest.model.events.receiveEvents.MessageCreate
-import lib.util.ping
+import lib.util.pingNick
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
@@ -17,7 +17,7 @@ class Favor(id: Int) : Card(id) {
     override val description: String = "A player of your choice gives you a card of their choice from their hand"
 
     override suspend fun ExplodingKittens.play() {
-        channel.send("${state.currentPlayer.user.ping()}, choose another player")
+        channel.send("${state.currentPlayer.user.pingNick()}, choose another player")
 
         // block until they @ someone in same channel
         var target: User? = null

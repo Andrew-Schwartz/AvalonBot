@@ -19,11 +19,23 @@ fun String.inlineCode(): String = "`$this`"
 
 fun String.multilineCode(): String = "```\n$this\n```"
 
-// todo ??
-fun User.pingReal(): String = "<@$id>"
+/**
+ * Formats as the [User]'s Discord username.
+ *
+ * Use [pingNick] to format as their nickname.
+ *
+ * Can be suppressed using the `allowedMentions` field a message.
+ */
+fun User.ping(): String = "<@$id>"
 
-// todo ??
-fun User.ping(): String = "<@!$id>"
+/**
+ * Formats as the [User]'s nickname.
+ *
+ * Use [ping] to format as their username.
+ *
+ * Can be suppressed using the `allowedMentions` field a message.
+ */
+fun User.pingNick(): String = "<@!$id>"
 
 fun Channel.link(): String = "<#$id>"
 

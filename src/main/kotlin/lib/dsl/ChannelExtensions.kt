@@ -12,7 +12,7 @@ import lib.rest.http.CreateMessage
 import lib.rest.http.httpRequests.createMessage
 import lib.rest.http.httpRequests.getMessage
 import lib.rest.http.httpRequests.triggerTypingIndicator
-import lib.util.ping
+import lib.util.pingNick
 
 /**
  * Send a message in this [Channel]. If [content] is set, that string will be sent in the message. To send a
@@ -29,7 +29,7 @@ suspend fun Channel.send(
         pingTargets: Array<User> = emptyArray(),
         builder: suspend RichEmbed.() -> Unit = {},
 ): Message {
-    val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.ping() }
+    val text = pingTargets.joinToString(separator = "\n", postfix = content) { it.pingNick() }
 
     @Suppress("NAME_SHADOWING")
     val embed = embed.apply { builder() }.takeIf { !it.isEmpty }?.build()
