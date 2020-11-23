@@ -11,7 +11,6 @@ import lib.dsl.channel
 import lib.dsl.send
 import lib.model.Color
 import lib.model.channel.Message
-import lib.util.inlineCode
 import lib.util.pingNick
 import lib.util.underline
 
@@ -20,7 +19,7 @@ object AddCommand : MessageCommand(State.Setup.Setup) {
 
     override val description: String = """
         adds player who sent this to a game. By default, you are added to Avalon,
-        but you can specify ${"kittens".inlineCode()} to be added to Exploding Kittens
+        but you can specify `kittens` to be added to Exploding Kittens
     """.trimIndent()
 
     override val usage: String = "addme [kittens]"
@@ -34,7 +33,7 @@ object AddCommand : MessageCommand(State.Setup.Setup) {
 
         when {
             message.author == steadfast && message.mentions.isNotEmpty() -> message.mentions.forEach {
-                if (it in setup.players.map { it.user }) setup.removePlayer(it)
+                if (!message.channelId.debug && it in setup.players.map { it.user }) setup.removePlayer(it)
                 else setup.addPlayer(it)
             }
             message.channelId.debug || message.author !in setup -> setup.addPlayer(message.author)

@@ -63,7 +63,7 @@ object LowLevelCommand : MessageCommand(State.All) {
                             CreateMessage(
                                     content = content,
                                     embed = embed,
-                                    file = embed.files
+                                    files = embed.files
                             )
                         }
                         message.attachments.isNotEmpty() -> {

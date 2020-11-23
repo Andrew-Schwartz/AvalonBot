@@ -1,6 +1,8 @@
 package lib.rest.http
 
 import com.google.gson.annotations.SerializedName
+import lib.dsl.RichEmbed
+import lib.exceptions.MessageSendException
 import lib.model.*
 import lib.model.channel.Embed
 import java.io.InputStream
@@ -10,25 +12,50 @@ data class CreateMessage(
         val content: String = "",
         val nonce: Int? = null,
         val tts: Boolean = false,
-        val file: Map<String, InputStream>? = null,
+        val files: Map<String, InputStream>? = null,
         val embed: Embed? = null,
         @SerializedName("allowed_mentions")
         val allowedMentions: AllowedMentions? = null,
         @SerializedName("message_reference")
         val messageReference: MessageReference? = null,
-)
+) {
+    init {
+        validate()
+    }
+
+    /**
+     * Validate this message structure, throwing a [MessageSendException] it is not valid. Otherwise, it can be very
+     * hard to tell where/why Discord got angry, making debugging very difficult. Only throws in cases where Discord's
+     * api would reject the method, causing an exception anyways.
+     *
+     * Currently validated:
+     *
+     * Must send *something*.
+     *
+     * Note: the structure of the embed itself is validated by [RichEmbed.ensureLimits].
+     */
+    private fun validate() {
+        if (content.isBlank() && files == null && embed == null)
+            throw MessageSendException("One of `content`, `files` and `embed` must be present")
+    }
+}
 
 sealed class AllowedMentionsStrategy {
+    object AllowAll : AllowedMentionsStrategy()
+
+    // TODO: this don't make much sense, since this probably just means AllowAll. Should probably be AllExcept(smth) and
+    //  this will infer what it has then can remove (smth)
     object Inferred : AllowedMentionsStrategy()
     class Explicit(val allowed: AllowedMentions) : AllowedMentionsStrategy()
 
     fun from(content: String): AllowedMentions? = when (this) {
+        AllowAll -> null
         Inferred -> AllowedMentions.inferFrom(content)
         is Explicit -> this.allowed
     }.takeUnless { it == AllowedMentions() }
 }
 
-// TODO model mutual exclusivity
+// TODO uphold mutual exclusivity invariants
 data class AllowedMentions(
         /**
          * An array of allowed mention types to parse from the content.
@@ -51,6 +78,8 @@ data class AllowedMentions(
     companion object {
         // todo
         fun inferFrom(content: String, repliedUser: Boolean = false): AllowedMentions {
+            TODO()
+
             var parse = emptySet<AllowedMentionType>()
             var roles = emptySet<RoleId>()
             var users = emptySet<UserId>()

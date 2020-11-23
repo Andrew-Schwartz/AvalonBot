@@ -10,8 +10,9 @@ import lib.dsl.channel
 import lib.dsl.send
 import lib.model.Color
 import lib.model.channel.Message
+import lib.util.pingNick
 
-// TODO fix me cuz I don't work at all lmao
+// TODO make me apply during games as well
 object PlayersCommand : MessageCommand(All) {
     override val name: String = "players"
 
@@ -22,26 +23,26 @@ object PlayersCommand : MessageCommand(All) {
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
     override val execute: suspend (Message) -> Unit = { message ->
-        val players = GameType.values()
+        val gamePlayers = GameType.values()
                 .associate { it to Setup[message.channel(), it] }
                 .mapValues { it.value.players }
                 .filterValues { it.isNotEmpty() }
 
-        when {
-            players.isEmpty() -> message.channel().send("There are currently no players in any game")
-            players.size == 1 -> message.channel().send {
-                val (game, players) = players.entries.first()
+        when (gamePlayers.size) {
+            0 -> message.channel().send("There are currently no players in any game")
+            1 -> message.channel().send {
+                val (game, players) = gamePlayers.entries.first()
                 title = "Players in " + game.name.replaceCamelCase(" ")
-                description = players.joinToString(separator = "\n") { it.name }
+                description = players.joinToString(separator = "\n") { it.user.pingNick() }
                 color = Color.gold
             }
             else -> message.channel().send {
                 color = Color.gold
                 title = "Players"
-                players.forEach { (game, players) ->
+                gamePlayers.forEach { (game, players) ->
                     addField(
                             game.name.replaceCamelCase(" "),
-                            players.joinToString(separator = "\n") { it.name }
+                            players.joinToString(separator = "\n") { it.user.pingNick() }
                     )
                 }
             }

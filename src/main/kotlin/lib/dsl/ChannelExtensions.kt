@@ -29,7 +29,7 @@ suspend fun IntoId<ChannelId>.send(
         content: String = "",
         embed: RichEmbed = RichEmbed(),
         replyTo: MessageReference? = null,
-        allowedMentionsStrategy: AllowedMentionsStrategy = AllowedMentionsStrategy.Inferred,
+        allowedMentionsStrategy: AllowedMentionsStrategy = AllowedMentionsStrategy.AllowAll,
         builder: suspend RichEmbed.() -> Unit = {},
 ): Message {
     @Suppress("NAME_SHADOWING")
@@ -38,7 +38,7 @@ suspend fun IntoId<ChannelId>.send(
     return createMessage(this, CreateMessage(
             content = content,
             embed = embed,
-            file = embed?.files,
+            files = embed?.files,
             allowedMentions = allowedMentionsStrategy.from(content),
             messageReference = replyTo,
     ))

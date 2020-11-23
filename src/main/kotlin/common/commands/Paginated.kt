@@ -18,11 +18,13 @@ abstract class Paginated(val channel: ChannelId, val pages: List<RichEmbed>) {
 
     @ExperimentalCoroutinesApi
     @KtorExperimentalAPI
-    suspend fun send(timeout: Duration = Duration.ofSeconds(30)) {
+    suspend fun send(timeout: Duration = Duration.ofSeconds(30), deleteFootnote: Boolean = true) {
         val reply = channel.channel().send(embed = pages[0])
         var start: Instant = Instant.now()
         val bck = '◀'
         val fwd = '▶'
+        // todo end button
+//        val end = '🚫'
         Bot.launch {
             reply.react(bck)
             reply.react(fwd)
@@ -56,6 +58,7 @@ abstract class Paginated(val channel: ChannelId, val pages: List<RichEmbed>) {
             suspendUntil(1000) { start.elapsed() >= timeout }
             ReactCommand.removeCommand(scroll, channel)
             deleteAllReactions(reply.channelId, reply)
+            if (deleteFootnote) reply.edit { footerText = null }
         }
     }
 }

@@ -41,14 +41,16 @@ data class RichEmbed internal constructor(
         get() = this == empty
 
     /**
-     * The text of the footer
+     * The text of the footer. Set to `null` to clear footer.
      */
     var footerText: String?
         get() = footer?.text
         set(value) {
-            value?.let {
+            footer = if (value != null) {
                 // todo figure out iconUrl and proxyIconUrl?
-                footer = EmbedFooter(it, "", "")
+                EmbedFooter(value, "", "")
+            } else {
+                null
             }
         }
 
@@ -104,7 +106,7 @@ data class RichEmbed internal constructor(
         }
     }
 
-    private fun ensureLimits() {
+    internal fun ensureLimits() {
         val totalChars = (title?.length ?: 0) +
                 (description?.length ?: 0) +
                 (fields.sumBy { it.name.length + it.value.length }) +
@@ -112,6 +114,12 @@ data class RichEmbed internal constructor(
                 (author?.username?.length ?: 0)
         if (totalChars > 6000)
             throw EmbedLimitException("Embeds cannot have more than 6000 characters in total")
+
+        // todo (fields that are final) should check when they are set
+        for (field in fields) {
+            if (field.name.isBlank()) throw EmbedLimitException("Embed field names cannot be blank")
+            if (field.value.isBlank()) throw EmbedLimitException("Embed field values cannot be blank")
+        }
     }
 
     fun build(): Embed {
@@ -126,9 +134,6 @@ data class RichEmbed internal constructor(
 
         val fields = fields.takeUnless { it.isEmpty() }?.toTypedArray()
         val files = files.takeUnless { it.isEmpty() }
-
-//        if (footer == null && footerText != null)
-//            footer(footerText!!)
 
         ensureLimits()
 

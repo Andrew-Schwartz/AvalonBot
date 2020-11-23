@@ -125,7 +125,7 @@ suspend fun createMessage(channelId: IntoId<ChannelId>, createMessage: CreateMes
     } else {
         postFormDataRequest(url, channelId) {
             if (content.isNotEmpty() || embed != null) {
-                val payload = createMessage.copy(file = null).toJson()
+                val payload = createMessage.copy(files = null).toJson()
                 append("payload_json", payload)
             }
 
