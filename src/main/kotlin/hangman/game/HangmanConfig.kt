@@ -6,5 +6,7 @@ import hangman.RandomWord
 class HangmanConfig : GameConfig {
     var randomWord: RandomWord? = null
 
-    override fun reset() {}
+    override fun reset() {
+        randomWord = null
+    }
 }

@@ -1,6 +1,8 @@
 package avalon.game
 
 import avalon.characters.Character
+import avalon.characters.LoyalServant
+import avalon.characters.MinionOfMordred
 import common.game.GameConfig
 
 class AvalonConfig : GameConfig {
@@ -12,6 +14,8 @@ class AvalonConfig : GameConfig {
     override fun reset() {
         if (randomRoles) {
             roles.clear()
+        } else {
+            roles.removeIf { it == LoyalServant || it == MinionOfMordred }
         }
     }
 

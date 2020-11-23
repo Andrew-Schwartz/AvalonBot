@@ -323,7 +323,6 @@ class Avalon(setup: Setup) : Game(GameType.Avalon, setup) {
         })
     }
 
-
     override fun toString(): String {
         return "Avalon(state=$state)"
     }

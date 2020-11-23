@@ -81,10 +81,12 @@ abstract class Game(val type: GameType, val setup: Setup) {
                     userGames[it.id]?.remove(this)
                 }
                 // toList to prevent concurrentModificationException
-                pinnedMessages.toList().forEach { pin ->
-                    pinnedMessages -= pin
-                    runCatching { deletePin(pin.channelId, pin) }
-                            .onFailure { println(it.message) }
+                Bot.launch {
+                    pinnedMessages.toList().forEach { pin ->
+                        pinnedMessages -= pin
+                        runCatching { deletePin(pin.channelId, pin) }
+                                .onFailure { println(it.message) }
+                    }
                 }
                 setup.restart()
             }
@@ -101,14 +103,6 @@ abstract class Game(val type: GameType, val setup: Setup) {
         fun forUser(user: IntoId<UserId>): List<Game> {
             return userGames.getOrDefault(user.intoId(), listOf()).distinct()
         }
-
-//        /**
-//         * Creates
-//         */
-//        operator fun invoke(channel: Channel, gameType: GameType): Game {
-//            games.getOrPut(channel) { mutableMapOf() }[gameType] = gameType.game(Setup[channel, gameType])
-//            return games[channel]!![gameType]!!
-//        }
 
         /**
          * Gets the active game of type [gameType] in channel [channel], or null if there is no

@@ -7,6 +7,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.guild.Guild
 import lib.model.user.User
 
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
 class AvalonPlayer(user: User, guild: Guild?) : Player(user, guild) {
     var role: Character? = null
 
@@ -14,7 +16,5 @@ class AvalonPlayer(user: User, guild: Guild?) : Player(user, guild) {
         role = null
     }
 
-    @KtorExperimentalAPI
-    @ExperimentalCoroutinesApi
     override fun toString() = "Player(name=$name, role=${role?.name})"
 }
