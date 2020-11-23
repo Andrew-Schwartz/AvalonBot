@@ -7,7 +7,7 @@ import lib.model.user.User
 
 @Suppress("ArrayInDataClass")
 data class Message(
-        override val id: MessageId,
+        val id: MessageId,
         @SerializedName("channel_id") val channelId: ChannelId,
         @SerializedName("guild_id") val guildId: GuildId?,
         var author: User,
@@ -28,7 +28,7 @@ data class Message(
         var type: MessageType,
         var activity: MessageActivity,
         var application: MessageApplication,
-) : Storable<Message>, IntoId<MessageId> by id {
+) : Storable<MessageId, Message>, IntoId<MessageId> by id {
     override fun equals(other: Any?): Boolean = (other as? Message)?.id == id
 
     override fun hashCode(): Int = id.hashCode()

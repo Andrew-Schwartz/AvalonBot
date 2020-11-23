@@ -6,14 +6,14 @@ import lib.model.IntoId
 import lib.model.Storable
 
 data class Attachment(
-        override val id: AttachmentId,
+        val id: AttachmentId,
         var filename: String,
         var size: Int,
         var url: String,
         @SerializedName("proxy_url") var proxyUrl: String,
         var height: Int?,
         var width: Int?,
-) : Storable<Attachment>, IntoId<AttachmentId> by id {
+) : Storable<AttachmentId, Attachment>, IntoId<AttachmentId> by id {
     @Suppress("USELESS_ELVIS")
     override fun updateFrom(new: Attachment) {
         filename = new.filename ?: filename

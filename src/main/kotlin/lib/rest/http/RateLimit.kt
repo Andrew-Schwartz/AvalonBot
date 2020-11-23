@@ -10,7 +10,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import lib.dsl.Bot
 import lib.dsl.startTyping
-import lib.model.channel.Channel
+import lib.model.ChannelId
+import lib.model.IntoId
 import lib.util.log
 import java.time.Duration
 import java.time.Instant
@@ -84,17 +85,17 @@ inline class BucketKey(private val route: String) {
 }
 
 interface RateLimiter {
-    suspend fun rateLimit(key: BucketKey, typingChannel: Channel? = null)
+    suspend fun rateLimit(key: BucketKey, typingChannel: IntoId<ChannelId>? = null)
 }
 
 object DefaultRateLimiter : RateLimiter {
+    @ExperimentalCoroutinesApi
     @KtorExperimentalAPI
-//    @ExperimentalCoroutinesApi
-    override suspend fun rateLimit(key: BucketKey, typingChannel: Channel?) {
+    override suspend fun rateLimit(key: BucketKey, typingChannel: IntoId<ChannelId>?) {
         with(RateLimit[key]) {
             if (mustLimit) {
                 log("rate limited for $limitMillis ms in bucket $bucket")
-                if (typingChannel != null && !RateLimit["/channels/${typingChannel.id}/typing"].mustLimit) {
+                if (typingChannel != null && !RateLimit["/channels/${typingChannel.intoId()}/typing"].mustLimit) {
                     typingChannel.startTyping()
                 }
                 delay(limitMillis)
@@ -112,7 +113,7 @@ object RateLimitManager : RateLimiter {
     // this probably doesn't work?
     @KtorExperimentalAPI
     @ExperimentalCoroutinesApi
-    override suspend fun rateLimit(key: BucketKey, typingChannel: Channel?) {
+    override suspend fun rateLimit(key: BucketKey, typingChannel: IntoId<ChannelId>?) {
         val scope = map.getOrPut(key) { CoroutineScope(Bot.coroutineContext) }
         withContext(scope.coroutineContext) {
             DefaultRateLimiter.rateLimit(key, typingChannel)

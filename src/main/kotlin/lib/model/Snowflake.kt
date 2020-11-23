@@ -13,7 +13,6 @@ interface Snowflake {
     val value: String
 }
 
-// TODO most extensions on one these (that is cached) should be on the ID's themself
 interface IntoId<T : Snowflake?> {
     fun intoId(): T
 }
@@ -90,6 +89,7 @@ inline class IntegrationId(override val value: String) : Snowflake, IntoId<Integ
     override fun toString(): String = value
 }
 
+// todo why not be a sealed class or enum?
 /**
  * either a user or a role, for permissions
  */

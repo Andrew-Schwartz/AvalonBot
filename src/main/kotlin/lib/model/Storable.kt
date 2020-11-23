@@ -1,7 +1,5 @@
 package lib.model
 
-interface Storable<T : Storable<T>> {
-    val id: Snowflake
-
+interface Storable<I : Snowflake, T : IntoId<I>> : IntoId<I> {
     infix fun updateFrom(new: T)
 }

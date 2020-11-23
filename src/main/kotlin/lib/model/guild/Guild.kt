@@ -9,7 +9,7 @@ import lib.rest.model.events.receiveEvents.PresenceUpdatePayload
 
 @Suppress("ArrayInDataClass")
 data class Guild(
-        override val id: GuildId,
+        val id: GuildId,
         var name: String?,
         var icon: String?,
         var splash: String?,
@@ -47,7 +47,7 @@ data class Guild(
         var banner: String?,
         @SerializedName("premium_tier") var premiumTier: PremiumTier,
         @SerializedName("premium_subscription_count") var premiumSubscriptionCount: Int?,
-) : Storable<Guild>, IntoId<GuildId> by id {
+) : Storable<GuildId, Guild>, IntoId<GuildId> by id {
     @Suppress("USELESS_ELVIS")
     override fun updateFrom(new: Guild) {
         name = new.name ?: name

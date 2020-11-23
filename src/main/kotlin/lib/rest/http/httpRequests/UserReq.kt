@@ -5,6 +5,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.dsl.Bot
 import lib.exceptions.RequestException
+import lib.model.ChannelId
 import lib.model.GuildId
 import lib.model.IntoId
 import lib.model.UserId
@@ -75,9 +76,10 @@ suspend fun leaveGuild(id: IntoId<GuildId>) {
 @ExperimentalCoroutinesApi
 @KtorExperimentalAPI
 suspend fun createDM(userId: IntoId<UserId>): Channel {
-    val userId = userId.intoId()
-    return Bot.channels.computeIfAbsent(userId) {
-        postRequest("/users/@me/channels", j { "recipient_id" to "$userId" }).fromJson()
+    // TODO is there a better way to do this? this seems a bit iffy
+    val id = ChannelId(userId.intoId().value)
+    return Bot.channels.computeIfAbsent(id) {
+        postRequest("/users/@me/channels", j { "recipient_id" to "$id" }).fromJson()
     }
 }
 

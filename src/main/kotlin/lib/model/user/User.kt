@@ -7,7 +7,7 @@ import lib.model.Storable
 import lib.model.UserId
 
 data class User(
-        override val id: UserId,
+        val id: UserId,
         var username: String,
         var discriminator: String,
         var avatar: String?,
@@ -18,7 +18,7 @@ data class User(
         var email: String?,
         @SerializedName("flags") private var _flags: Int?,
         @SerializedName("premium_type") var premiumType: PremiumType?,
-) : Storable<User>, IntoId<UserId> by id {
+) : Storable<UserId, User>, IntoId<UserId> by id {
     @Suppress("USELESS_ELVIS")
     override fun updateFrom(new: User) {
         username = new.username ?: username

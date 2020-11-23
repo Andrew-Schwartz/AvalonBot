@@ -6,7 +6,7 @@ import lib.model.user.User
 
 @Suppress("ArrayInDataClass")
 data class Channel(
-        override val id: ChannelId,
+        val id: ChannelId,
         val type: ChannelType,
         @SerializedName("guild_id") val guildId: GuildId?,
         var position: Int?,
@@ -24,7 +24,7 @@ data class Channel(
         @SerializedName("application_id") var applicationId: ApplicationId?,
         @SerializedName("parent_id") var parentId: ChannelId?,
         @SerializedName("last_pin_timestamp") var lastPinTimestamp: Timestamp?,
-) : Storable<Channel>, IntoId<ChannelId> by id {
+) : Storable<ChannelId, Channel>, IntoId<ChannelId> by id {
     override fun equals(other: Any?): Boolean = (other as? Channel)?.id == id
 
     override fun hashCode(): Int = id.hashCode()

@@ -6,7 +6,7 @@ import lib.model.RoleId
 import lib.model.Storable
 
 data class Role(
-        override val id: RoleId,
+        val id: RoleId,
         var name: String,
         var color: Color,
         var hoist: Boolean,
@@ -14,7 +14,7 @@ data class Role(
         var permissions: Int, // bit set
         var managed: Boolean,
         var mentionable: Boolean,
-) : Storable<Role>, IntoId<RoleId> by id {
+) : Storable<RoleId, Role>, IntoId<RoleId> by id {
     @Suppress("USELESS_ELVIS")
     override fun updateFrom(new: Role) {
         name = new.name ?: name

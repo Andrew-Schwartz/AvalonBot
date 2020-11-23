@@ -72,7 +72,7 @@ suspend fun Message.edit(
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
 suspend fun Message.react(emoji: Char) {
-    createReaction(channel(), id, emoji)
+    createReaction(channelId, id, emoji)
 }
 
 /**

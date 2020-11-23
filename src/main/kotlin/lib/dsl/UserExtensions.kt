@@ -4,6 +4,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import lib.model.GuildId
 import lib.model.IntoId
+import lib.model.UserId
 import lib.model.channel.Channel
 import lib.model.channel.Message
 import lib.model.guild.GuildMember
@@ -16,7 +17,7 @@ import lib.rest.http.httpRequests.getGuildMember
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun User.getDM(): Channel = createDM(id)
+suspend fun IntoId<UserId>.getDM(): Channel = createDM(this)
 
 /**
  * DMs a message to [User]. See [Channel.send] for parameter info.
@@ -25,7 +26,7 @@ suspend fun User.getDM(): Channel = createDM(id)
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun User.sendDM(
+suspend fun IntoId<UserId>.sendDM(
         content: String = "",
         embed: RichEmbed = RichEmbed(),
         builder: suspend RichEmbed.() -> Unit = {},
@@ -39,4 +40,4 @@ suspend fun User.sendDM(
 
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun User.getMember(id: IntoId<GuildId>): GuildMember = getGuildMember(id, this)
+suspend fun IntoId<UserId>.getMember(id: IntoId<GuildId>): GuildMember = getGuildMember(id, this)

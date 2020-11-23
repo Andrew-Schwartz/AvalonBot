@@ -3,6 +3,8 @@ package lib.dsl
 import common.util.listGrammatically
 import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import lib.model.ChannelId
+import lib.model.IntoId
 import lib.model.MessageId
 import lib.model.channel.Channel
 import lib.model.channel.Message
@@ -17,13 +19,13 @@ import lib.rest.http.httpRequests.triggerTypingIndicator
 /**
  * Send a message in this [Channel]. If [content] is set, that string will be sent in the message. To send a
  * [RichEmbed], either set [embed] or build the embed with the RichEmbed [builder]. Note: [builder] takes [embed] as its
- * receiver, so if both are set, the code in [builder] will determine what is send. Will @ every user in [ping].
+ * receiver, so if both are set, the code in [builder] gets the final say in what is sent.
  *
  * @return The [Message] object that was sent
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Channel.send(
+suspend fun IntoId<ChannelId>.send(
         content: String = "",
         embed: RichEmbed = RichEmbed(),
         replyTo: MessageReference? = null,
@@ -48,8 +50,8 @@ suspend fun Channel.send(
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Channel.startTyping() {
-    triggerTypingIndicator(id)
+suspend fun IntoId<ChannelId>.startTyping() {
+    triggerTypingIndicator(this)
 }
 
 /**
@@ -67,7 +69,7 @@ suspend fun Channel.lastMessage(): Message? {
  */
 @KtorExperimentalAPI
 @ExperimentalCoroutinesApi
-suspend fun Channel.getMessage(id: MessageId): Message {
+suspend fun IntoId<ChannelId>.getMessage(id: MessageId): Message {
     return getMessage(this, id)
 }
 
